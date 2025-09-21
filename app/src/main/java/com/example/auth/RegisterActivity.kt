@@ -31,7 +31,7 @@ class RegisterActivity : AppCompatActivity() {
             val password = etPassword.text.toString()
             val nombre = etNombre.text.toString().trim().ifEmpty { null }
             val apellido = etApellido.text.toString().trim().ifEmpty { null }
-            val rol = etRol.text.toString().trim().ifEmpty { "VENDEDOR" }
+            val rol = etRol.text.toString().trim().ifEmpty { "ADMIN" }
 
             if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Rellena usuario, email y contraseña", Toast.LENGTH_SHORT).show()
