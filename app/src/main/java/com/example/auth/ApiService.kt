@@ -4,6 +4,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Response
 
+
 interface ApiService {
     @POST("/api/auth/register")
     suspend fun register(@Body req: RegisterRequest): Response<Unit>

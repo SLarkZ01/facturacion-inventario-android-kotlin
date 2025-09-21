@@ -9,7 +9,7 @@ Este repositorio contiene la aplicación Android "FacturacionInventario" desarro
 - JDK: 11
 - Gradle Wrapper: 8.13
 - Kotlin: 2.0.21
-- Android Gradle Plugin (AGP): 8.13.0
+- Android Gradle Plugin (AGP): 8.12.2
 
 > Estas versiones se obtuvieron de los archivos del proyecto (app/build.gradle.kts, gradle/libs.versions.toml y gradle/wrapper/gradle-wrapper.properties).
 
