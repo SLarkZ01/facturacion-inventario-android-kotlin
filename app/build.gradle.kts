@@ -48,22 +48,22 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // Networking & JSON (coordenadas explícitas)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-    implementation("com.squareup.moshi:moshi:1.15.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    // Networking & JSON (usar catálogo de versiones)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.moshi)
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 
-    // Gson + Retrofit converter (required by ApiClient changes)
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    // Gson + Retrofit converter (catalog)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.gson)
 
-    // Coroutines & lifecycle
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    // Coroutines & lifecycle (catalog)
+    implementation(libs.coroutines.android)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation("com.google.android.material:material:1.10.0")
-    implementation("androidx.cardview:cardview:1.0.0")
+    implementation(libs.material)
+    implementation(libs.androidx.cardview)
 }
