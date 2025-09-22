@@ -23,7 +23,14 @@ class LoginActivity : AppCompatActivity() {
         setContentView(com.example.facturacion_inventario.R.layout.activity_login)
 
         // Inicializar repo con ApiClient que usa TokenStorage
-        repo = AuthRepository(this, "http://10.0.2.2:8080/")
+        try {
+            repo = AuthRepository(this, "http://10.0.2.2:8080/")
+        } catch (ex: Exception) {
+            Log.e("LoginActivity", "Error inicializando AuthRepository", ex)
+            Toast.makeText(this, "Error interno al inicializar: ${ex.message}", Toast.LENGTH_LONG).show()
+            // Evitar crash: devolver un repositorio fallback que lanza excepciones controladas
+            repo = AuthRepository("http://10.0.2.2:8080/")
+        }
 
         val editUser = findViewById<EditText>(com.example.facturacion_inventario.R.id.etUsername)
         val editPass = findViewById<EditText>(com.example.facturacion_inventario.R.id.etPassword)

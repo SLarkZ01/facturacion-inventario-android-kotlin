@@ -1,3 +1,38 @@
 <resources>
     <string name="app_name">Facturacion-inventario</string>
+    <string name="app_logo">Logo</string>
+    <string name="moto_parts">MOTO PARTS</string>
+    <string name="moto_tagline">Taller de Repuestos</string>
+    <string name="hint_username">Usuario o Email</string>
+    <string name="hint_username2">Usuario </string>
+    <string name="hint_password">Contraseña</string>
+    <string name="btn_login">INICIAR SESIÓN</string>
+    <string name="btn_register">CREAR CUENTA</string>
+    <string name="copyright">© 2024 MotoTaller Pro</string>
+
+    <!-- Register screen strings -->
+    <string name="back">Atrás</string>
+    <string name="create_account_title">CREAR CUENTA</string>
+    <string name="join_team">Únete al equipo</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_name">Nombre</string>
+    <string name="hint_lastname">Apellido</string>
+    <string name="hint_role">Rol (ej. VENDEDOR, CAJERO, ADMIN)</string>
+    <string name="hint_invite_code">Código de invitación (opcional)</string>
+    <string name="btn_create_account">CREAR CUENTA</string>
+    <string name="accept_terms">Al crear una cuenta aceptas nuestros términos</string>
+    <string name="info_personal">Información Personal (Opcional)</string>
+
+    <!-- Added for dashboard -->
+    <string name="bienvenido">Bienvenido</string>
+    <string name="usuario">Usuario</string>
+    <string name="dashboard_message">🎉 ¡Login y registro implementados exitosamente!&#10;&#10;Próximamente: Dashboard completo</string>
+    <string name="btn_logout">CERRAR SESIÓN</string>
+
+    <!-- Social login -->
+    <string name="btn_login_google">Continuar con Google</string>
+    <string name="btn_login_facebook">Continuar con Facebook</string>
+    <string name="hint_google_token">Pega aquí tu Google ID Token</string>
+    <string name="hint_facebook_token">Pega aquí tu Facebook Access Token</string>
+    <string name="or_continue_with">o continúa con</string>
 </resources>

@@ -41,9 +41,9 @@ object ApiClient {
 
         val authInterceptor = Interceptor { chain ->
             val req = chain.request()
-            // No añadir Authorization para endpoints de auth (login/refresh)
+            // No añadir Authorization para endpoints de auth (login/refresh/oauth)
             val path = req.url.encodedPath
-            if (path.contains("/api/auth/login") || path.contains("/api/auth/refresh")) {
+            if (path.contains("/api/auth/login") || path.contains("/api/auth/refresh") || path.contains("/api/auth/oauth/")) {
                 return@Interceptor chain.proceed(req)
             }
 
@@ -90,9 +90,9 @@ object ApiClient {
                     return null
                 }
 
-                // No intentar refresh si la petición original era al endpoint de login o refresh
+                // No intentar refresh si la petición original era al endpoint de login, refresh u oauth
                 val originalUrl = response.request.url.encodedPath
-                if (originalUrl.contains("/api/auth/login") || originalUrl.contains("/api/auth/refresh")) {
+                if (originalUrl.contains("/api/auth/login") || originalUrl.contains("/api/auth/refresh") || originalUrl.contains("/api/auth/oauth/")) {
                     Log.w("ApiClient", "authenticate: not refreshing token for auth endpoints: $originalUrl")
                     return null
                 }

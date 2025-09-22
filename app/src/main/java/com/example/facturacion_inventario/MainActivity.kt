@@ -1,11 +1,13 @@
 package com.example.facturacion_inventario
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
+import com.example.auth.TokenStorage
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,10 +19,22 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
 
-        // Abrir la pantalla de login al iniciar para consumir la API
-        startActivity(Intent(this, com.example.auth.LoginActivity::class.java))
-        // Opcional: finish() para cerrar MainActivity y que Login sea la pantalla principal
-        finish()
+    override fun onResume() {
+        super.onResume()
+        // Si ya hay token, ir al dashboard limpiando login del back stack
+        val token = TokenStorage.getAccessToken(this)
+        if (!token.isNullOrEmpty()) {
+            val navController = findNavController(R.id.nav_host_fragment)
+            val options = NavOptions.Builder()
+                .setPopUpTo(R.id.loginFragment, true)
+                .build()
+            // Si ya estamos en dashboard, no navegar de nuevo
+            val current = navController.currentDestination?.id
+            if (current != R.id.dashboardFragment) {
+                navController.navigate(R.id.dashboardFragment, null, options)
+            }
+        }
     }
 }

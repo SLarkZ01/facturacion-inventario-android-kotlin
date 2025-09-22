@@ -89,7 +89,7 @@ class AuthRepository {
         }
     }
 
-    suspend fun register(req: RegisterRequest) {
+    suspend fun register(req: RegisterRequest): LoginResponse? {
         Log.d("AuthRepository", "register request: $req")
         val resp = api.register(req)
         if (!resp.isSuccessful) {
@@ -97,6 +97,7 @@ class AuthRepository {
             Log.d("AuthRepository", "register failed code=${resp.code()} body=$err")
             throw Exception("Register failed: ${resp.code()} ${err}")
         }
+        return resp.body()
     }
 
     suspend fun refresh(refreshToken: String): String? {
@@ -109,5 +110,32 @@ class AuthRepository {
 
     suspend fun logout(refreshToken: String) {
         api.logout(mapOf("refreshToken" to refreshToken, "refresh_token" to refreshToken))
+    }
+
+    // --- OAuth flows ---
+    suspend fun oauthGoogle(idToken: String, inviteCode: String? = null, device: String? = null): LoginResponse? {
+        val usedApi = authApi ?: api
+        val body = mutableMapOf<String, String>("idToken" to idToken)
+        if (!inviteCode.isNullOrEmpty()) body["inviteCode"] = inviteCode
+        if (!device.isNullOrEmpty()) body["device"] = device
+        Log.d("AuthRepository", "oauthGoogle request: keys=${body.keys}")
+        val resp = usedApi.oauthGoogle(body)
+        if (resp.isSuccessful) return resp.body()
+        val code = resp.code()
+        val err = resp.errorBody()?.string()
+        throw Exception("Google OAuth falló: $code ${err ?: "sin cuerpo"}")
+    }
+
+    suspend fun oauthFacebook(accessToken: String, inviteCode: String? = null, device: String? = null): LoginResponse? {
+        val usedApi = authApi ?: api
+        val body = mutableMapOf<String, String>("accessToken" to accessToken)
+        if (!inviteCode.isNullOrEmpty()) body["inviteCode"] = inviteCode
+        if (!device.isNullOrEmpty()) body["device"] = device
+        Log.d("AuthRepository", "oauthFacebook request: keys=${body.keys}")
+        val resp = usedApi.oauthFacebook(body)
+        if (resp.isSuccessful) return resp.body()
+        val code = resp.code()
+        val err = resp.errorBody()?.string()
+        throw Exception("Facebook OAuth falló: $code ${err ?: "sin cuerpo"}")
     }
 }

@@ -7,6 +7,7 @@ data class RegisterRequest(
     val username: String,
     val email: String,
     val password: String,
+    val inviteCode: String? = null,
     val nombre: String?,
     val apellido: String?,
     val rol: String?

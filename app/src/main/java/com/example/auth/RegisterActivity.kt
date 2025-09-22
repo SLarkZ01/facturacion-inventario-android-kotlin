@@ -31,7 +31,7 @@ class RegisterActivity : AppCompatActivity() {
             val password = etPassword.text.toString()
             val nombre = etNombre.text.toString().trim().ifEmpty { null }
             val apellido = etApellido.text.toString().trim().ifEmpty { null }
-            val rol = etRol.text.toString().trim().ifEmpty { "VENDEDOR" }
+            val rol = etRol.text.toString().trim().ifEmpty { "ADMIN" }
 
             if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Rellena usuario, email y contraseña", Toast.LENGTH_SHORT).show()
@@ -42,6 +42,7 @@ class RegisterActivity : AppCompatActivity() {
                 username = username,
                 email = email,
                 password = password,
+                inviteCode = null,
                 nombre = nombre,
                 apellido = apellido,
                 rol = rol
@@ -49,8 +50,14 @@ class RegisterActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 try {
-                    repo.register(req)
+                    val resp = repo.register(req)
+                    val access = resp?.accessTokenNormalized
+                    val refresh = resp?.refreshTokenNormalized
+                    if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(this@RegisterActivity, access)
+                    if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(this@RegisterActivity, refresh)
+
                     Toast.makeText(this@RegisterActivity, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                    // Volver o continuar al dashboard según tu flujo. Aquí sólo cerramos.
                     finish()
                 } catch (ex: Exception) {
                     Toast.makeText(this@RegisterActivity, "Registro fallido: ${ex.message}", Toast.LENGTH_LONG).show()
@@ -59,4 +66,3 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 }
-

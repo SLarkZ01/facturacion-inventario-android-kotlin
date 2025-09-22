@@ -25,15 +25,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Registrar la actividad LoginActivity que está en package com.example.auth -->
-        <activity
-            android:name="com.example.auth.LoginActivity"
-            android:exported="false" />
-
-        <!-- Registrar la actividad de registro -->
-        <activity
-            android:name="com.example.auth.RegisterActivity"
-            android:exported="false" />
+        <!-- Flujo de autenticación ahora se maneja con Fragments en el NavHost -->
     </application>
 
 </manifest>

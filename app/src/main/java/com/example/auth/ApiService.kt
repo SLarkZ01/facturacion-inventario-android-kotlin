@@ -7,7 +7,7 @@ import retrofit2.Response
 
 interface ApiService {
     @POST("/api/auth/register")
-    suspend fun register(@Body req: RegisterRequest): Response<Unit>
+    suspend fun register(@Body req: RegisterRequest): Response<LoginResponse>
 
     @POST("/api/auth/login")
     suspend fun login(@Body req: LoginRequest): Response<LoginResponse>
@@ -20,4 +20,11 @@ interface ApiService {
 
     @POST("/api/auth/logout")
     suspend fun logout(@Body body: Map<String, String>): Response<Unit>
+
+    // OAuth endpoints (según docs/openapi.yaml)
+    @POST("/api/auth/oauth/google")
+    suspend fun oauthGoogle(@Body body: Map<String, String>): Response<LoginResponse>
+
+    @POST("/api/auth/oauth/facebook")
+    suspend fun oauthFacebook(@Body body: Map<String, String>): Response<LoginResponse>
 }

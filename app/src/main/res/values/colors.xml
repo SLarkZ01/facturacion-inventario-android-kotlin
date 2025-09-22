@@ -1,5 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="primary_orange">#FF6B35</color>
+    <color name="dark_background">#0F0F0F</color>
+    <color name="card_background">#1E1E1E</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B8B8B8</color>
+    <color name="text_hint">#888888</color>
+
+    <!-- Added aliases expected by layouts -->
+    <color name="background_primary">#0F0F0F</color>
+    <color name="primary">#FF6B35</color>
+    <color name="on_surface">#FFFFFF</color>
+    <color name="on_surface_variant">#B8B8B8</color>
 </resources>
