@@ -15,6 +15,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Client ID para Google (reemplaza el valor por tu Client ID del tipo "Web application" en Google Cloud)
+        buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"REPLACE_WITH_WEB_SERVER_CLIENT_ID\"")
     }
 
     buildTypes {
@@ -66,4 +68,12 @@ dependencies {
 
     implementation(libs.material)
     implementation(libs.androidx.cardview)
+
+    // Google Sign-In (Play Services Auth)
+    implementation(libs.google.play.services.auth)
+    // A veces el análisis no resuelve correctamente el alias del catálogo; mantener la coordenada explícita para evitar unresolved references
+    implementation("com.google.android.gms:play-services-auth:20.6.0")
+
+    // Facebook Login (opcional) -- disponible en catálogo como libs.facebook.login
+    // implementation(libs.facebook.login)
 }

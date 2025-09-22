@@ -23,6 +23,9 @@ coroutines = "1.7.3"
 navigationFragmentKtx = "2.9.4"
 navigationUiKtx = "2.9.4"
 
+googleAuth = "20.6.0"
+facebookLogin = "20.3.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -51,6 +54,10 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 # Lifecycle and cardview entries
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
+
+# Google Play Services Auth and Facebook Login
+google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleAuth" }
+facebook-login = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookLogin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
