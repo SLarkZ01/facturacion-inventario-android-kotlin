@@ -17,6 +17,7 @@ import org.openapitools.client.models.OAuthFacebookRequest
 import org.openapitools.client.models.OAuthGoogleRequest
 import org.openapitools.client.models.RefreshRequest
 import org.openapitools.client.models.RegisterRequest
+import org.openapitools.client.models.UserProfile
 
 interface DefaultApi {
     /**
@@ -43,6 +44,18 @@ interface DefaultApi {
      */
     @POST("api/auth/logout")
     fun apiAuthLogoutPost(@Body apiAuthLogoutPostRequest: ApiAuthLogoutPostRequest? = null): Call<Unit>
+
+    /**
+     * Obtener perfil del usuario autenticado
+     * 
+     * Responses:
+     *  - 200: Perfil del usuario
+     *  - 401: Unauthorized
+     *
+     * @return [Call]<[UserProfile]>
+     */
+    @GET("api/auth/me")
+    fun apiAuthMeGet(): Call<UserProfile>
 
     /**
      * Login/registro con Facebook access token
@@ -92,6 +105,17 @@ interface DefaultApi {
      */
     @POST("api/auth/register")
     fun apiAuthRegisterPost(@Body registerRequest: RegisterRequest): Call<AuthResponse>
+
+    /**
+     * Revocar todos los refresh tokens del usuario autenticado
+     * 
+     * Responses:
+     *  - 200: OK
+     *
+     * @return [Call]<[Unit]>
+     */
+    @POST("api/auth/revoke-all")
+    fun apiAuthRevokeAllPost(): Call<Unit>
 
     /**
      * Listar talleres del usuario autenticado

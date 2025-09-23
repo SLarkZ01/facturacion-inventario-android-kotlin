@@ -1,13 +1,14 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:viewportWidth="666.67"
+    android:viewportHeight="666.67">
+  <group>
+    <!-- Keep only the white 'f' shape so it renders on the blue button background -->
     <path
-        android:fillColor="#1877F2"
-        android:pathData="M12,2a10,10 0 1,0 0,20a10,10 0 1,0 0,-20z"/>
-    <path
+        android:pathData="M463.89,435.2 L482.6,333.33L373.72,333.33l0,-36.03c0,-53.83 21.12,-74.53 75.77,-74.53 16.98,-0 30.64,0.41 38.51,1.24l0,-92.34c-14.91,-4.14 -51.35,-8.28 -72.46,-8.28 -111.39,-0 -162.73,52.59 -162.73,166.04L252.81,333.33l-68.74,-0L184.07,435.2l68.74,-0l0,221.66c25.79,6.4 52.76,9.82 80.53,9.82 13.67,-0 27.14,-0.84 40.38,-2.44L373.72,435.2Z"
         android:fillColor="#FFFFFF"
-        android:pathData="M12.9,8.5h1.6V6.3h-1.9c-2,0 -3.2,1.2 -3.2,3v1.5H7.8v2.2h1.6v5h2.3v-5h1.8l0.3,-2.2h-2.1V9.5c0,-0.6 0.3,-1 1.2,-1z"/>
+        android:strokeColor="#00000000"
+        android:fillType="nonZero"/>
+  </group>
 </vector>
-

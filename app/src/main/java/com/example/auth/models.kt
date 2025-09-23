@@ -8,9 +8,8 @@ data class RegisterRequest(
     val email: String,
     val password: String,
     val inviteCode: String? = null,
-    val nombre: String?,
-    val apellido: String?,
-    val rol: String?
+    val nombre: String,
+    val apellido: String
 )
 
 data class LoginRequest(

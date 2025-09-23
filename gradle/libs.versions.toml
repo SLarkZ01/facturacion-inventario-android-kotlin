@@ -1,6 +1,6 @@
 # Version catalog for the project
 [versions]
-agp = "8.12.3"
+agp = "8.13.0"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -24,7 +24,7 @@ navigationFragmentKtx = "2.9.4"
 navigationUiKtx = "2.9.4"
 
 googleAuth = "20.6.0"
-facebookLogin = "20.3.0"
+facebookLogin = "16.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

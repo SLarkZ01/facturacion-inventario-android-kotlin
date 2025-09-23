@@ -2,6 +2,7 @@ package com.example.auth
 
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.GET
 import retrofit2.Response
 
 
@@ -20,6 +21,14 @@ interface ApiService {
 
     @POST("/api/auth/logout")
     suspend fun logout(@Body body: Map<String, String>): Response<Unit>
+
+    // Nuevo endpoint: revoca todos los refresh tokens del usuario autenticado (usa Authorization)
+    @POST("/api/auth/revoke-all")
+    suspend fun revokeAll(): Response<Unit>
+
+    // Nuevo endpoint: obtener perfil del usuario autenticado
+    @GET("/api/auth/me")
+    suspend fun me(): Response<Map<String, @JvmSuppressWildcards Any?>>
 
     // OAuth endpoints (según docs/openapi.yaml)
     @POST("/api/auth/oauth/google")

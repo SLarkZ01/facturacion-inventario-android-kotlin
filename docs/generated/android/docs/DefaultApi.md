@@ -6,10 +6,12 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**apiAuthLoginPost**](DefaultApi.md#apiAuthLoginPost) | **POST** api/auth/login | Login con username o email + password
 [**apiAuthLogoutPost**](DefaultApi.md#apiAuthLogoutPost) | **POST** api/auth/logout | Revocar refresh token
+[**apiAuthMeGet**](DefaultApi.md#apiAuthMeGet) | **GET** api/auth/me | Obtener perfil del usuario autenticado
 [**apiAuthOauthFacebookPost**](DefaultApi.md#apiAuthOauthFacebookPost) | **POST** api/auth/oauth/facebook | Login/registro con Facebook access token
 [**apiAuthOauthGooglePost**](DefaultApi.md#apiAuthOauthGooglePost) | **POST** api/auth/oauth/google | Login/registro con Google ID Token
 [**apiAuthRefreshPost**](DefaultApi.md#apiAuthRefreshPost) | **POST** api/auth/refresh | Obtener nuevo access token usando refresh token
 [**apiAuthRegisterPost**](DefaultApi.md#apiAuthRegisterPost) | **POST** api/auth/register | Registro de usuario
+[**apiAuthRevokeAllPost**](DefaultApi.md#apiAuthRevokeAllPost) | **POST** api/auth/revoke-all | Revocar todos los refresh tokens del usuario autenticado
 [**apiTalleresGet**](DefaultApi.md#apiTalleresGet) | **GET** api/talleres | Listar talleres del usuario autenticado
 [**apiTalleresInvitacionesAcceptPost**](DefaultApi.md#apiTalleresInvitacionesAcceptPost) | **POST** api/talleres/invitaciones/accept | Aceptar invitación por código
 [**apiTalleresPost**](DefaultApi.md#apiTalleresPost) | **POST** api/talleres | Crear taller (usuario autenticado es propietario)
@@ -88,6 +90,41 @@ No authorization required
 
  - **Content-Type**: application/json
  - **Accept**: Not defined
+
+
+Obtener perfil del usuario autenticado
+
+### Example
+```kotlin
+// Import classes:
+//import org.openapitools.client.*
+//import org.openapitools.client.infrastructure.*
+//import org.openapitools.client.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DefaultApi::class.java)
+
+val result : UserProfile = webService.apiAuthMeGet()
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**UserProfile**](UserProfile.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 
 Login/registro con Facebook access token
@@ -232,6 +269,41 @@ No authorization required
 
  - **Content-Type**: application/json
  - **Accept**: application/json
+
+
+Revocar todos los refresh tokens del usuario autenticado
+
+### Example
+```kotlin
+// Import classes:
+//import org.openapitools.client.*
+//import org.openapitools.client.infrastructure.*
+//import org.openapitools.client.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DefaultApi::class.java)
+
+webService.apiAuthRevokeAllPost()
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
 
 
 Listar talleres del usuario autenticado

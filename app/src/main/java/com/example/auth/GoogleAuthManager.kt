@@ -54,7 +54,14 @@ class GoogleAuthManager(private val context: Context, private val serverClientId
                 }
             } else {
                 // Silent sign-in not possible (no previously signed-in account)
-                onFailure(t.exception ?: Exception("Silent sign-in failed"))
+                val ex = t.exception
+                if (ex is ApiException) {
+                    onFailure(Exception("Silent sign-in failed: statusCode=${ex.statusCode}, message=${ex.message}"))
+                } else if (ex != null) {
+                    onFailure(Exception("Silent sign-in failed: ${ex.message}"))
+                } else {
+                    onFailure(Exception("Silent sign-in failed"))
+                }
             }
         }
     }
@@ -82,8 +89,23 @@ class GoogleAuthManager(private val context: Context, private val serverClientId
             } else {
                 onFailure(Exception("No ID token returned from interactive sign-in"))
             }
-        } catch (e: ApiException) {
-            onFailure(e)
+        } catch (e: Exception) {
+            // Si es ApiException, añadimos el statusCode para facilitar diagnóstico
+            if (e is ApiException) {
+                onFailure(Exception("Google Sign-In failed: statusCode=${e.statusCode}, message=${e.message}"))
+            } else {
+                onFailure(e)
+            }
         }
+    }
+
+    /**
+     * Cierra sesión del cliente de Google.
+     * La próxima vez que se intente sign-in, se mostrará el selector de cuentas si hay múltiples cuentas.
+     */
+    fun signOut() {
+        val gso = buildGso()
+        val client = GoogleSignIn.getClient(context, gso)
+        client.signOut()
     }
 }

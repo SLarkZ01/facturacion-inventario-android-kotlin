@@ -1,11 +1,13 @@
 package com.example.auth
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
@@ -15,9 +17,34 @@ import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import androidx.appcompat.app.AlertDialog
 import android.text.InputType
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import android.util.Log
 
 class LoginFragment : Fragment() {
     private var repo: AuthRepository? = null
+
+    // Google
+    private var googleAuth: GoogleAuthManager? = null
+    private val googleLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // Manejar resultado interactivo de Google Sign-In
+        googleAuth?.handleSignInResult(result.data,
+            onSuccess = { idToken ->
+                oauthGoogle(idToken)
+            },
+            onFailure = { e ->
+                Log.e("GoogleAuth", "handleSignInResult error: ${e.message}", e)
+                Toast.makeText(requireContext(), "Google Sign-In falló: ${e.message}", Toast.LENGTH_LONG).show()
+                view?.findViewById<MaterialButton>(R.id.btnLoginGoogle)?.isEnabled = true
+            }
+        )
+    }
+
+    // Facebook
+    private lateinit var fbCallbackManager: CallbackManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.activity_login, container, false)
@@ -25,9 +52,39 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Inicializar repo con contexto
         val ctx = requireContext()
         repo = AuthRepository(ctx, "http://10.0.2.2:8080/")
+
+        // Inicializar GoogleAuthManager con el Server Client ID desde recursos
+        val serverClientId = getString(R.string.google_server_client_id)
+        // Log / Toast diagnóstico para confirmar que la APK desplegada contiene el Client ID correcto
+        Log.i("GoogleAuth", "google_server_client_id (from resources): $serverClientId")
+        Toast.makeText(ctx, "google_client: ${serverClientId.take(40)}...", Toast.LENGTH_SHORT).show()
+        googleAuth = GoogleAuthManager(ctx, serverClientId)
+
+        // Inicializar Facebook CallbackManager
+        fbCallbackManager = CallbackManager.Factory.create()
+        LoginManager.getInstance().registerCallback(fbCallbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(result: LoginResult) {
+                val token = result.accessToken?.token
+                if (!token.isNullOrEmpty()) {
+                    oauthFacebook(token)
+                } else {
+                    Toast.makeText(ctx, "No se obtuvo token de Facebook", Toast.LENGTH_SHORT).show()
+                    view.findViewById<MaterialButton>(R.id.btnLoginFacebook)?.isEnabled = true
+                }
+            }
+
+            override fun onCancel() {
+                Toast.makeText(ctx, "Inicio de sesión de Facebook cancelado", Toast.LENGTH_SHORT).show()
+                view.findViewById<MaterialButton>(R.id.btnLoginFacebook)?.isEnabled = true
+            }
+
+            override fun onError(error: FacebookException) {
+                Toast.makeText(ctx, "Facebook Login error: ${error.message}", Toast.LENGTH_LONG).show()
+                view.findViewById<MaterialButton>(R.id.btnLoginFacebook)?.isEnabled = true
+            }
+        })
 
         val btnRegister = view.findViewById<MaterialButton>(R.id.btnRegister)
         val btnLogin = view.findViewById<MaterialButton>(R.id.btnLogin)
@@ -56,6 +113,9 @@ class LoginFragment : Fragment() {
                     if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
                     if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
 
+                    // Guardar info del usuario si viene en la respuesta
+                    TokenStorage.setUserFromMap(ctx, resp?.user)
+
                     val options = NavOptions.Builder()
                         .setPopUpTo(R.id.loginFragment, true)
                         .build()
@@ -69,60 +129,99 @@ class LoginFragment : Fragment() {
         }
 
         btnLoginGoogle?.setOnClickListener {
-            showTokenDialog(
-                title = getString(R.string.btn_login_google),
-                hint = getString(R.string.hint_google_token)
-            ) { idToken ->
-                btnLoginGoogle.isEnabled = false
-                viewLifecycleOwner.lifecycleScope.launch {
-                    try {
-                        val resp = repo?.oauthGoogle(idToken)
-                        val access = resp?.accessTokenNormalized
-                        val refresh = resp?.refreshTokenNormalized
-                        if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
-                        if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
-
-                        val options = NavOptions.Builder()
-                            .setPopUpTo(R.id.loginFragment, true)
-                            .build()
-                        findNavController().navigate(R.id.dashboardFragment, null, options)
-                    } catch (ex: Exception) {
-                        Toast.makeText(ctx, "Google OAuth fallido: ${ex.message}", Toast.LENGTH_LONG).show()
-                    } finally {
+            // Intentar primero silent sign-in para no mostrar diálogo si ya hay sesión de Google en el dispositivo
+            btnLoginGoogle.isEnabled = false
+            googleAuth?.trySilentSignIn(
+                onSuccess = { idToken ->
+                    oauthGoogle(idToken)
+                    btnLoginGoogle.isEnabled = true
+                },
+                onFailure = { e ->
+                    // Log del fallo silencioso para diagnostico
+                    Log.w("GoogleAuth", "Silent sign-in failed: ${e.message}", e)
+                    // Abrir selector de cuenta (flujo interactivo)
+                    val intent = googleAuth?.getSignInIntent()
+                    if (intent != null) {
+                        googleLauncher.launch(intent)
+                    } else {
+                        Toast.makeText(ctx, "No se pudo iniciar Google Sign-In", Toast.LENGTH_SHORT).show()
                         btnLoginGoogle.isEnabled = true
                     }
                 }
-            }
+            )
         }
 
         btnLoginFacebook?.setOnClickListener {
-            showTokenDialog(
-                title = getString(R.string.btn_login_facebook),
-                hint = getString(R.string.hint_facebook_token)
-            ) { fbToken ->
-                btnLoginFacebook.isEnabled = false
-                viewLifecycleOwner.lifecycleScope.launch {
-                    try {
-                        val resp = repo?.oauthFacebook(fbToken)
-                        val access = resp?.accessTokenNormalized
-                        val refresh = resp?.refreshTokenNormalized
-                        if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
-                        if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
-
-                        val options = NavOptions.Builder()
-                            .setPopUpTo(R.id.loginFragment, true)
-                            .build()
-                        findNavController().navigate(R.id.dashboardFragment, null, options)
-                    } catch (ex: Exception) {
-                        Toast.makeText(ctx, "Facebook OAuth fallido: ${ex.message}", Toast.LENGTH_LONG).show()
-                    } finally {
-                        btnLoginFacebook.isEnabled = true
-                    }
-                }
+            // Disparar flujo de Facebook (abre app o Custom Tab y luego retorna al fragment)
+            btnLoginFacebook.isEnabled = false
+            try {
+                LoginManager.getInstance().logInWithReadPermissions(this, listOf("public_profile", "email"))
+            } catch (e: Exception) {
+                Toast.makeText(ctx, "No se pudo iniciar Facebook Login: ${e.message}", Toast.LENGTH_LONG).show()
+                btnLoginFacebook.isEnabled = true
             }
         }
     }
 
+    private fun oauthGoogle(idToken: String) {
+        val ctx = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val resp = repo?.oauthGoogle(idToken)
+                val access = resp?.accessTokenNormalized
+                val refresh = resp?.refreshTokenNormalized
+                if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
+                if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
+
+                // Guardar info del usuario
+                TokenStorage.setUserFromMap(ctx, resp?.user)
+
+                val options = NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+                findNavController().navigate(R.id.dashboardFragment, null, options)
+            } catch (ex: Exception) {
+                Toast.makeText(ctx, "Google OAuth fallido: ${ex.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                view?.findViewById<MaterialButton>(R.id.btnLoginGoogle)?.isEnabled = true
+            }
+        }
+    }
+
+    private fun oauthFacebook(fbAccessToken: String) {
+        val ctx = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val resp = repo?.oauthFacebook(fbAccessToken)
+                val access = resp?.accessTokenNormalized
+                val refresh = resp?.refreshTokenNormalized
+                if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
+                if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
+
+                // Guardar info del usuario
+                TokenStorage.setUserFromMap(ctx, resp?.user)
+
+                val options = NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+                findNavController().navigate(R.id.dashboardFragment, null, options)
+            } catch (ex: Exception) {
+                Toast.makeText(ctx, "Facebook OAuth fallido: ${ex.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                view?.findViewById<MaterialButton>(R.id.btnLoginFacebook)?.isEnabled = true
+            }
+        }
+    }
+
+    // Reenvía el resultado a Facebook CallbackManager
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (this::fbCallbackManager.isInitialized) {
+            fbCallbackManager.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    // Utilidad previa (usada para pruebas) – la conservamos por si se necesita manualmente
     private fun showTokenDialog(title: String, hint: String, onSubmit: (String) -> Unit) {
         val ctx = requireContext()
         val input = EditText(ctx)

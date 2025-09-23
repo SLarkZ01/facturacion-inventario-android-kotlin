@@ -60,7 +60,6 @@ class RegisterFragment : Fragment() {
         val etPassword = view.findViewById<EditText>(R.id.etPassword)
         val etNombre = view.findViewById<EditText>(R.id.etNombre)
         val etApellido = view.findViewById<EditText>(R.id.etApellido)
-        val etRol = view.findViewById<EditText>(R.id.etRol)
         val etInviteCode = view.findViewById<EditText>(R.id.etInviteCode)
 
         btnBack?.setOnClickListener {
@@ -80,6 +79,13 @@ class RegisterFragment : Fragment() {
                         if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
                         if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
 
+                        // Guardar info del usuario si viene en la respuesta
+                        TokenStorage.setUserFromMap(ctx, resp?.user)
+                        // Fallback si no vino user
+                        if (TokenStorage.getUsername(ctx).isNullOrEmpty()) {
+                            // No conocemos username desde el provider, dejamos vacío o usamos email si está disponible
+                        }
+
                         val options = NavOptions.Builder()
                             .setPopUpTo(R.id.registerFragment, true)
                             .build()
@@ -97,13 +103,13 @@ class RegisterFragment : Fragment() {
             val username = etUsername?.text?.toString()?.trim().orEmpty()
             val email = etEmail?.text?.toString()?.trim().orEmpty()
             val password = etPassword?.text?.toString().orEmpty()
-            val nombre = etNombre?.text?.toString()?.trim()?.ifEmpty { null }
-            val apellido = etApellido?.text?.toString()?.trim()?.ifEmpty { null }
-            val rol = etRol?.text?.toString()?.trim()?.ifEmpty { "ADMIN" }
+            val nombre = etNombre?.text?.toString()?.trim().orEmpty()
+            val apellido = etApellido?.text?.toString()?.trim().orEmpty()
             val inviteCode = etInviteCode?.text?.toString()?.trim()?.ifEmpty { null }
 
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(ctx, "Rellena usuario, email y contraseña", Toast.LENGTH_SHORT).show()
+            // Validaciones obligatorias: username, email, password, nombre y apellido
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || nombre.isEmpty() || apellido.isEmpty()) {
+                Toast.makeText(ctx, "Rellena usuario, email, contraseña, nombre y apellido", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -116,14 +122,20 @@ class RegisterFragment : Fragment() {
                         password = password,
                         inviteCode = inviteCode,
                         nombre = nombre,
-                        apellido = apellido,
-                        rol = rol
+                        apellido = apellido
                     )
                     val resp = repo?.register(req)
                     val access = resp?.accessTokenNormalized
                     val refresh = resp?.refreshTokenNormalized
                     if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
                     if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
+
+                    // Guardar info del usuario: preferimos lo que venga en la respuesta
+                    TokenStorage.setUserFromMap(ctx, resp?.user)
+                    // Si backend no devolvió user, guardamos los campos locales
+                    if (TokenStorage.getUsername(ctx).isNullOrEmpty()) {
+                        TokenStorage.setUserInfo(ctx, username, nombre, apellido)
+                    }
 
                     val options = NavOptions.Builder()
                         .setPopUpTo(R.id.registerFragment, true)
@@ -151,6 +163,10 @@ class RegisterFragment : Fragment() {
                 val refresh = resp?.refreshTokenNormalized
                 if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
                 if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
+
+                // Guardar info del usuario
+                TokenStorage.setUserFromMap(ctx, resp?.user)
+                // Fallback local (si es necesario) no aplicable aquí porque normalmente provider da info
 
                 val options = NavOptions.Builder()
                     .setPopUpTo(R.id.registerFragment, true)

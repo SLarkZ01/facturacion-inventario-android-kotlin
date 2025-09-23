@@ -132,19 +132,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Información Personal -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/info_personal"
-                    android:textColor="#FF6B35"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center_vertical" />
-
-                <!-- Nombre -->
+                <!-- Nombre (ahora arriba, obligatorio) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -154,13 +142,13 @@
                         android:id="@+id/etNombre"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/hint_name"
+                        android:hint="@string/hint_name_required"
                         android:textColor="#FFFFFF"
                         android:textColorHint="#888888" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Apellido -->
+                <!-- Apellido (ahora arriba, obligatorio) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -170,29 +158,24 @@
                         android:id="@+id/etApellido"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/hint_lastname"
+                        android:hint="@string/hint_lastname_required"
                         android:textColor="#FFFFFF"
                         android:textColorHint="#888888" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Rol -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
+                <!-- Ahora sección para código de invitación -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp">
+                    android:text="@string/join_code_optional"
+                    android:textColor="#FF6B35"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etRol"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_role"
-                        android:textColor="#FFFFFF"
-                        android:textColorHint="#888888" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Código de invitación -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

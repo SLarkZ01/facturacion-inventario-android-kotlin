@@ -22,19 +22,18 @@ class RegisterActivity : AppCompatActivity() {
         val etPassword = findViewById<EditText>(com.example.facturacion_inventario.R.id.etPassword)
         val etNombre = findViewById<EditText>(com.example.facturacion_inventario.R.id.etNombre)
         val etApellido = findViewById<EditText>(com.example.facturacion_inventario.R.id.etApellido)
-        val etRol = findViewById<EditText>(com.example.facturacion_inventario.R.id.etRol)
         val btnRegister = findViewById<Button>(com.example.facturacion_inventario.R.id.btnRegister)
 
         btnRegister.setOnClickListener {
             val username = etUsername.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
-            val nombre = etNombre.text.toString().trim().ifEmpty { null }
-            val apellido = etApellido.text.toString().trim().ifEmpty { null }
-            val rol = etRol.text.toString().trim().ifEmpty { "ADMIN" }
+            val nombre = etNombre.text.toString().trim()
+            val apellido = etApellido.text.toString().trim()
 
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Rellena usuario, email y contraseña", Toast.LENGTH_SHORT).show()
+            // Validaciones obligatorias: username, email, password, nombre y apellido
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || nombre.isEmpty() || apellido.isEmpty()) {
+                Toast.makeText(this, "Rellena usuario, email, contraseña, nombre y apellido", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -44,8 +43,7 @@ class RegisterActivity : AppCompatActivity() {
                 password = password,
                 inviteCode = null,
                 nombre = nombre,
-                apellido = apellido,
-                rol = rol
+                apellido = apellido
             )
 
             lifecycleScope.launch {
@@ -55,6 +53,9 @@ class RegisterActivity : AppCompatActivity() {
                     val refresh = resp?.refreshTokenNormalized
                     if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(this@RegisterActivity, access)
                     if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(this@RegisterActivity, refresh)
+
+                    // Guardar info del usuario localmente (fallback)
+                    TokenStorage.setUserInfo(this@RegisterActivity, username, nombre, apellido)
 
                     Toast.makeText(this@RegisterActivity, "Registro exitoso", Toast.LENGTH_SHORT).show()
                     // Volver o continuar al dashboard según tu flujo. Aquí sólo cerramos.

@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignorar SDKs o artefactos locales colocados en el repo
+/Users/

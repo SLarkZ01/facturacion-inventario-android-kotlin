@@ -112,6 +112,23 @@ class AuthRepository {
         api.logout(mapOf("refreshToken" to refreshToken, "refresh_token" to refreshToken))
     }
 
+    suspend fun revokeAll() {
+        // Usa el cliente principal (con interceptor) para enviar Authorization: Bearer <accessToken>
+        api.revokeAll()
+    }
+
+    // Nuevo: obtener perfil del usuario autenticado
+    suspend fun me(): Map<String, Any?>? {
+        try {
+            val resp = api.me()
+            if (resp.isSuccessful) return resp.body()
+            return null
+        } catch (t: Throwable) {
+            Log.e("AuthRepository", "me() failed", t)
+            return null
+        }
+    }
+
     // --- OAuth flows ---
     suspend fun oauthGoogle(idToken: String, inviteCode: String? = null, device: String? = null): LoginResponse? {
         val usedApi = authApi ?: api
