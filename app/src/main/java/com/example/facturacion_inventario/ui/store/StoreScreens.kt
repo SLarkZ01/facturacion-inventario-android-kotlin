@@ -30,10 +30,7 @@ fun CartScreen(navController: NavController) {
     )
 }
 
-@Composable
-fun SearchScreen(navController: NavController) {
-    SearchContent(onSearch = { _ -> navController.navigate("home") }, onBack = { navController.popBackStack() })
-}
+// SearchScreen intentionally removed: search UI is implemented in StoreHost's TopAppBar
 
 @Composable
 fun CategoriesScreen(navController: NavController) {

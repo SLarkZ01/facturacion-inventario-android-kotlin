@@ -10,12 +10,13 @@ import com.example.auth.AuthViewModel
 import com.example.facturacion_inventario.ui.login.LoginScreen
 import com.example.facturacion_inventario.ui.register.RegisterScreen
 import com.example.facturacion_inventario.ui.dashboard.DashboardScreen
+import com.example.facturacion_inventario.ui.store.StoreHost
 
 @Composable
 fun AppNavHost(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
-    val startDestination = if (isAuthenticated) "dashboard" else "login"
+    val startDestination = if (isAuthenticated) "store" else "login"
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
@@ -31,6 +32,9 @@ fun AppNavHost(authViewModel: AuthViewModel) {
                 }
             })
         }
+        composable("store") {
+            StoreHost(authViewModel = authViewModel, rootNavController = navController)
+        }
         composable("home") {
             com.example.facturacion_inventario.ui.store.HomeScreen(navController = navController)
         }
@@ -40,9 +44,6 @@ fun AppNavHost(authViewModel: AuthViewModel) {
         }
         composable("cart") {
             com.example.facturacion_inventario.ui.store.CartScreen(navController = navController)
-        }
-        composable("search") {
-            com.example.facturacion_inventario.ui.store.SearchScreen(navController = navController)
         }
         composable("categories") {
             com.example.facturacion_inventario.ui.store.CategoriesScreen(navController = navController)

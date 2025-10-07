@@ -48,7 +48,7 @@ fun RegisterScreen(authViewModel: AuthViewModel, navController: NavController? =
             Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
             onRegisterSuccess?.invoke()
             navController?.let { nc ->
-                nc.navigate("dashboard") {
+                nc.navigate("store") {
                     popUpTo("register") { inclusive = true }
                 }
             }

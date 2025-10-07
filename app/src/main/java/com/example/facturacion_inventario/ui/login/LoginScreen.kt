@@ -45,7 +45,7 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = nu
             Toast.makeText(context, "Login correcto", Toast.LENGTH_SHORT).show()
             onLoginSuccess?.invoke()
             navController?.let { nc ->
-                nc.navigate("dashboard") {
+                nc.navigate("store") {
                     popUpTo("login") { inclusive = true }
                 }
             }
@@ -119,6 +119,15 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = nu
                                     Toast.makeText(context, "Completa usuario y contraseña", Toast.LENGTH_SHORT).show()
                                     return@Button
                                 }
+                                // Si se nos pasó navController (modo navegación interna), simulamos éxito y vamos a la tienda
+                                navController?.let { nc ->
+                                    nc.navigate("store") {
+                                        popUpTo("login") { inclusive = true }
+                                    }
+                                    return@Button
+                                }
+
+                                // En caso de uso fuera de la navegación (LoginActivity), usar el ViewModel real
                                 scope.launch {
                                     authViewModel.login(username, password)
                                 }
