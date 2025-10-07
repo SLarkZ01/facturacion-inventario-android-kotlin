@@ -28,10 +28,16 @@ class AuthViewModel(application: Application, private val repo: AuthDataSource) 
     private val _isAuthenticated = MutableStateFlow(false)
     val isAuthenticated: StateFlow<Boolean> = _isAuthenticated.asStateFlow()
 
+    // Nuevo flag para indicar que el usuario decidió omitir el inicio de sesión
+    private val _skippedLogin = MutableStateFlow(false)
+    val skippedLogin: StateFlow<Boolean> = _skippedLogin.asStateFlow()
+
     init {
         // Inicializar estado autenticado desde almacenamiento local
         val token = TokenStorage.getAccessToken(getApplication())
         _isAuthenticated.value = !token.isNullOrEmpty()
+        // Si ya hay token, aseguramos que skipped sea false
+        _skippedLogin.value = false
     }
 
     fun login(usernameOrEmail: String, password: String) {
@@ -47,6 +53,8 @@ class AuthViewModel(application: Application, private val repo: AuthDataSource) 
                 TokenStorage.setUserFromMap(getApplication(), resp?.user)
 
                 _isAuthenticated.value = true
+                // login real, limpiar el flag de skip
+                _skippedLogin.value = false
                 _uiState.value = AuthUiState(success = true)
             } catch (ex: Exception) {
                 _uiState.value = AuthUiState(errorMessage = ex.message ?: "Error desconocido")
@@ -66,11 +74,20 @@ class AuthViewModel(application: Application, private val repo: AuthDataSource) 
                 TokenStorage.setUserFromMap(getApplication(), resp?.user)
 
                 _isAuthenticated.value = true
+                // registro real, limpiar skip
+                _skippedLogin.value = false
                 _uiState.value = AuthUiState(success = true)
             } catch (ex: Exception) {
                 _uiState.value = AuthUiState(errorMessage = ex.message ?: "Error desconocido")
             }
         }
+    }
+
+    // Permite omitir el inicio de sesión y navegar como usuario anónimo
+    fun skipLogin() {
+        _skippedLogin.value = true
+        _isAuthenticated.value = false
+        // no guardamos tokens; es solo un modo anónimo
     }
 
     // Limpia errores/flags después de manejarlos desde la UI
@@ -85,6 +102,7 @@ class AuthViewModel(application: Application, private val repo: AuthDataSource) 
     fun logout() {
         TokenStorage.clear(getApplication())
         _isAuthenticated.value = false
+        _skippedLogin.value = false
         _uiState.value = AuthUiState()
     }
 

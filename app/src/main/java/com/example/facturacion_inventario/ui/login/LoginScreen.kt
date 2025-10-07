@@ -170,6 +170,22 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = nu
                             TextButton(onClick = { navController?.navigate("register") }, modifier = Modifier.fillMaxWidth()) {
                                 Text(text = "Crear cuenta", color = MaterialTheme.colors.primary)
                             }
+
+                            Spacer(Modifier.height(8.dp))
+
+                            // Nuevo: botón para omitir inicio de sesión y continuar como invitado
+                            TextButton(onClick = {
+                                // marcar skip y navegar al store
+                                authViewModel.skipLogin()
+                                onLoginSuccess?.invoke()
+                                navController?.let { nc ->
+                                    nc.navigate("store") {
+                                        popUpTo("login") { inclusive = true }
+                                    }
+                                }
+                            }, modifier = Modifier.fillMaxWidth()) {
+                                Text(text = "Omitir inicio de sesión", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
+                            }
                         }
                     }
                 }

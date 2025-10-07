@@ -121,9 +121,12 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             val activity = (context as? Activity)
             activity?.window?.statusBarColor = topBarBlue.toArgb()
             activity?.let { act ->
-                // permitir que la app dibuje detrás de las barras del sistema
-                WindowCompat.setDecorFitsSystemWindows(act.window, false)
+                // Antes: la app dibujaba detrás de las barras del sistema (false)
+                // Cambio: permitimos que el sistema gestione las barras para que
+                // la hora/batería sean visibles tal como en la imagen de ejemplo.
+                WindowCompat.setDecorFitsSystemWindows(act.window, true)
                 val controller = WindowCompat.getInsetsController(act.window, view)
+                // iconos en la barra de estado en blanco (porque el fondo es azul oscuro)
                 controller.isAppearanceLightStatusBars = false // icons light (white)
             }
         }
@@ -182,31 +185,32 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             }
         },
         bottomBar = {
-            // Barra inferior estilo elevado y central
+            // Barra inferior estilo cápsula (ajustada para parecerse a la referencia)
             if (!isSearchActive) {
                 Box(modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+                    .padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
                     Surface(
                         shape = RoundedCornerShape(28.dp),
-                        elevation = 12.dp,
+                        elevation = 16.dp,
                         color = Color.White,
                         modifier = Modifier
                             .fillMaxWidth(0.92f)
-                            .height(64.dp)
+                            .height(62.dp)
                     ) {
                         Row(modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
+                            .padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
 
                             // Home
                             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
                                 selectedTab = "home"
                                 storeNavController.navigate("home") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "home", tint = if (selectedTab == "home") topBarBlue else Color.Gray)
-                                Text(text = "Inicio", color = if (selectedTab == "home") topBarBlue else Color.Gray, fontWeight = if (selectedTab == "home") FontWeight.Bold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "home", tint = if (selectedTab == "home") topBarBlue else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(text = "Inicio", color = if (selectedTab == "home") topBarBlue else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
 
                             // Profile
@@ -214,8 +218,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 selectedTab = "profile"
                                 storeNavController.navigate("profile") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "profile", tint = if (selectedTab == "profile") topBarBlue else Color.Gray)
-                                Text(text = "Cuenta", color = if (selectedTab == "profile") topBarBlue else Color.Gray, fontWeight = if (selectedTab == "profile") FontWeight.Bold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "profile", tint = if (selectedTab == "profile") topBarBlue else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(text = "Cuenta", color = if (selectedTab == "profile") topBarBlue else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
 
                             // Cart
@@ -223,8 +228,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 selectedTab = "cart"
                                 storeNavController.navigate("cart") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_badge), contentDescription = "cart", tint = if (selectedTab == "cart") topBarBlue else Color.Gray)
-                                Text(text = "Carrito", color = if (selectedTab == "cart") topBarBlue else Color.Gray, fontWeight = if (selectedTab == "cart") FontWeight.Bold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Icon(painter = painterResource(id = R.drawable.ic_badge), contentDescription = "cart", tint = if (selectedTab == "cart") topBarBlue else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(text = "Carrito", color = if (selectedTab == "cart") topBarBlue else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
                         }
                     }

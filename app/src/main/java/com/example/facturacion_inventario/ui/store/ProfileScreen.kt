@@ -2,7 +2,7 @@ package com.example.facturacion_inventario.ui.store
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -15,30 +15,64 @@ fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController
     val apellido = authViewModel.getApellido()
     val username = authViewModel.getUsername()
 
+    // Estado: si el usuario decidió omitir el inicio de sesión
+    val skipped by authViewModel.skippedLogin.collectAsState()
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(24.dp))
-            Text(text = "Perfil", style = MaterialTheme.typography.h5, color = MaterialTheme.colors.onBackground)
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Nombre: ${nombre.orEmpty()} ${apellido.orEmpty()}", color = MaterialTheme.colors.onSurface)
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(text = "Usuario: ${username ?: "-"}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
 
-            Spacer(modifier = Modifier.weight(1f))
+            if (skipped) {
+                // UI para usuario invitado que omitió el login
+                Text(text = "Perfil", style = MaterialTheme.typography.h5, color = MaterialTheme.colors.onBackground)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(text = "Estás usando la aplicación como invitado.")
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Para acceder a tu perfil, historial y compras debes registrarte o iniciar sesión.")
 
-            Button(onClick = {
-                // Cerrar sesión y volver a login en el nav principal
-                authViewModel.logout()
-                rootNavController.navigate("login") {
-                    popUpTo("store") { inclusive = true }
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(onClick = {
+                    // Navegar a login
+                    rootNavController.navigate("login")
+                }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
+                    Text(text = "Iniciar sesión", color = MaterialTheme.colors.onPrimary)
                 }
-            }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
-                Text(text = "Cerrar sesión", color = MaterialTheme.colors.onPrimary)
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedButton(onClick = {
+                    rootNavController.navigate("register")
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text(text = "Crear cuenta")
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+            } else {
+                // UI para usuario autenticado (o anónimo no-skipped pero sin datos)
+                Text(text = "Perfil", style = MaterialTheme.typography.h5, color = MaterialTheme.colors.onBackground)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(text = "Nombre: ${nombre.orEmpty()} ${apellido.orEmpty()}", color = MaterialTheme.colors.onSurface)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(text = "Usuario: ${username ?: "-"}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(onClick = {
+                    // Cerrar sesión y volver a login en el nav principal
+                    authViewModel.logout()
+                    rootNavController.navigate("login") {
+                        popUpTo("store") { inclusive = true }
+                    }
+                }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
+                    Text(text = "Cerrar sesión", color = MaterialTheme.colors.onPrimary)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
