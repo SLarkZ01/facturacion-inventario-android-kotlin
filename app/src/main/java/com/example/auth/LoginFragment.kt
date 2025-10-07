@@ -23,6 +23,9 @@ import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import android.util.Log
+import com.example.data.auth.AuthRepository
+import com.example.data.auth.TokenStorage
+import com.example.data.auth.ApiConfig
 
 class LoginFragment : Fragment() {
     private var repo: AuthRepository? = null
@@ -53,7 +56,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val ctx = requireContext()
-        repo = AuthRepository(ctx, "http://10.0.2.2:8080/")
+        repo = AuthRepository(ctx, ApiConfig.BASE_URL)
 
         // Inicializar GoogleAuthManager con el Server Client ID desde recursos
         val serverClientId = getString(R.string.google_server_client_id)
@@ -113,7 +116,8 @@ class LoginFragment : Fragment() {
                     if (!access.isNullOrEmpty()) TokenStorage.setAccessToken(ctx, access)
                     if (!refresh.isNullOrEmpty()) TokenStorage.setRefreshToken(ctx, refresh)
 
-                    // Guardar info del usuario si viene en la respuesta
+
+                     // Guardar info del usuario si viene en la respuesta
                     TokenStorage.setUserFromMap(ctx, resp?.user)
 
                     val options = NavOptions.Builder()

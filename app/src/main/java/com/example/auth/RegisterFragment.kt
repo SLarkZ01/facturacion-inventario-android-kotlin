@@ -18,6 +18,7 @@ import com.example.facturacion_inventario.BuildConfig
 import com.example.facturacion_inventario.R
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
+import com.example.data.auth.ApiConfig
 
 class RegisterFragment : Fragment() {
     private var repo: AuthRepository? = null
@@ -28,19 +29,6 @@ class RegisterFragment : Fragment() {
 
     private lateinit var googleAuthManager: GoogleAuthManager
 
-    // ActivityResultLauncher para manejar el resultado del flujo interactivo (si lo añades a la UI)
-    private val signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            googleAuthManager.handleSignInResult(data, onSuccess = { idToken ->
-                // Si obtenemos idToken aquí, enviarlo al backend
-                handleGoogleIdToken(idToken)
-            }, onFailure = { ex ->
-                Toast.makeText(requireContext(), "Google Sign-in falló: ${ex.message}", Toast.LENGTH_LONG).show()
-            })
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.activity_register, container, false)
     }
@@ -48,7 +36,7 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val ctx = requireContext()
-        repo = AuthRepository(ctx, "http://10.0.2.2:8080/")
+        repo = AuthRepository(ctx, ApiConfig.BASE_URL)
 
         // Inicializar el GoogleAuthManager con el client id placeholder
         googleAuthManager = GoogleAuthManager(ctx, googleServerClientId)
@@ -82,20 +70,18 @@ class RegisterFragment : Fragment() {
                         // Guardar info del usuario si viene en la respuesta
                         TokenStorage.setUserFromMap(ctx, resp?.user)
                         // Fallback si no vino user
-                        if (TokenStorage.getUsername(ctx).isNullOrEmpty()) {
-                            // No conocemos username desde el provider, dejamos vacío o usamos email si está disponible
-                        }
+                        // Si no conocemos username desde el provider, dejamos vacío o usamos email si está disponible
 
                         val options = NavOptions.Builder()
                             .setPopUpTo(R.id.registerFragment, true)
                             .build()
                         findNavController().navigate(R.id.dashboardFragment, null, options)
-                    } catch (ex: Exception) {
-                        Toast.makeText(ctx, "Autenticación Google falló: ${ex.message}", Toast.LENGTH_LONG).show()
+                    } catch (_: Exception) {
+                        Toast.makeText(ctx, "Autenticación Google falló", Toast.LENGTH_LONG).show()
                     }
                 }
             }, onFailure = { /* Silent sign-in not available; user will have to sign in traditionally or with interactive flow */ })
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Guardar el fallo en log o mostrar pequeño mensaje no intrusivo
         }
 
@@ -141,9 +127,9 @@ class RegisterFragment : Fragment() {
                         .setPopUpTo(R.id.registerFragment, true)
                         .build()
                     findNavController().navigate(R.id.dashboardFragment, null, options)
-                } catch (ex: Exception) {
+                } catch (_: Exception) {
                     // OpenAPI: 409 para ya registrado; puede llegar como error HTTP -> mostrar mensaje claro
-                    Toast.makeText(ctx, "Registro fallido: ${ex.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(ctx, "Registro fallido", Toast.LENGTH_LONG).show()
                 } finally {
                     btnRegister.isEnabled = true
                 }
@@ -172,8 +158,8 @@ class RegisterFragment : Fragment() {
                     .setPopUpTo(R.id.registerFragment, true)
                     .build()
                 findNavController().navigate(R.id.dashboardFragment, null, options)
-            } catch (ex: Exception) {
-                Toast.makeText(ctx, "Autenticación Google falló: ${ex.message}", Toast.LENGTH_LONG).show()
+            } catch (_: Exception) {
+                Toast.makeText(ctx, "Autenticación Google falló", Toast.LENGTH_LONG).show()
             }
         }
     }
