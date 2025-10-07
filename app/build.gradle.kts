@@ -32,6 +32,13 @@ android {
     // Habilitar generación de BuildConfig (requerido si usas buildConfigField)
     buildFeatures {
         buildConfig = true
+        // Habilitar Jetpack Compose
+        compose = true
+    }
+
+    composeOptions {
+        // Usar la versión del compilador establecida explícitamente para evitar problemas con el catálogo
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
 
     compileOptions {
@@ -40,6 +47,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        // Mantener opciones adicionales si es necesario
     }
 }
 
@@ -55,6 +63,18 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Compose
+    implementation("androidx.compose.ui:ui:1.9.0")
+    implementation("androidx.compose.material:material:1.9.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.9.0")
+    implementation("androidx.activity:activity-compose:1.10.1")
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.9.4")
+    // Material icons (core + extended) necesarias para usar Icons.Default
+    // Las dependencias de material-icons se han eliminado porque los iconos usan drawables (painterResource)
+    // tooling for debug/inspection
+    debugImplementation("androidx.compose.ui:ui-tooling:1.9.0")
 
     // Networking & JSON (usar catálogo de versiones)
     implementation(libs.retrofit)
