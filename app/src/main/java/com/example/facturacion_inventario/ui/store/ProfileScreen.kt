@@ -1,13 +1,22 @@
 package com.example.facturacion_inventario.ui.store
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.auth.AuthViewModel
+import com.example.facturacion_inventario.R
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController) {
@@ -21,45 +30,59 @@ fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.height(24.dp))
+            .padding(16.dp)) {
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Card de perfil
+            Card(elevation = 6.dp, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+
+                    // Avatar / icono
+                    Image(painter = painterResource(id = R.drawable.ic_person), contentDescription = "avatar",
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(36.dp)))
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = if (!nombre.isNullOrBlank() || !apellido.isNullOrBlank()) "${nombre.orEmpty()} ${apellido.orEmpty()}" else "Usuario", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.onBackground)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(text = "@${username ?: "invitado"}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Taller · Gestión de facturación e inventario", fontSize = 12.sp, color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Acciones principales
             if (skipped) {
-                // UI para usuario invitado que omitió el login
-                Text(text = "Perfil", style = MaterialTheme.typography.h5, color = MaterialTheme.colors.onBackground)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(text = "Estás usando la aplicación como invitado.")
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Para acceder a tu perfil, historial y compras debes registrarte o iniciar sesión.")
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(onClick = {
-                    // Navegar a login
-                    rootNavController.navigate("login")
-                }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
+                Text(text = "Estás usando la aplicación como invitado", color = MaterialTheme.colors.onSurface, modifier = Modifier.padding(bottom = 8.dp))
+                Button(onClick = { rootNavController.navigate("login") }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
                     Text(text = "Iniciar sesión", color = MaterialTheme.colors.onPrimary)
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedButton(onClick = {
-                    rootNavController.navigate("register")
-                }, modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(onClick = { rootNavController.navigate("register") }, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Crear cuenta")
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-
             } else {
-                // UI para usuario autenticado (o anónimo no-skipped pero sin datos)
-                Text(text = "Perfil", style = MaterialTheme.typography.h5, color = MaterialTheme.colors.onBackground)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(text = "Nombre: ${nombre.orEmpty()} ${apellido.orEmpty()}", color = MaterialTheme.colors.onSurface)
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(text = "Usuario: ${username ?: "-"}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
+                // Acciones para usuario autenticado
+                OutlinedButton(onClick = { /* navegar a inventario */ rootNavController.navigate("home") }, modifier = Modifier.fillMaxWidth()) {
+                    Text(text = "Ver inventario")
+                }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedButton(onClick = { /* navegar a documentos/facturas */ rootNavController.navigate("cart") }, modifier = Modifier.fillMaxWidth()) {
+                    Text(text = "Ver facturas / Documentos")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
                     // Cerrar sesión y volver a login en el nav principal
@@ -70,9 +93,16 @@ fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController
                 }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
                     Text(text = "Cerrar sesión", color = MaterialTheme.colors.onPrimary)
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Pie de página
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text(text = "© Taller - Gestión", color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), fontSize = 12.sp)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
