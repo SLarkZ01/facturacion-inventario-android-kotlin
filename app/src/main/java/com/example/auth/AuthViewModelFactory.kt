@@ -3,6 +3,7 @@ package com.example.auth
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.data.auth.AuthDataSource
 
 class AuthViewModelFactory(private val application: Application, private val repo: AuthDataSource) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -13,4 +14,3 @@ class AuthViewModelFactory(private val application: Application, private val rep
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-

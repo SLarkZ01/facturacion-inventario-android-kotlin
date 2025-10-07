@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
-import com.example.facturacion_inventario.ui.AppNavHost
-import com.example.facturacion_inventario.ui.AppTheme
+import com.example.facturacion_inventario.ui.nav.AppNavHost
+import com.example.facturacion_inventario.ui.theme.AppTheme
 import com.example.auth.AuthViewModel
-import com.example.auth.AuthRepository
 import com.example.auth.AuthViewModelFactory
+import com.example.data.auth.AuthRepository
 import com.example.data.auth.ApiConfig
 
 class MainActivity : ComponentActivity() {

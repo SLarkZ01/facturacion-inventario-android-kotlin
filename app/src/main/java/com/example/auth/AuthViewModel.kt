@@ -8,6 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// Importar definiciones desde el módulo de datos
+import com.example.data.auth.AuthDataSource
+import com.example.data.auth.TokenStorage
+import com.example.data.auth.RegisterRequest
+
 // Estado simple de UI para auth
 data class AuthUiState(
     val loading: Boolean = false,

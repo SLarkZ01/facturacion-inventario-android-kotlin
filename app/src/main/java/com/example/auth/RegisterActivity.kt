@@ -4,11 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
-import com.example.facturacion_inventario.ui.RegisterScreen
-import com.example.facturacion_inventario.ui.AppTheme
-import com.example.auth.AuthRepository
-import com.example.auth.AuthViewModelFactory
-import com.example.auth.AuthViewModel
+import com.example.facturacion_inventario.ui.register.RegisterScreen
+import com.example.facturacion_inventario.ui.theme.AppTheme
+import com.example.data.auth.AuthRepository
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package com.example.facturacion_inventario.ui
+package com.example.facturacion_inventario.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -23,3 +23,4 @@ val OnPrimary = Color.White
 val OnSecondary = Color.White
 val OnBackground = DarkText
 val OnSurface = DarkText
+
