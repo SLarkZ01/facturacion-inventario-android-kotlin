@@ -34,6 +34,69 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.BasicTextField
+
+// Nuevo composable para el buscador con control fino del layout
+@Composable
+fun SearchBox(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Hacemos el buscador más compacto y centrado verticalmente
+    Row(
+        modifier = modifier
+            .height(36.dp), // más compacto
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_search),
+            contentDescription = "search",
+            tint = Color(0xFF757575),
+            modifier = Modifier.size(16.dp) // icono aún más pequeño
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        BasicTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            singleLine = true,
+            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(vertical = 2.dp), // ajustar centrado
+            decorationBox = { innerTextField ->
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                    if (query.isEmpty()) {
+                        Text(
+                            text = "Buscar productos, marcas y más",
+                            color = Color(0xFF9E9E9E),
+                            style = TextStyle(fontSize = 13.sp)
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        )
+
+        if (query.isNotBlank()) {
+            IconButton(onClick = onClear, modifier = Modifier
+                .size(30.dp)
+                .padding(end = 2.dp)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_back),
+                    contentDescription = "clear",
+                    tint = Color(0xFF757575),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
@@ -77,71 +140,34 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             ) {
                 Row(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    .padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
 
                     // Logo o ícono a la izquierda
                     Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White, modifier = Modifier.size(28.dp))
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // Caja de búsqueda blanca y redondeada
+                    // Caja de búsqueda blanca y redondeada (altura reducida para el estilo deseado)
                     Box(modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)) {
+                        .height(36.dp)) {
                         Surface(
-                            shape = RoundedCornerShape(20.dp),
+                            shape = RoundedCornerShape(24.dp), // pill más pronunciada
                             color = Color.White,
-                            elevation = 0.dp,
+                            elevation = 0.dp, // más plano
                             modifier = Modifier
                                 .fillMaxSize()
-                                .clip(RoundedCornerShape(20.dp))
+                                .clip(RoundedCornerShape(24.dp))
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
                                 .fillMaxSize()
-                                .padding(start = 12.dp, end = 8.dp)) {
-                                Icon(painter = painterResource(id = R.drawable.ic_search), contentDescription = "search", tint = Color.Gray)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                // TextField sin fondo (sitúa sobre la superficie blanca)
-                                TextField(
-                                    value = query,
-                                    onValueChange = { new: String -> query = new },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    placeholder = { Text(text = "Buscar productos, marcas y más", color = Color.Gray) },
-                                    singleLine = true,
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        textColor = Color.Black,
-                                        cursorColor = Color.Black,
-                                        backgroundColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        disabledIndicatorColor = Color.Transparent
-                                    )
+                                .padding(start = 10.dp, end = 8.dp)) {
+                                // Reemplazado TextField por SearchBox para controlar mejor el layout
+                                SearchBox(
+                                    query = query,
+                                    onQueryChange = { new: String -> query = new },
+                                    onClear = { query = "" },
+                                    modifier = Modifier.fillMaxHeight()
                                 )
-
-                                // Botón de búsqueda manual para evitar usar KeyboardOptions/KeyboardActions
-                                IconButton(onClick = {
-                                    val q = query.trim()
-                                    if (q.isNotBlank()) {
-                                        var found = repo.getProductById(q)
-                                        if (found == null) {
-                                            found = repo.getProducts().firstOrNull { it.name.contains(q, ignoreCase = true) }
-                                        }
-                                        if (found != null) {
-                                            focusManager.clearFocus()
-                                            query = ""
-                                            storeNavController.navigate("product/${URLEncoder.encode(found.id, StandardCharsets.UTF_8.toString())}")
-                                        }
-                                    }
-                                }) {
-                                    Icon(painter = painterResource(id = R.drawable.ic_search), contentDescription = "buscar", tint = Color.Gray)
-                                }
-
-                                if (query.isNotBlank()) {
-                                    IconButton(onClick = { query = "" }) {
-                                        Icon(painter = painterResource(id = R.drawable.ic_arrow_back), contentDescription = "clear", tint = Color.Gray)
-                                    }
-                                }
                             }
                         }
                     }
