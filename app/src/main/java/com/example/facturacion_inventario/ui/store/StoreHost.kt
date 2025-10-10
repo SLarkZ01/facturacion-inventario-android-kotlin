@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package com.example.facturacion_inventario.ui.store
 
 import android.app.Activity
@@ -19,13 +20,11 @@ import com.example.auth.AuthViewModel
 import com.example.facturacion_inventario.R
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
-import androidx.compose.ui.graphics.Color
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,6 +36,16 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.zIndex
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 // Nuevo composable para el buscador con control fino del layout
 @Composable
@@ -108,82 +117,76 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
     // Mantener query en el scope del host para usarla en el topbar y en las sugerencias
     var query by rememberSaveable { mutableStateOf("") }
 
-    // Color azul para TopBar/statusBar (similar a Amazon) con iconos blancos
-    val topBarBlue = Color(0xFF0A6ED1)
+    // Colores del header (inspiración Amazon)
+    val headerStartColor = Color(0xFFFF6F00) // naranja intenso
+    val headerEndColor = Color.Transparent
 
     val view = LocalView.current
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val density = LocalDensity.current
 
+    // Dimensiones del header
+    val maxHeight = 140.dp
+    val minHeight = 56.dp
+    val maxHeightPx = with(density) { maxHeight.toPx() }
+    val minHeightPx = with(density) { minHeight.toPx() }
+    var headerHeightPx by remember { mutableStateOf(maxHeightPx) }
+
+    // Progreso de colapso: 0f expandido, 1f colapsado
+    val collapseProgress by remember {
+        derivedStateOf {
+            val range = (maxHeightPx - minHeightPx).coerceAtLeast(1f)
+            ((maxHeightPx - headerHeightPx) / range).coerceIn(0f, 1f)
+        }
+    }
+
+    // Altura de la barra de estado para que el header pueda pintarse detrás
+    val statusBarHeightDp = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
+    // Conexión de scroll anidado para sincronizar lista y header
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val dy = available.y
+                if (dy < 0f) {
+                    val prev = headerHeightPx
+                    headerHeightPx = (headerHeightPx + dy).coerceIn(minHeightPx, maxHeightPx)
+                    val consumed = headerHeightPx - prev
+                    // Consumimos solo lo que usamos para colapsar
+                    return Offset(0f, consumed)
+                }
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                val dy = available.y
+                if (dy > 0f) {
+                    val prev = headerHeightPx
+                    headerHeightPx = (headerHeightPx + dy).coerceIn(minHeightPx, maxHeightPx)
+                    val consumedY = headerHeightPx - prev
+                    return Offset(0f, consumedY)
+                }
+                return Offset.Zero
+            }
+        }
+    }
+
+    // Hacemos la barra de estado transparente y permitimos dibujar detrás de ella
     if (!view.isInEditMode) {
-        @Suppress("DEPRECATION")
         SideEffect {
             val activity = (context as? Activity)
-            activity?.window?.statusBarColor = topBarBlue.toArgb()
             activity?.let { act ->
-                // Antes: la app dibujaba detrás de las barras del sistema (false)
-                // Cambio: permitimos que el sistema gestione las barras para que
-                // la hora/batería sean visibles tal como en la imagen de ejemplo.
-                WindowCompat.setDecorFitsSystemWindows(act.window, true)
+                WindowCompat.setDecorFitsSystemWindows(act.window, false)
+                act.window.statusBarColor = android.graphics.Color.TRANSPARENT
                 val controller = WindowCompat.getInsetsController(act.window, view)
-                // iconos en la barra de estado en blanco (porque el fondo es azul oscuro)
-                controller.isAppearanceLightStatusBars = false // icons light (white)
+                controller.isAppearanceLightStatusBars = collapseProgress > 0.5f
             }
         }
     }
 
     Scaffold(
-        topBar = {
-            // TopAppBar con búsqueda estilo Amazon
-            TopAppBar(
-                backgroundColor = topBarBlue,
-                contentColor = Color.White,
-                elevation = 4.dp,
-                modifier = Modifier.statusBarsPadding()
-            ) {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-
-                    // Logo o ícono a la izquierda
-                    Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White, modifier = Modifier.size(28.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Caja de búsqueda blanca y redondeada (altura reducida para el estilo deseado)
-                    Box(modifier = Modifier
-                        .weight(1f)
-                        .height(36.dp)) {
-                        Surface(
-                            shape = RoundedCornerShape(24.dp), // pill más pronunciada
-                            color = Color.White,
-                            elevation = 0.dp, // más plano
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(24.dp))
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                                .fillMaxSize()
-                                .padding(start = 10.dp, end = 8.dp)) {
-                                // Reemplazado TextField por SearchBox para controlar mejor el layout
-                                SearchBox(
-                                    query = query,
-                                    onQueryChange = { new: String -> query = new },
-                                    onClear = { query = "" },
-                                    modifier = Modifier.fillMaxHeight()
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Perfil o acciones
-                    IconButton(onClick = { /* acción futura */ }) {
-                        Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White)
-                    }
-                }
-            }
-        },
+        // Eliminamos topBar; ahora el header es personalizado y colapsable
         bottomBar = {
             // Barra inferior estilo cápsula (ajustada para parecerse a la referencia)
             if (!isSearchActive) {
@@ -208,9 +211,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 selectedTab = "home"
                                 storeNavController.navigate("home") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "home", tint = if (selectedTab == "home") topBarBlue else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "home", tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Inicio", color = if (selectedTab == "home") topBarBlue else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(text = "Inicio", color = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
 
                             // Profile
@@ -218,9 +221,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 selectedTab = "profile"
                                 storeNavController.navigate("profile") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "profile", tint = if (selectedTab == "profile") topBarBlue else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "profile", tint = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Cuenta", color = if (selectedTab == "profile") topBarBlue else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(text = "Cuenta", color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
 
                             // Cart
@@ -228,9 +231,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 selectedTab = "cart"
                                 storeNavController.navigate("cart") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_badge), contentDescription = "cart", tint = if (selectedTab == "cart") topBarBlue else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Icon(painter = painterResource(id = R.drawable.ic_badge), contentDescription = "cart", tint = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Carrito", color = if (selectedTab == "cart") topBarBlue else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(text = "Carrito", color = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
                         }
                     }
@@ -238,73 +241,146 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             }
         }
     ) { innerPadding ->
+        // Contenedor principal con nestedScroll para coordinar header y contenido
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding)) {
+            .padding(innerPadding)
+            .nestedScroll(nestedScrollConnection)) {
 
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp)) {
+            val headerHeightDp = with(density) { headerHeightPx.toDp() }
+            val backgroundColor = lerp(headerStartColor, headerEndColor, collapseProgress)
 
-                Spacer(modifier = Modifier.height(8.dp))
+            // Header colapsable superpuesto (ahora incluye el alto de la barra de estado)
+            Surface(
+                color = backgroundColor,
+                elevation = 4.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(headerHeightDp + statusBarHeightDp)
+                    .zIndex(2f)
+            ) {
+                // Contenido interno del header
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp)
+                    .statusBarsPadding(),
+                    verticalArrangement = Arrangement.Center) {
 
-                // Sugerencias desplegables: se muestran justo debajo de la barra de búsqueda cuando hay texto.
-                val suggestions = remember(query) {
-                    if (query.isBlank()) emptyList() else repo.getProducts().filter { it.name.contains(query, ignoreCase = true) }
-                }
-
-                if (suggestions.isNotEmpty()) {
-                    Card(
-                        elevation = 8.dp,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        LazyColumn(modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 200.dp)) {
-                            items(suggestions) { product ->
-                                Row(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        // navegar al producto seleccionado
-                                        storeNavController.navigate("product/${URLEncoder.encode(product.id, StandardCharsets.UTF_8.toString())}")
-                                        query = ""
-                                        focusManager.clearFocus()
-                                    }
-                                    .padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(painter = painterResource(id = product.imageRes), contentDescription = product.name, tint = Color.Unspecified, modifier = Modifier.size(36.dp))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = product.name, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        Text(text = product.description, style = MaterialTheme.typography.caption, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    }
+                    // Fila superior (logo y perfil) que desaparece al colapsar
+                    val fadingAlpha = 1f - collapseProgress
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White.copy(alpha = fadingAlpha), modifier = Modifier.size(28.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        // Caja de búsqueda
+                        Box(modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp)) {
+                            Surface(
+                                shape = RoundedCornerShape(24.dp),
+                                color = Color.White,
+                                elevation = 0.dp,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(24.dp))
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(start = 10.dp, end = 8.dp)) {
+                                    SearchBox(
+                                        query = query,
+                                        onQueryChange = { new: String -> query = new },
+                                        onClear = { query = "" },
+                                        modifier = Modifier.fillMaxHeight()
+                                    )
                                 }
-                                Divider()
                             }
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(onClick = { /* acción futura */ }, enabled = fadingAlpha > 0.05f) {
+                            Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White.copy(alpha = fadingAlpha))
+                        }
+                    }
+
+                    // Línea inferior (por ejemplo, destino de envío) que se oculta al colapsar
+                    if (fadingAlpha > 0.05f) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Enviar a tu ubicación",
+                            color = Color.White.copy(alpha = fadingAlpha),
+                            style = MaterialTheme.typography.caption
+                        )
+                    }
+                }
+            }
+
+            // Sugerencias: aparecen justo bajo el header, superpuestas sobre el contenido
+            val suggestions = remember(query) {
+                if (query.isBlank()) emptyList() else repo.getProducts().filter { it.name.contains(query, ignoreCase = true) }
+            }
+
+            if (suggestions.isNotEmpty()) {
+                Card(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(top = headerHeightDp + 8.dp)
+                        .zIndex(3f)
+                ) {
+                    LazyColumn(modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)) {
+                        items(suggestions) { product ->
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    // navegar al producto seleccionado
+                                    storeNavController.navigate("product/${URLEncoder.encode(product.id, StandardCharsets.UTF_8.toString())}")
+                                    query = ""
+                                    focusManager.clearFocus()
+                                }
+                                .padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(painter = painterResource(id = product.imageRes), contentDescription = product.name, tint = Color.Unspecified, modifier = Modifier.size(36.dp))
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = product.name, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Text(text = product.description, style = MaterialTheme.typography.caption, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
+                            Divider()
                         }
                     }
                 }
+            }
 
-                // Contenido principal de la tienda (NavHost)
-                Box(modifier = Modifier
-                    .weight(1f)
-                    .padding(bottom = 8.dp)) {
-                    NavHost(navController = storeNavController, startDestination = "home") {
-                        composable("home") {
-                            HomeScreen(navController = storeNavController)
-                        }
-                        composable("product/{productId}") { backStackEntry ->
-                            val pid = backStackEntry.arguments?.getString("productId")
-                            ProductDetailScreen(productId = pid, navController = storeNavController)
-                        }
-                        composable("cart") {
-                            CartScreen(navController = storeNavController)
-                        }
-                        composable("profile") {
-                            ProfileScreen(authViewModel = authViewModel, rootNavController = rootNavController)
-                        }
+            // Contenido principal desplazable bajo el header
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(top = headerHeightDp)
+                .zIndex(1f)) {
+                NavHost(navController = storeNavController, startDestination = "home") {
+                    composable("home") {
+                        HomeScreen(navController = storeNavController)
+                    }
+                    composable("home/{categoryId}") { backStackEntry ->
+                        val categoryId = backStackEntry.arguments?.getString("categoryId")
+                        HomeScreen(navController = storeNavController, selectedCategoryId = categoryId)
+                    }
+                    composable("product/{productId}") { backStackEntry ->
+                        val pid = backStackEntry.arguments?.getString("productId")
+                        ProductDetailScreen(productId = pid, navController = storeNavController)
+                    }
+                    composable("cart") {
+                        CartScreen(navController = storeNavController)
+                    }
+                    composable("profile") {
+                        ProfileScreen(authViewModel = authViewModel, rootNavController = rootNavController)
+                    }
+                    composable("categories") {
+                        CategoriesScreen(navController = storeNavController)
                     }
                 }
             }

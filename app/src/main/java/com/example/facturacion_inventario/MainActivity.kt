@@ -10,10 +10,14 @@ import com.example.auth.AuthViewModel
 import com.example.auth.AuthViewModelFactory
 import com.example.data.auth.AuthRepository
 import com.example.data.auth.ApiConfig
+import androidx.core.view.WindowCompat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Permitir que el contenido se dibuje detrás de las system bars (status/navigation)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // Crear repositorio concreto e inyectarlo en la fábrica del ViewModel
         val repo = AuthRepository(this, ApiConfig.BASE_URL)

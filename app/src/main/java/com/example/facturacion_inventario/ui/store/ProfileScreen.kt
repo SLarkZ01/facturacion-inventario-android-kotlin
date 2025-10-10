@@ -1,7 +1,6 @@
 package com.example.facturacion_inventario.ui.store
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -16,7 +15,6 @@ import androidx.navigation.NavController
 import com.example.auth.AuthViewModel
 import com.example.facturacion_inventario.R
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController) {
@@ -52,8 +50,6 @@ fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController
                         Text(text = if (!nombre.isNullOrBlank() || !apellido.isNullOrBlank()) "${nombre.orEmpty()} ${apellido.orEmpty()}" else "Usuario", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.onBackground)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(text = "@${username ?: "invitado"}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "Taller · Gestión de facturación e inventario", fontSize = 12.sp, color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f))
                     }
                 }
             }
@@ -99,7 +95,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController
 
             // Pie de página
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text(text = "© Taller - Gestión", color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), fontSize = 12.sp)
+                Text(text = "", color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(12.dp))

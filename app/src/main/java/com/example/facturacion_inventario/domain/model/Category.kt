@@ -3,13 +3,11 @@ package com.example.facturacion_inventario.domain.model
 import androidx.annotation.DrawableRes
 import com.example.facturacion_inventario.R
 
-// Modelo Product en la capa domain
-data class Product(
+data class Category(
     val id: String,
     val name: String,
     val description: String,
-    @DrawableRes val imageRes: Int = R.drawable.ic_motorcycle_animated,
-    val categoryId: String = "",
-    val price: Double = 0.0,
-    val stock: Int = 0
+    @DrawableRes val iconRes: Int = R.drawable.ic_motorcycle_animated,
+    val subcategories: List<String> = emptyList()
 )
+
