@@ -2,6 +2,7 @@ package com.example.facturacion_inventario.ui.store
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.facturacion_inventario.data.repository.FakeProductRepository
 
 @Composable
@@ -20,17 +21,22 @@ fun HomeScreen(navController: NavController, selectedCategoryId: String? = null)
 }
 
 @Composable
-fun ProductDetailScreen(productId: String?, navController: NavController) {
+fun ProductDetailScreen(productId: String?, cartViewModel: CartViewModel = viewModel()) {
     val repository = FakeProductRepository()
     val product = productId?.let { repository.getProductById(it) }
-    ProductDetailContent(product = product, onAddToCart = { navController.navigate(Routes.CART) })
+    ProductDetailContent(
+        product = product,
+        onAddToCart = { /* Ya no navegamos automáticamente, mostramos mensaje */ },
+        cartViewModel = cartViewModel
+    )
 }
 
 @Composable
-fun CartScreen(navController: NavController) {
+fun CartScreen(navController: NavController, cartViewModel: CartViewModel = viewModel()) {
     CartContent(
         onContinueShopping = { navController.navigate(Routes.HOME) },
-        onCheckout = { /* implementar checkout */ }
+        onCheckout = { /* implementar checkout */ },
+        cartViewModel = cartViewModel
     )
 }
 
@@ -40,7 +46,7 @@ fun CategoriesScreen(navController: NavController) {
     val categories = repository.getCategories()
     CategoriesContent(
         categories = categories,
-        onCategoryClick = { categoryId ->
+        onCategoryClick = { categoryId: String ->
             navController.navigate(Routes.homeWithCategory(categoryId)) {
                 popUpTo(Routes.HOME) { inclusive = false }
             }

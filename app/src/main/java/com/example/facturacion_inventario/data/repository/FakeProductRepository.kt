@@ -2,6 +2,9 @@ package com.example.facturacion_inventario.data.repository
 
 import com.example.facturacion_inventario.domain.model.Product
 import com.example.facturacion_inventario.domain.model.Category
+import com.example.facturacion_inventario.domain.model.ProductMedia
+import com.example.facturacion_inventario.domain.model.ProductSpecification
+import com.example.facturacion_inventario.domain.model.MediaType
 import com.example.facturacion_inventario.domain.repository.ProductRepository
 import com.example.facturacion_inventario.R
 
@@ -22,18 +25,133 @@ class FakeProductRepository : ProductRepository {
 
     private val items = listOf(
         // Motor
-        Product(id = "m1", name = "Pistón con anillos 150cc", description = "Pistón completo con juego de anillos", categoryId = "motor", price = 45000.0, stock = 12),
-        Product(id = "m2", name = "Bujía NGK estándar", description = "Bujía de alta performance", categoryId = "motor", price = 8500.0, stock = 50),
+        Product(
+            id = "m1",
+            name = "Pistón con anillos 150cc",
+            description = "Pistón completo con juego de anillos",
+            categoryId = "motor",
+            price = 45000.0,
+            stock = 12,
+            mediaList = listOf(
+                ProductMedia(R.drawable.ic_engine, MediaType.IMAGE),
+                ProductMedia(R.drawable.ic_motorcycle_animated, MediaType.IMAGE),
+                ProductMedia(R.drawable.ic_gear, MediaType.IMAGE)
+            ),
+            specifications = listOf(
+                ProductSpecification("Marca", "Yamaha Genuine Parts"),
+                ProductSpecification("Cilindraje", "150cc"),
+                ProductSpecification("Diámetro", "57mm"),
+                ProductSpecification("Material", "Aluminio forjado"),
+                ProductSpecification("Anillos incluidos", "Sí (compresión y rascador)"),
+                ProductSpecification("Compatibilidad", "Yamaha YBR 150, FZ 150"),
+                ProductSpecification("Peso", "280g"),
+                ProductSpecification("Garantía", "6 meses")
+            ),
+            features = listOf(
+                "Construcción en aluminio de alta resistencia",
+                "Anillos de compresión de primera calidad",
+                "Tratamiento térmico para mayor durabilidad",
+                "Diseño optimizado para reducir fricción",
+                "Compatible con motores 4 tiempos",
+                "Instalación plug and play"
+            )
+        ),
+        Product(
+            id = "m2",
+            name = "Bujía NGK estándar",
+            description = "Bujía de alta performance",
+            categoryId = "motor",
+            price = 8500.0,
+            stock = 50,
+            mediaList = listOf(
+                ProductMedia(R.drawable.ic_engine, MediaType.IMAGE),
+                ProductMedia(R.drawable.ic_electric, MediaType.IMAGE)
+            ),
+            specifications = listOf(
+                ProductSpecification("Marca", "NGK"),
+                ProductSpecification("Modelo", "CR7HSA"),
+                ProductSpecification("Tipo", "Estándar cobre"),
+                ProductSpecification("Rosca", "10mm"),
+                ProductSpecification("Alcance", "12.7mm"),
+                ProductSpecification("Temperatura", "Rango medio"),
+                ProductSpecification("Resistencia", "5k Ohm")
+            ),
+            features = listOf(
+                "Electrodo central de cobre para mejor conductividad",
+                "Resistencia incorporada para reducir interferencias",
+                "Diseño anti-fouling para evitar carbonización",
+                "Optimizada para arranque en frío",
+                "Compatible con sistemas de inyección electrónica"
+            )
+        ),
         Product(id = "m3", name = "Filtro de aire deportivo", description = "Filtro de alto flujo reutilizable", categoryId = "motor", price = 35000.0, stock = 15),
         Product(id = "m4", name = "Válvulas admisión/escape", description = "Juego de válvulas completo", categoryId = "motor", price = 55000.0, stock = 8),
 
         // Transmisión
-        Product(id = "t1", name = "Cadena de transmisión 428H", description = "Cadena reforzada 120 eslabones", categoryId = "transmision", price = 42000.0, stock = 20),
+        Product(
+            id = "t1",
+            name = "Cadena de transmisión 428H",
+            description = "Cadena reforzada 120 eslabones",
+            categoryId = "transmision",
+            price = 42000.0,
+            stock = 20,
+            mediaList = listOf(
+                ProductMedia(R.drawable.ic_gear, MediaType.IMAGE),
+                ProductMedia(R.drawable.ic_motorcycle_animated, MediaType.IMAGE),
+                ProductMedia(R.drawable.ic_tools, MediaType.IMAGE)
+            ),
+            specifications = listOf(
+                ProductSpecification("Marca", "DID Racing"),
+                ProductSpecification("Tipo", "428H Heavy Duty"),
+                ProductSpecification("Eslabones", "120 Links"),
+                ProductSpecification("Paso", "12.7mm (1/2 pulgada)"),
+                ProductSpecification("Material", "Acero cromado"),
+                ProductSpecification("Resistencia", "2,800 lbs"),
+                ProductSpecification("Tratamiento", "Cromado y sellado con O-Ring"),
+                ProductSpecification("Color", "Plata/Negro")
+            ),
+            features = listOf(
+                "O-Ring sellados para retención de lubricante",
+                "Resistencia superior a cargas extremas",
+                "Tratamiento anti-corrosión",
+                "Acabado cromado de larga duración",
+                "Compatible con la mayoría de motos 125-200cc",
+                "Incluye eslabón maestro de unión"
+            )
+        ),
         Product(id = "t2", name = "Kit piñón y corona", description = "Juego completo relación 14-40", categoryId = "transmision", price = 68000.0, stock = 10),
         Product(id = "t3", name = "Kit de embrague completo", description = "Discos, muelles y separadores", categoryId = "transmision", price = 95000.0, stock = 7),
 
         // Frenos
-        Product(id = "f1", name = "Pastillas freno delantero", description = "Alto agarre y durabilidad", categoryId = "frenos", price = 28000.0, stock = 30),
+        Product(
+            id = "f1",
+            name = "Pastillas freno delantero",
+            description = "Alto agarre y durabilidad",
+            categoryId = "frenos",
+            price = 28000.0,
+            stock = 30,
+            mediaList = listOf(
+                ProductMedia(R.drawable.ic_brake, MediaType.IMAGE),
+                ProductMedia(R.drawable.ic_suspension, MediaType.IMAGE)
+            ),
+            specifications = listOf(
+                ProductSpecification("Marca", "Brembo"),
+                ProductSpecification("Código", "07BB33SA"),
+                ProductSpecification("Material", "Compuesto semi-metálico"),
+                ProductSpecification("Posición", "Pinza delantera"),
+                ProductSpecification("Temperatura máx.", "650°C"),
+                ProductSpecification("Grosor", "7.5mm"),
+                ProductSpecification("Incluye", "2 pastillas + clips")
+            ),
+            features = listOf(
+                "Compuesto de alto coeficiente de fricción",
+                "Excelente rendimiento en condiciones húmedas",
+                "Bajo desgaste del disco de freno",
+                "Sin ruidos ni vibraciones",
+                "Frenado progresivo y predecible",
+                "Homologadas para uso en carretera"
+            )
+        ),
         Product(id = "f2", name = "Disco de freno 260mm", description = "Disco ventilado delantero", categoryId = "frenos", price = 85000.0, stock = 12),
         Product(id = "f3", name = "Líquido de frenos DOT4", description = "Botella 500ml", categoryId = "frenos", price = 12000.0, stock = 40),
         Product(id = "f4", name = "Bomba freno delantera", description = "Bomba hidráulica universal", categoryId = "frenos", price = 65000.0, stock = 8),

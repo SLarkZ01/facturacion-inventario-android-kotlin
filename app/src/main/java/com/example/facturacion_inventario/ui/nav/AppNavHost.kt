@@ -40,7 +40,7 @@ fun AppNavHost(authViewModel: AuthViewModel) {
         }
         composable("product/{productId}") { backStackEntry ->
             val pid = backStackEntry.arguments?.getString("productId")
-            com.example.facturacion_inventario.ui.store.ProductDetailScreen(productId = pid, navController = navController)
+            com.example.facturacion_inventario.ui.store.ProductDetailScreen(productId = pid)
         }
         composable("cart") {
             com.example.facturacion_inventario.ui.store.CartScreen(navController = navController)

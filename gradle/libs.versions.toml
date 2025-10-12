@@ -31,6 +31,9 @@ navigationUiKtx = "2.9.4"
 googleAuth = "20.6.0"
 facebookLogin = "16.3.0"
 
+# Accompanist for Pager
+accompanist = "0.32.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -69,6 +72,10 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 # Google Play Services Auth and Facebook Login
 google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleAuth" }
 facebook-login = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookLogin" }
+
+# Accompanist Pager for carousel
+accompanist-pager = { group = "com.google.accompanist", name = "accompanist-pager", version.ref = "accompanist" }
+accompanist-pager-indicators = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "accompanist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -2,8 +2,16 @@
 package com.example.facturacion_inventario.ui.store
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,21 +26,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.AuthViewModel
 import com.example.facturacion_inventario.R
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.view.WindowCompat
-import com.example.facturacion_inventario.data.repository.FakeProductRepository
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.BasicTextField
@@ -46,6 +44,58 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.zIndex
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
+import com.example.facturacion_inventario.data.repository.FakeProductRepository
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+// Badge del carrito con animación
+@Composable
+fun CartIconWithBadge(
+    itemCount: Int,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_badge),
+            contentDescription = "cart",
+            tint = iconColor,
+            modifier = Modifier.size(26.dp)
+        )
+
+        // Badge animado
+        AnimatedVisibility(
+            visible = itemCount > 0,
+            enter = scaleIn() + fadeIn(),
+            exit = scaleOut() + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 4.dp, y = (-4).dp)
+        ) {
+            val animatedCount by animateIntAsState(
+                targetValue = itemCount,
+                label = "cart_count"
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(18.dp)
+                    .background(Color.Red, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (animatedCount > 99) "99+" else animatedCount.toString(),
+                    color = Color.White,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
 
 // Nuevo composable para el buscador con control fino del layout
 @Composable
@@ -113,6 +163,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
     val repo = remember { FakeProductRepository() }
     var selectedTab by remember { mutableStateOf("home") }
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
+
+    // ViewModel del carrito compartido entre todas las pantallas
+    val cartViewModel: CartViewModel = viewModel()
 
     // Mantener query en el scope del host para usarla en el topbar y en las sugerencias
     var query by rememberSaveable { mutableStateOf("") }
@@ -223,7 +276,7 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                             }) {
                                 Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "profile", tint = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Cuenta", color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(text = "Perfil", color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
 
                             // Cart
@@ -231,7 +284,11 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 selectedTab = "cart"
                                 storeNavController.navigate("cart") { popUpTo("home") }
                             }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_badge), contentDescription = "cart", tint = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                CartIconWithBadge(
+                                    itemCount = cartViewModel.totalItemCount, // Usar el contador real del carrito
+                                    iconColor = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
+                                    modifier = Modifier.size(26.dp)
+                                )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(text = "Carrito", color = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
@@ -371,10 +428,10 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                     }
                     composable("product/{productId}") { backStackEntry ->
                         val pid = backStackEntry.arguments?.getString("productId")
-                        ProductDetailScreen(productId = pid, navController = storeNavController)
+                        ProductDetailScreen(productId = pid, cartViewModel = cartViewModel)
                     }
                     composable("cart") {
-                        CartScreen(navController = storeNavController)
+                        CartScreen(navController = storeNavController, cartViewModel = cartViewModel)
                     }
                     composable("profile") {
                         ProfileScreen(authViewModel = authViewModel, rootNavController = rootNavController)
