@@ -685,13 +685,14 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
             modifier = Modifier.fillMaxSize()
         ) {
             item {
+                Spacer(modifier = Modifier.height(96.dp))
                 Text(
                     text = "Detalle del producto",
                     color = MaterialTheme.colors.onBackground,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(Dimens.md))
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             product?.let { prod ->
@@ -896,22 +897,34 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
 @Composable
 fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartViewModel: CartViewModel? = null) {
     StoreScreenScaffold {
-        Text(text = "Carrito / Documentos", color = MaterialTheme.colors.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(Dimens.md))
-
-        if (cartViewModel == null || cartViewModel.cartItems.isEmpty()) {
-            Card(modifier = Modifier.fillMaxWidth(), elevation = 4.dp) {
-                Column(modifier = Modifier.padding(Dimens.lg)) {
-                    Text(text = "Tu carrito está vacío", color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f))
-                    Spacer(modifier = Modifier.height(Dimens.s))
-                    Text(text = "Aquí verás los items seleccionados para facturar o mover en inventario.", color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
-                }
+        // Pongo el encabezado dentro del LazyColumn para que se desplace con el contenido
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(Dimens.md),
+            contentPadding = PaddingValues(Dimens.lg)
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(text = "Carrito / Documentos", color = MaterialTheme.colors.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(Dimens.md))
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(Dimens.md)
-            ) {
+
+            if (cartViewModel == null || cartViewModel.cartItems.isEmpty()) {
+                item {
+                    Card(modifier = Modifier.fillMaxWidth(), elevation = 4.dp) {
+                        Column(modifier = Modifier.padding(Dimens.lg)) {
+                            Text(text = "Tu carrito está vacío", color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f))
+                            Spacer(modifier = Modifier.height(Dimens.s))
+                            Text(text = "Aquí verás los items seleccionados para facturar o mover en inventario.", color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
+                        }
+                    }
+                }
+
+                // espacio para que la barra inferior no tape contenido
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.xxl))
+                }
+            } else {
                 items(cartViewModel.cartItems) { cartItem ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -997,21 +1010,38 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                         }
                     }
                 }
+
+                // espacio para que la barra inferior no tape contenido
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.xxl))
+                }
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Dimens.md)) {
-            OutlinedButton(onClick = onContinueShopping, modifier = Modifier.weight(1f).height(Dimens.buttonHeight)) {
-                Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
-            }
-            Button(
-                onClick = onCheckout,
-                modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
-                enabled = cartViewModel?.cartItems?.isNotEmpty() == true,
-                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+        // Barra fija en la parte inferior con botones (diseño similar al de la pantalla principal)
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(),
+            elevation = 8.dp,
+            color = MaterialTheme.colors.background
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Dimens.md),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimens.lg)
             ) {
-                Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)
+                OutlinedButton(onClick = onContinueShopping, modifier = Modifier.weight(1f).height(Dimens.buttonHeight)) {
+                    Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
+                }
+                Button(
+                    onClick = onCheckout,
+                    modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
+                    enabled = cartViewModel?.cartItems?.isNotEmpty() == true,
+                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+                ) {
+                    Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)
+                }
             }
         }
     }
@@ -1023,24 +1053,28 @@ fun CategoriesContent(
     onCategoryClick: (String) -> Unit
 ) {
     StoreScreenScaffold {
-        Text(
-            text = "Todas las Categorías",
-            color = MaterialTheme.colors.onBackground,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(Dimens.s))
-        Text(
-            text = "Explora nuestro catálogo completo",
-            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-            fontSize = 14.sp
-        )
-        Spacer(modifier = Modifier.height(Dimens.lg))
-
+        // Pongo el encabezado dentro del LazyColumn para que se desplace con el contenido
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(Dimens.md),
             contentPadding = PaddingValues(Dimens.lg)
         ) {
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Todas las Categorías",
+                    color = MaterialTheme.colors.onBackground,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(Dimens.s))
+                Text(
+                    text = "Explora nuestro catálogo completo",
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(Dimens.lg))
+            }
+
             items(categories) { category ->
                 CategoryCard(
                     category = category,

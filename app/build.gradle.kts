@@ -64,17 +64,19 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // Compose
-    implementation("androidx.compose.ui:ui:1.9.0")
-    implementation("androidx.compose.material:material:1.9.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.9.0")
-    implementation("androidx.activity:activity-compose:1.10.1")
+    // Compose (usar catálogo de versiones para mantener consistencia)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.activity.compose)
     // Navigation Compose
+    // Use literal notation for navigation-compose to avoid generated catalog accessor issues
     implementation("androidx.navigation:navigation-compose:2.9.4")
-    // Material icons (core + extended) necesarias para usar Icons.Default
-    // Las dependencias de material-icons se han eliminado porque los iconos usan drawables (painterResource)
+    // Se eliminó dependencia a Material3 para mantener compatibilidad con Compose 1.9.0 y usar Material (v1)
+    // implementation(libs.androidx.compose.material3)
     // tooling for debug/inspection
-    debugImplementation("androidx.compose.ui:ui-tooling:1.9.0")
+    // Usar referencia del catálogo para la tooling library
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
     // Networking & JSON (usar catálogo de versiones)
     implementation(libs.retrofit)
@@ -92,7 +94,6 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(libs.material)
     implementation(libs.androidx.cardview)
 
     // Google Sign-In (Play Services Auth)

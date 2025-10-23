@@ -14,7 +14,6 @@ constraintlayout = "2.2.1"
 
 # Jetpack Compose
 compose = "1.9.0"
-composeCompiler = "1.5.3"
 
 gson = "2.10.1"
 lifecycle = "2.9.4"
@@ -31,9 +30,6 @@ navigationUiKtx = "2.9.4"
 googleAuth = "20.6.0"
 facebookLogin = "16.3.0"
 
-# Accompanist for Pager
-accompanist = "0.32.0"
-
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -49,6 +45,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref 
 androidx-compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 
 # Added libraries for networking and coroutines
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -73,9 +70,6 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleAuth" }
 facebook-login = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookLogin" }
 
-# Accompanist Pager for carousel
-accompanist-pager = { group = "com.google.accompanist", name = "accompanist-pager", version.ref = "accompanist" }
-accompanist-pager-indicators = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "accompanist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -11,12 +11,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppOutlinedTextField(value: String, onValueChange: (String) -> Unit, label: @Composable (() -> Unit)? = null, singleLine: Boolean = true, visualTransformation: VisualTransformation = VisualTransformation.None) {
+fun AppOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    modifier: Modifier = Modifier
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().then(modifier),
         singleLine = singleLine,
         colors = TextFieldDefaults.outlinedTextFieldColors(),
         visualTransformation = visualTransformation
@@ -25,19 +32,22 @@ fun AppOutlinedTextField(value: String, onValueChange: (String) -> Unit, label: 
 
 /**
  * InputField: wrapper ligero alrededor de OutlinedTextField para inputs reutilizables.
- * Params:
- *  - value/onValueChange: estado del campo
- *  - label: etiqueta composable
- *  - isPassword: aplica PasswordVisualTransformation si es true
  */
 @Composable
-fun InputField(value: String, onValueChange: (String) -> Unit, labelText: String, isPassword: Boolean = false) {
+fun InputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    labelText: String,
+    isPassword: Boolean = false,
+    modifier: Modifier = Modifier
+) {
     AppOutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(text = labelText, color = MaterialTheme.colors.secondary) },
         singleLine = true,
-        visualTransformation = if (isPassword) androidx.compose.ui.text.input.PasswordVisualTransformation() else VisualTransformation.None
+        visualTransformation = if (isPassword) androidx.compose.ui.text.input.PasswordVisualTransformation() else VisualTransformation.None,
+        modifier = modifier
     )
 }
 
@@ -45,7 +55,7 @@ fun InputField(value: String, onValueChange: (String) -> Unit, labelText: String
 fun LoadingCard() {
     Card(modifier = Modifier
         .fillMaxWidth()
-        .height(80.dp), elevation = 4.dp) {
+        .height(80.dp)) {
         Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.surface) {
             // Simple placeholder for loading state
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -57,7 +67,6 @@ fun LoadingCard() {
 
 /**
  * AuthHeader: cabecera simple utilizada en pantallas de autenticación
- * Muestra título y subtitle (opcional). Reutilizable en Login/Register.
  */
 @Composable
 fun AuthHeader(title: String, subtitle: String? = null) {
@@ -79,12 +88,11 @@ fun AppTopBar(title: String, onBack: () -> Unit) {
         title = { Text(text = title) },
         navigationIcon = {
             IconButton(onClick = onBack) {
-                // Usamos el drawable local en vez de Icons.Default para evitar dependencia de material-icons
                 Icon(painter = painterResource(id = com.example.facturacion_inventario.R.drawable.ic_arrow_back), contentDescription = "Atrás")
             }
         },
         backgroundColor = MaterialTheme.colors.surface,
-        elevation = 2.dp
+        modifier = Modifier.height(56.dp)
     )
 }
 
@@ -103,5 +111,5 @@ fun SimpleSearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Mo
 }
 
 /**
- * AuthHeader: otra documentación... (existing helpers)
+ * AppTopBar y helpers adicionales (existing helpers)
  */

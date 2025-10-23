@@ -58,6 +58,7 @@ fun SocialButton(
         modifier = modifier
             .fillMaxWidth()
             .height(Dimens.buttonHeight),
+        // OutlinedButton en material usa backgroundColor y contentColor opcionalmente
         colors = ButtonDefaults.outlinedButtonColors(backgroundColor = background),
         shape = MaterialTheme.shapes.medium
     ) {

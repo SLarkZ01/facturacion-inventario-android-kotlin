@@ -33,7 +33,7 @@ fun ProfileScreen(authViewModel: AuthViewModel, rootNavController: NavController
             Spacer(modifier = Modifier.height(12.dp))
 
             // Card de perfil
-            Card(elevation = 6.dp, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+            Card(elevation = 6.dp, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(), backgroundColor = MaterialTheme.colors.surface) {
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

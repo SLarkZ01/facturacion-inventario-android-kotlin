@@ -5,18 +5,12 @@ import androidx.compose.ui.unit.dp
 
 // Colores y constantes de UI compartidas
 val BackgroundTop = Color(0xFFFFFFFF)
-val CardColor = Color(0xFFFFFFFF)
-val Accent = Color(0xFF0B3D91)
 val DarkText = Color(0xFF0F1724)
 val SubtleText = Color(0xFF6B7280)
 
-// Tokens de tema (para usar desde AppTheme)
-val PrimaryVariant = Color(0xFF05285A)
-val SecondaryColor = SubtleText // 0xFF6B7280
-val OnPrimary = Color.White
-val OnSecondary = Color.White
-val OnBackground = DarkText
-val OnSurface = DarkText
+// Nota: Los colores del esquema de Material3 (PrimaryColor, SecondaryColor, OnPrimary, OnSecondary,
+// OnBackground, OnSurface, CardColor, PrimaryVariant, Accent) se definen en `Color.kt`.
+// Evitamos duplicarlos aquí para que no haya conflictos de declaración.
 
 // Colores de acento usados en los composables (centralizados para evitar literales)
 val AccentOrange = Color(0xFFFF6F00)

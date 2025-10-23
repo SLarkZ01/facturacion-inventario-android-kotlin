@@ -19,7 +19,7 @@ import com.example.facturacion_inventario.ui.theme.Dimens
 @Composable
 fun SearchField(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     // Aplicar modifier para permitir personalización desde quien llama
-    InputField(value = query, onValueChange = onQueryChange, labelText = "Buscar productos")
+    InputField(value = query, onValueChange = onQueryChange, labelText = "Buscar productos", modifier = modifier)
 }
 
 /**
@@ -49,3 +49,7 @@ fun EmptySearchPlaceholder(modifier: Modifier = Modifier) {
         }
     }
 }
+
+
+
+

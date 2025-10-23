@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.example.facturacion_inventario.domain.model.Product as DomainProduct
-import androidx.compose.material.IconButton
 
 // Tokens de tema
 import com.example.facturacion_inventario.ui.theme.Dimens
@@ -57,6 +56,7 @@ fun ProductCard(
             .width(Dimens.cardCompactWidth)
             .padding(Dimens.s)
             .clickable { onClick(product) },
+        backgroundColor = MaterialTheme.colors.surface,
         elevation = 4.dp,
         shape = MaterialTheme.shapes.medium
     ) {
@@ -99,14 +99,21 @@ fun ProductCard(
                         .align(Alignment.TopEnd)
                         .padding(Dimens.xs)
                         .size(Dimens.favoriteBadgeSize)
-                        .background(MaterialTheme.colors.surface.copy(alpha = 0.6f), shape = MaterialTheme.shapes.small)
                 ) {
-                    if (favorite) {
-                        // corazón lleno
-                        Text(text = "♥", color = Color.Red, fontSize = 16.sp)
-                    } else {
-                        // corazón contorno
-                        Text(text = "♡", color = MaterialTheme.colors.onSurface, fontSize = 16.sp)
+                    Surface(
+                        color = MaterialTheme.colors.surface.copy(alpha = 0.6f),
+                        shape = MaterialTheme.shapes.small,
+                        elevation = 0.dp
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            if (favorite) {
+                                // corazón lleno
+                                Text(text = "♥", color = Color.Red, fontSize = 16.sp)
+                            } else {
+                                // corazón contorno
+                                Text(text = "♡", color = MaterialTheme.colors.onSurface, fontSize = 16.sp)
+                            }
+                        }
                     }
                 }
             }
@@ -118,7 +125,7 @@ fun ProductCard(
                     text = product.name,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.subtitle2,
+                    style = MaterialTheme.typography.subtitle1,
                     fontSize = 13.sp
                 )
 
@@ -129,13 +136,13 @@ fun ProductCard(
                     Column {
                         Text(
                             text = "${product.currency} ${"%.2f".format(product.price)}",
-                            style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                             fontSize = 14.sp
                         )
                         product.oldPrice?.let { old ->
                             Text(
                                 text = "${product.currency} ${"%.2f".format(old)}",
-                                style = MaterialTheme.typography.caption,
+                                style = MaterialTheme.typography.body2,
                                 textDecoration = TextDecoration.LineThrough,
                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
                             )
@@ -147,7 +154,7 @@ fun ProductCard(
                             // estrella como texto Unicode
                             Text(text = "★", color = AmazonYellow, fontSize = 12.sp)
                             Spacer(modifier = Modifier.width(Dimens.s))
-                            Text(text = "%.1f".format(r), style = MaterialTheme.typography.caption)
+                            Text(text = "%.1f".format(r), style = MaterialTheme.typography.body2)
                         }
                     }
                 }
@@ -156,7 +163,7 @@ fun ProductCard(
 
                 Text(
                     text = if (product.inStock) "En stock" else "Agotado",
-                    style = MaterialTheme.typography.overline,
+                    style = MaterialTheme.typography.caption,
                     color = if (product.inStock) SuccessGreen else MaterialTheme.colors.error
                 )
             }

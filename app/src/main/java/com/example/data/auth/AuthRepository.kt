@@ -8,13 +8,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.google.gson.GsonBuilder
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.IOException
 import java.net.ProtocolException
 import java.util.concurrent.TimeUnit
 
 class AuthRepository : AuthDataSource {
-    private val api: com.example.data.auth.ApiService
-    private var authApi: com.example.data.auth.ApiService? = null
+    private val api: ApiService
+    private var authApi: ApiService? = null
 
     // Existing constructor that builds a simple client (kept for tests)
     constructor(baseUrl: String) {
@@ -22,7 +23,7 @@ class AuthRepository : AuthDataSource {
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        api = retrofit.create(com.example.data.auth.ApiService::class.java)
+        api = retrofit.create(ApiService::class.java)
     }
 
     // New constructor that uses ApiClient (with interceptor/authenticator)
@@ -33,7 +34,7 @@ class AuthRepository : AuthDataSource {
     }
 
     // Build a lightweight ApiService without authenticator for auth endpoints
-    private fun buildAuthApi(baseUrl: String): com.example.data.auth.ApiService {
+    private fun buildAuthApi(baseUrl: String): ApiService {
         val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
         val client = OkHttpClient.Builder()
             .addInterceptor(logger)
@@ -48,10 +49,10 @@ class AuthRepository : AuthDataSource {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
-        return retrofit.create(com.example.data.auth.ApiService::class.java)
+        return retrofit.create(ApiService::class.java)
     }
 
-    override suspend fun login(usernameOrEmail: String, password: String, device: String?): com.example.data.auth.LoginResponse? {
+    override suspend fun login(usernameOrEmail: String, password: String, device: String?): LoginResponse? {
         val body = mutableMapOf<String, String>()
         body["usernameOrEmail"] = usernameOrEmail
         body["username_or_email"] = usernameOrEmail
@@ -85,7 +86,7 @@ class AuthRepository : AuthDataSource {
         }
     }
 
-    override suspend fun register(req: com.example.data.auth.RegisterRequest): com.example.data.auth.LoginResponse? {
+    override suspend fun register(req: RegisterRequest): LoginResponse? {
         Log.d("AuthRepository", "register request: $req")
         // Loggear el JSON que enviaremos para facilitar debugging en Logcat
         try {
@@ -106,9 +107,10 @@ class AuthRepository : AuthDataSource {
             // Intentar parsear JSON de error común {"error":"..."} o {"message":"..."}
             val parsedMessage = try {
                 val gson = GsonBuilder().create()
-                val map: Map<String, Any?> = gson.fromJson(errBody ?: "{}", Map::class.java) as Map<String, Any?>
+                val type = object : TypeToken<Map<String, Any?>>() {}.type
+                val map: Map<String, Any?> = gson.fromJson(errBody ?: "{}", type)
                 (map["error"] ?: map["message"] ?: map["errors"] ?: errBody)?.toString()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 errBody
             }
 
@@ -148,7 +150,7 @@ class AuthRepository : AuthDataSource {
         }
     }
 
-    override suspend fun oauthGoogle(idToken: String, inviteCode: String?, device: String?): com.example.data.auth.LoginResponse? {
+    override suspend fun oauthGoogle(idToken: String, inviteCode: String?, device: String?): LoginResponse? {
         val usedApi = authApi ?: api
         val body = mutableMapOf<String, String>("idToken" to idToken)
         if (!inviteCode.isNullOrEmpty()) body["inviteCode"] = inviteCode
@@ -161,7 +163,7 @@ class AuthRepository : AuthDataSource {
         throw Exception("Google OAuth falló: $code ${err ?: "sin cuerpo"}")
     }
 
-    override suspend fun oauthFacebook(accessToken: String, inviteCode: String?, device: String?): com.example.data.auth.LoginResponse? {
+    override suspend fun oauthFacebook(accessToken: String, inviteCode: String?, device: String?): LoginResponse? {
         val usedApi = authApi ?: api
         val body = mutableMapOf<String, String>("accessToken" to accessToken)
         if (!inviteCode.isNullOrEmpty()) body["inviteCode"] = inviteCode

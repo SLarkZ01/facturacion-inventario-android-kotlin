@@ -17,7 +17,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -97,61 +96,74 @@ fun CartIconWithBadge(
     }
 }
 
-// Nuevo composable para el buscador con control fino del layout
+// Nuevo SearchBar más elegante y con comportamiento según collapseProgress
 @Composable
-fun SearchBox(
+fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    collapseProgress: Float = 0f // 0 = expanded, 1 = collapsed
 ) {
-    // Hacemos el buscador más compacto y centrado verticalmente
-    Row(
-        modifier = modifier
-            .height(36.dp), // más compacto
-        verticalAlignment = Alignment.CenterVertically
+    // Color y elevación que cambian según el scroll
+    val backgroundAlpha = (1f - 0.22f * collapseProgress).coerceIn(0.75f, 1f)
+    val elevation = if (collapseProgress > 0.5f) 8.dp else 2.dp
+
+    Surface(
+        modifier = modifier,
+        color = Color.White.copy(alpha = backgroundAlpha),
+        shape = RoundedCornerShape(24.dp),
+        elevation = elevation
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_search),
-            contentDescription = "search",
-            tint = Color(0xFF757575),
-            modifier = Modifier.size(16.dp) // icono aún más pequeño
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-
-        BasicTextField(
-            value = query,
-            onValueChange = onQueryChange,
-            singleLine = true,
-            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .padding(vertical = 2.dp), // ajustar centrado
-            decorationBox = { innerTextField ->
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                    if (query.isEmpty()) {
-                        Text(
-                            text = "Buscar productos, marcas y más",
-                            color = Color(0xFF9E9E9E),
-                            style = TextStyle(fontSize = 13.sp)
-                        )
-                    }
-                    innerTextField()
-                }
-            }
-        )
+                .fillMaxWidth()
+                .height(40.dp)
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = "search",
+                tint = Color(0xFF757575),
+                modifier = Modifier.size(20.dp)
+            )
 
-        if (query.isNotBlank()) {
-            IconButton(onClick = onClear, modifier = Modifier
-                .size(30.dp)
-                .padding(end = 2.dp)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = "clear",
-                    tint = Color(0xFF757575),
-                    modifier = Modifier.size(16.dp)
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Box(modifier = Modifier.weight(1f)) {
+                BasicTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    decorationBox = { innerTextField ->
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            if (query.isEmpty()) {
+                                Text(
+                                    text = "Buscar productos, marcas y más",
+                                    color = Color(0xFF9E9E9E),
+                                    style = TextStyle(fontSize = 14.sp)
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
                 )
+            }
+
+            if (query.isNotBlank()) {
+                IconButton(onClick = onClear, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_arrow_back),
+                        contentDescription = "clear",
+                        tint = Color(0xFF757575),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }
@@ -180,8 +192,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
     val density = LocalDensity.current
 
     // Dimensiones del header
-    val maxHeight = 140.dp
-    val minHeight = 56.dp
+    // Hacemos la franja naranja más compacta: menos alto cuando está expandido
+    val maxHeight = 92.dp
+    val minHeight = 52.dp
     val maxHeightPx = with(density) { maxHeight.toPx() }
     val minHeightPx = with(density) { minHeight.toPx() }
     var headerHeightPx by remember { mutableStateOf(maxHeightPx) }
@@ -306,6 +319,9 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
 
             val headerHeightDp = with(density) { headerHeightPx.toDp() }
             val backgroundColor = lerp(headerStartColor, headerEndColor, collapseProgress)
+            // Espacio extra dinámico: cuando el header está expandido, empuja el contenido hacia abajo
+            // Aumentado para que las categorías queden más visibles y no "metidas" en la franja naranja.
+            val extraTop = 20.dp * (1f - collapseProgress)
 
             // Header colapsable superpuesto (ahora incluye el alto de la barra de estado)
             Surface(
@@ -321,47 +337,43 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                     .fillMaxSize()
                     .padding(horizontal = 12.dp)
                     .statusBarsPadding(),
-                    verticalArrangement = Arrangement.Center) {
+                    verticalArrangement = Arrangement.Top) { // Cambiado a Top para que la barra no quede tan abajo
 
-                    // Fila superior (logo y perfil) que desaparece al colapsar
-                    val fadingAlpha = 1f - collapseProgress
-                    Row(modifier = Modifier
+                    // Espacio superior pequeño para separarlo del status bar
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    // SearchBar elegante y centrada horizontalmente
+                    Box(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White.copy(alpha = fadingAlpha), modifier = Modifier.size(28.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        // Caja de búsqueda
-                        Box(modifier = Modifier
-                            .weight(1f)
-                            .height(36.dp)) {
-                            Surface(
-                                shape = RoundedCornerShape(24.dp),
-                                color = Color.White,
-                                elevation = 0.dp,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(24.dp))
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(start = 10.dp, end = 8.dp)) {
-                                    SearchBox(
-                                        query = query,
-                                        onQueryChange = { new: String -> query = new },
-                                        onClear = { query = "" },
-                                        modifier = Modifier.fillMaxHeight()
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        IconButton(onClick = { /* acción futura */ }, enabled = fadingAlpha > 0.05f) {
-                            Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White.copy(alpha = fadingAlpha))
-                        }
+                        .padding(horizontal = 4.dp)
+                        .zIndex(3f), contentAlignment = Alignment.TopCenter) {
+
+                        SearchBar(
+                            query = query,
+                            onQueryChange = { new: String -> query = new },
+                            onClear = { query = "" },
+                            modifier = Modifier
+                                .fillMaxWidth(0.96f),
+                            collapseProgress = collapseProgress
+                        )
                     }
 
-                    // Línea inferior (por ejemplo, destino de envío) que se oculta al colapsar
+                    // Mantener el logo/perfil y el texto de destino, pero ocultarlos según el colapso
+                    val fadingAlpha = 1f - collapseProgress
+
                     if (fadingAlpha > 0.05f) {
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White.copy(alpha = fadingAlpha), modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(onClick = { /* acción futura */ }) {
+                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White.copy(alpha = fadingAlpha))
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Enviar a tu ubicación",
@@ -416,8 +428,8 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             // Contenido principal desplazable bajo el header
             Box(modifier = Modifier
                 .fillMaxSize()
-                .padding(top = headerHeightDp)
-                .zIndex(1f)) {
+                .padding(top = headerHeightDp + extraTop)
+                 .zIndex(1f)) {
                 NavHost(navController = storeNavController, startDestination = "home") {
                     composable("home") {
                         HomeScreen(navController = storeNavController)
