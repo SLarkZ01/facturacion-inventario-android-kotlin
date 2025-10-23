@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -36,6 +35,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 
+// Import de composables reutilizables
+import com.example.facturacion_inventario.ui.components.ProductListFromDomain
+
+// Tokens visuales centralizados
+import com.example.facturacion_inventario.ui.theme.Dimens
+import com.example.facturacion_inventario.ui.theme.AccentOrange
+import com.example.facturacion_inventario.ui.theme.AmazonYellow
+import com.example.facturacion_inventario.ui.theme.SuccessGreen
+
+
 // Selector de cantidad estilo Amazon
 @Composable
 fun QuantitySelector(
@@ -55,12 +64,12 @@ fun QuantitySelector(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colors.onSurface
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.md))
 
         // Botón decrementar
         OutlinedButton(
             onClick = { if (quantity > 1) onQuantityChange(quantity - 1) },
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier.size(Dimens.iconButtonSize),
             contentPadding = PaddingValues(0.dp),
             enabled = quantity > 1,
             shape = CircleShape
@@ -68,7 +77,7 @@ fun QuantitySelector(
             Text(text = "−", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.md))
 
         // Display cantidad
         Card(
@@ -79,8 +88,8 @@ fun QuantitySelector(
         ) {
             Box(
                 modifier = Modifier
-                    .width(50.dp)
-                    .padding(vertical = 8.dp),
+                    .width(Dimens.quantityBoxWidth)
+                    .padding(vertical = Dimens.s),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -92,12 +101,12 @@ fun QuantitySelector(
             }
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.md))
 
         // Botón incrementar
         OutlinedButton(
             onClick = { if (quantity < maxQuantity) onQuantityChange(quantity + 1) },
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier.size(Dimens.iconButtonSize),
             contentPadding = PaddingValues(0.dp),
             enabled = quantity < maxQuantity,
             shape = CircleShape
@@ -105,7 +114,7 @@ fun QuantitySelector(
             Text(text = "+", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(Dimens.s))
 
         // Mostrar stock máximo disponible
         Text(
@@ -130,7 +139,7 @@ fun StoreScreenScaffold(
                 .fillMaxSize()
                 .background(brush = Brush.verticalGradient(listOf(MaterialTheme.colors.background, MaterialTheme.colors.background)))
         ) {
-            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Column(modifier = Modifier.fillMaxSize().padding(Dimens.lg)) {
                 content()
             }
         }
@@ -142,29 +151,30 @@ fun ProductCardItem(item: Product, onClick: (String) -> Unit, modifier: Modifier
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
+            .padding(vertical = Dimens.s)
             .clickable { onClick(item.id) },
         backgroundColor = MaterialTheme.colors.surface,
         border = BorderStroke(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.08f)),
-        elevation = 6.dp,
+        elevation = 4.dp,
         shape = MaterialTheme.shapes.medium
     ) {
-        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.padding(Dimens.md), verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = item.imageRes),
                 contentDescription = item.name,
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier.size(Dimens.imageMedium)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(Dimens.md))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
                     color = MaterialTheme.colors.onBackground,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.subtitle1
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Dimens.s))
                 Text(
                     text = item.description,
                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
@@ -172,69 +182,27 @@ fun ProductCardItem(item: Product, onClick: (String) -> Unit, modifier: Modifier
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(Dimens.s))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Disponible", color = MaterialTheme.colors.primary, fontSize = 12.sp)
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(Dimens.md))
                     Text(text = "Código: ${item.id}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), fontSize = 11.sp)
                 }
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Dimens.s))
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(text = "Precio: --", color = MaterialTheme.colors.primary, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = { /* acción */ }, colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
+                Spacer(modifier = Modifier.height(Dimens.s))
+                Button(
+                    onClick = { /* acción */ },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
+                    modifier = Modifier.height(Dimens.buttonHeight)
+                ) {
                     Text(text = "Añadir", color = MaterialTheme.colors.onPrimary)
                 }
             }
-        }
-    }
-}
-
-// Nuevo componente para tarjeta de producto horizontal estilo Amazon
-@Composable
-fun ProductCardHorizontal(product: Product, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .width(160.dp)
-            .clickable { onClick(product.id) },
-        backgroundColor = MaterialTheme.colors.surface,
-        elevation = 2.dp,
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Image(
-                painter = painterResource(id = product.imageRes),
-                contentDescription = product.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = product.name,
-                style = MaterialTheme.typography.body2,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                fontSize = 13.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CO")).format(product.price),
-                style = MaterialTheme.typography.body2,
-                color = Color(0xFFFF6F00), // Naranja directo
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
-            Text(
-                text = "Stock: ${product.stock}",
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-                fontSize = 11.sp
-            )
         }
     }
 }
@@ -252,7 +220,7 @@ fun CategorySection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = Dimens.lg, vertical = Dimens.s),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -272,48 +240,28 @@ fun CategorySection(
             }
             if (!showAll) {
                 TextButton(onClick = { onSeeAllClick(category.id) }) {
-                    Text(text = "Ver todos", color = Color(0xFFFF6F00), fontSize = 13.sp)
+                    Text(text = "Ver todos", color = AccentOrange, fontSize = 13.sp)
                 }
             }
         }
 
         if (showAll) {
-            // Vista de grid cuando se muestra todo
-            Column(
+            ProductListFromDomain(
+                products = products,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                products.chunked(2).forEach { rowProducts ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        rowProducts.forEach { product ->
-                            ProductCardHorizontal(
-                                product = product,
-                                onClick = onProductClick,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        // Si solo hay un producto en la fila, agregar un espacio vacío
-                        if (rowProducts.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-            }
+                    .padding(horizontal = Dimens.lg),
+                layout = "grid",
+                onItemClick = { p -> onProductClick(p.id) }
+            )
         } else {
-            // Vista horizontal normal con máximo 5 productos
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(products.take(5)) { product ->
-                    ProductCardHorizontal(product = product, onClick = onProductClick)
-                }
-            }
+            ProductListFromDomain(
+                products = products,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                layout = "horizontal",
+                onItemClick = { p -> onProductClick(p.id) }
+            )
         }
     }
 }
@@ -355,7 +303,8 @@ fun HomeContent(
 
             LazyColumn(
                 state = listState,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(Dimens.lg)
             ) {
                 // Mostrar banner si hay categoría seleccionada
                 if (selectedCategoryId != null) {
@@ -365,20 +314,21 @@ fun HomeContent(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                backgroundColor = Color(0xFFFF6F00).copy(alpha = 0.1f),
-                                elevation = 2.dp
+                                    .padding(vertical = Dimens.s),
+                                backgroundColor = AccentOrange.copy(alpha = 0.08f),
+                                elevation = 2.dp,
+                                shape = MaterialTheme.shapes.medium
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(16.dp),
+                                    modifier = Modifier.padding(Dimens.lg),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Image(
                                         painter = painterResource(id = category.iconRes),
                                         contentDescription = category.name,
-                                        modifier = Modifier.size(40.dp)
+                                        modifier = Modifier.size(Dimens.imageSmall)
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Spacer(modifier = Modifier.width(Dimens.md))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = category.name,
@@ -399,7 +349,7 @@ fun HomeContent(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(Dimens.s))
                 }
 
                 // Mostramos cada categoría con sus productos
@@ -413,12 +363,11 @@ fun HomeContent(
                             onSeeAllClick = onSeeAllCategoryClick,
                             showAll = selectedCategoryId != null
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(80.dp)) // Espacio para los botones
+                    Spacer(modifier = Modifier.height(Dimens.xxl)) // Espacio para los botones
                 }
             }
 
@@ -429,21 +378,20 @@ fun HomeContent(
                 color = MaterialTheme.colors.background
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.md),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(Dimens.lg)
                 ) {
                     OutlinedButton(
                         onClick = onCategoriesClick,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).height(Dimens.buttonHeight)
                     ) {
                         Text(text = "Categorías", color = MaterialTheme.colors.primary)
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
                     Button(
                         onClick = onCartClick,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
                         colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
                     ) {
                         Text(text = "Carrito", color = MaterialTheme.colors.onPrimary)
@@ -479,7 +427,7 @@ fun ProductMediaCarousel(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(280.dp)
+                .height(Dimens.pagerHeight)
         ) {
             HorizontalPager(
                 state = pagerState,
@@ -490,9 +438,10 @@ fun ProductMediaCarousel(
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = Dimens.s),
                     elevation = 0.dp,
-                    backgroundColor = MaterialTheme.colors.surface
+                    backgroundColor = MaterialTheme.colors.surface,
+                    shape = MaterialTheme.shapes.medium
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -505,7 +454,7 @@ fun ProductMediaCarousel(
                                     contentDescription = "Imagen ${page + 1} de ${product.name}",
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(240.dp)
+                                        .height(Dimens.pagerHeight - Dimens.xs)
                                 )
                             }
                             MediaType.VIDEO -> {
@@ -519,7 +468,7 @@ fun ProductMediaCarousel(
                                         contentDescription = "Video ${page + 1} de ${product.name}",
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(240.dp)
+                                            .height(Dimens.pagerHeight - Dimens.xs)
                                     )
                                     // Overlay con icono de play
                                     Surface(
@@ -551,7 +500,7 @@ fun ProductMediaCarousel(
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(16.dp),
+                        .padding(Dimens.lg),
                     shape = MaterialTheme.shapes.small,
                     color = Color.Black.copy(alpha = 0.6f)
                 ) {
@@ -559,7 +508,7 @@ fun ProductMediaCarousel(
                         text = "${pagerState.currentPage + 1}/${mediaList.size}",
                         color = Color.White,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = Dimens.md, vertical = Dimens.xs)
                     )
                 }
             }
@@ -567,28 +516,28 @@ fun ProductMediaCarousel(
 
         // Indicadores de posición (puntos)
         if (mediaList.size > 1) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.md))
             Row(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(8.dp),
+                    .padding(Dimens.s),
                 horizontalArrangement = Arrangement.Center
             ) {
                 repeat(mediaList.size) { index ->
                     Box(
                         modifier = Modifier
                             .size(if (index == pagerState.currentPage) 10.dp else 8.dp)
-                            .padding(2.dp)
+                            .padding(Dimens.xs)
                             .clip(CircleShape)
                             .background(
                                 if (index == pagerState.currentPage)
-                                    Color(0xFFFF6F00)
+                                    AccentOrange
                                 else
                                     MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
                             )
                     )
                     if (index < mediaList.size - 1) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(Dimens.s))
                     }
                 }
             }
@@ -612,7 +561,7 @@ fun ProductDetailsSection(
             color = MaterialTheme.colors.onSurface
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dimens.lg))
 
         // Especificaciones técnicas (pares clave-valor)
         if (product.specifications.isNotEmpty()) {
@@ -624,14 +573,14 @@ fun ProductDetailsSection(
                 color = MaterialTheme.colors.onSurface
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.md))
 
             // Lista de especificaciones
             product.specifications.forEach { spec ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp),
+                        .padding(vertical = Dimens.s),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
@@ -660,7 +609,7 @@ fun ProductDetailsSection(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.xl))
         }
 
         // Características destacadas (lista con viñetas)
@@ -670,7 +619,7 @@ fun ProductDetailsSection(
                 thickness = 1.dp
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.xl))
 
             Text(
                 text = "Características principales",
@@ -680,26 +629,26 @@ fun ProductDetailsSection(
                 color = MaterialTheme.colors.onSurface
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.md))
 
             // Lista de características con iconos
             product.features.forEach { feature ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp),
+                        .padding(vertical = Dimens.s),
                     verticalAlignment = Alignment.Top
                 ) {
                     // Icono de check o viñeta
                     Box(
                         modifier = Modifier
                             .size(6.dp)
-                            .padding(top = 6.dp)
+                            .padding(top = Dimens.s)
                             .clip(CircleShape)
-                            .background(Color(0xFFFF6F00))
+                            .background(AccentOrange)
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(Dimens.md))
 
                     Text(
                         text = feature,
@@ -742,7 +691,7 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(Dimens.md))
             }
 
             product?.let { prod ->
@@ -755,10 +704,10 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                     ) {
                         ProductMediaCarousel(
                             product = prod,
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier.padding(Dimens.lg)
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.xl))
                 }
 
                 // Información del producto
@@ -768,24 +717,25 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                         elevation = 6.dp,
                         shape = MaterialTheme.shapes.medium
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.padding(Dimens.lg)) {
                             // Nombre y descripción
                             Text(
                                 text = prod.name,
                                 color = MaterialTheme.colors.onBackground,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
+                                fontSize = 18.sp,
+                                style = MaterialTheme.typography.h6
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Dimens.s))
                             Text(
                                 text = prod.description,
                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f),
                                 fontSize = 14.sp
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Dimens.lg))
                             Divider()
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Dimens.lg))
 
                             // Precio
                             Text(
@@ -793,16 +743,16 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
                                 fontSize = 12.sp
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(Dimens.xs))
                             Text(
                                 text = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CO"))
                                     .format(prod.price),
-                                color = Color(0xFFFF6F00),
+                                color = AccentOrange,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 24.sp
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Dimens.lg))
 
                             // Stock disponible
                             Row(
@@ -810,12 +760,12 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                             ) {
                                 Text(
                                     text = if (prod.stock > 0) "En stock" else "Sin stock",
-                                    color = if (prod.stock > 0) Color(0xFF388E3C) else MaterialTheme.colors.error,
+                                    color = if (prod.stock > 0) SuccessGreen else MaterialTheme.colors.error,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
                                 )
                                 if (prod.stock > 0 && prod.stock <= 10) {
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(Dimens.s))
                                     Text(
                                         text = "¡Solo quedan ${prod.stock}!",
                                         color = MaterialTheme.colors.error,
@@ -825,9 +775,9 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(Dimens.xl))
                             Divider()
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(Dimens.xl))
 
                             // Selector de cantidad
                             if (prod.stock > 0) {
@@ -838,7 +788,7 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                     modifier = Modifier.fillMaxWidth()
                                 )
 
-                                Spacer(modifier = Modifier.height(24.dp))
+                                Spacer(modifier = Modifier.height(Dimens.xl))
 
                                 // Botón amarillo "Agregar al carrito"
                                 Button(
@@ -850,13 +800,13 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(50.dp)
+                                        .height(Dimens.buttonHeight)
                                         .graphicsLayer {
                                             scaleX = scale
                                             scaleY = scale
                                         },
                                     colors = ButtonDefaults.buttonColors(
-                                        backgroundColor = Color(0xFFFFC107) // Amarillo Amazon
+                                        backgroundColor = AmazonYellow // Amarillo Amazon
                                     ),
                                     shape = MaterialTheme.shapes.medium
                                 ) {
@@ -868,16 +818,16 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(Dimens.md))
 
                                 // Botón naranja "Comprar ahora"
                                 Button(
                                     onClick = { /* Acción de comprar ahora */ },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(50.dp),
+                                        .height(Dimens.buttonHeight),
                                     colors = ButtonDefaults.buttonColors(
-                                        backgroundColor = Color(0xFFFF6F00) // Naranja
+                                        backgroundColor = AccentOrange // Naranja
                                     ),
                                     shape = MaterialTheme.shapes.medium
                                 ) {
@@ -896,7 +846,7 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                     shape = MaterialTheme.shapes.medium
                                 ) {
                                     Column(
-                                        modifier = Modifier.padding(16.dp),
+                                        modifier = Modifier.padding(Dimens.lg),
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
@@ -905,7 +855,7 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp
                                         )
-                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Spacer(modifier = Modifier.height(Dimens.s))
                                         Text(
                                             text = "Este producto no está disponible actualmente",
                                             color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
@@ -915,100 +865,52 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                     }
                                 }
                             }
-
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Divider()
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Código del producto
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column {
-                                    Text(
-                                        text = "Código del producto",
-                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-                                        fontSize = 12.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = prod.id,
-                                        color = MaterialTheme.colors.onSurface,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                }
-
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        text = "Categoría",
-                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-                                        fontSize = 12.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = prod.categoryId.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
-                                        color = MaterialTheme.colors.onSurface,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                }
-                            }
                         }
                     }
                 }
 
-                // Sección de Detalles del producto
-                if (prod.specifications.isNotEmpty() || prod.features.isNotEmpty()) {
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            elevation = 6.dp,
-                            shape = MaterialTheme.shapes.medium
-                        ) {
-                            ProductDetailsSection(
-                                product = prod,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
+                // Sección de detalles
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = 6.dp,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        ProductDetailsSection(
+                            product = prod,
+                            modifier = Modifier.padding(Dimens.lg)
+                        )
                     }
+                    Spacer(modifier = Modifier.height(Dimens.xl))
                 }
-            } ?: item {
-                Text(
-                    text = "Producto no encontrado",
-                    color = MaterialTheme.colors.onSurface
-                )
             }
 
-            // Espacio al final
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.xl)) // Espacio final
             }
         }
     }
 }
 
+// Agrego CartContent y CategoriesContent faltantes (usadas por StoreScreens.kt)
 @Composable
 fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartViewModel: CartViewModel? = null) {
     StoreScreenScaffold {
         Text(text = "Carrito / Documentos", color = MaterialTheme.colors.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(Dimens.md))
 
-        // Mostrar items del carrito o mensaje de vacío
-        if (cartViewModel?.cartItems?.isEmpty() == true || cartViewModel == null) {
+        if (cartViewModel == null || cartViewModel.cartItems.isEmpty()) {
             Card(modifier = Modifier.fillMaxWidth(), elevation = 4.dp) {
-                Column(modifier = Modifier.padding(12.dp)) {
+                Column(modifier = Modifier.padding(Dimens.lg)) {
                     Text(text = "Tu carrito está vacío", color = MaterialTheme.colors.onSurface.copy(alpha = 0.9f))
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(Dimens.s))
                     Text(text = "Aquí verás los items seleccionados para facturar o mover en inventario.", color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
                 }
             }
         } else {
-            // Mostrar lista de productos en el carrito
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(Dimens.md)
             ) {
                 items(cartViewModel.cartItems) { cartItem ->
                     Card(
@@ -1017,15 +919,17 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                         shape = MaterialTheme.shapes.medium
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(Dimens.lg),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
                                 painter = painterResource(id = cartItem.product.imageRes),
                                 contentDescription = cartItem.product.name,
-                                modifier = Modifier.size(60.dp)
+                                modifier = Modifier.size(Dimens.imageLarge)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Spacer(modifier = Modifier.width(Dimens.md))
+
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = cartItem.product.name,
@@ -1034,26 +938,26 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(Dimens.s))
                                 Text(
                                     text = "Cantidad: ${cartItem.quantity}",
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(Dimens.s))
                                 Text(
-                                    text = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CO"))
-                                        .format(cartItem.product.price * cartItem.quantity),
-                                    color = Color(0xFFFF6F00),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
+                                    text = "S/ ${"%.2f".format(cartItem.product.price)}",
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colors.primary
                                 )
                             }
+
                             IconButton(onClick = { cartViewModel.removeFromCart(cartItem.product.id) }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_arrow_back),
                                     contentDescription = "Eliminar",
-                                    tint = MaterialTheme.colors.error
+                                    tint = MaterialTheme.colors.error,
+                                    modifier = Modifier.size(Dimens.iconSize)
                                 )
                             }
                         }
@@ -1061,13 +965,13 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.lg))
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = 4.dp,
-                        backgroundColor = Color(0xFFFF6F00).copy(alpha = 0.1f)
+                        backgroundColor = AccentOrange.copy(alpha = 0.08f)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.padding(Dimens.lg)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
@@ -1078,14 +982,13 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                                     fontSize = 18.sp
                                 )
                                 Text(
-                                    text = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CO"))
-                                        .format(cartViewModel.getTotalPrice()),
-                                    color = Color(0xFFFF6F00),
+                                    text = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CO")).format(cartViewModel.getTotalPrice()),
+                                    color = AccentOrange,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 )
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Dimens.s))
                             Text(
                                 text = "${cartViewModel.totalItemCount} producto(s) en total",
                                 fontSize = 12.sp,
@@ -1098,32 +1001,18 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
         }
 
         Spacer(modifier = Modifier.weight(1f))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onContinueShopping, modifier = Modifier.weight(1f)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Dimens.md)) {
+            OutlinedButton(onClick = onContinueShopping, modifier = Modifier.weight(1f).height(Dimens.buttonHeight)) {
                 Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
             }
             Button(
                 onClick = onCheckout,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
                 enabled = cartViewModel?.cartItems?.isNotEmpty() == true,
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
             ) {
                 Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)
             }
-        }
-    }
-}
-
-@Composable
-fun SearchContent(initialQuery: String = "", onSearch: (String) -> Unit, onBack: () -> Unit) {
-    var query by remember { mutableStateOf(initialQuery) }
-    StoreScreenScaffold {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) { TextButton(onClick = onBack) { Text(text = "Volver") } }
-        Text(text = "Buscar", color = MaterialTheme.colors.onBackground, fontSize = 24.sp)
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(value = query, onValueChange = { query = it }, label = { Text("Buscar productos", color = MaterialTheme.colors.secondary) }, modifier = Modifier.weight(1f))
-            Button(onClick = { onSearch(query) }, colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) { Text(text = "Buscar", color = MaterialTheme.colors.onPrimary) }
         }
     }
 }
@@ -1140,16 +1029,17 @@ fun CategoriesContent(
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimens.s))
         Text(
             text = "Explora nuestro catálogo completo",
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
             fontSize = 14.sp
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dimens.lg))
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(Dimens.md),
+            contentPadding = PaddingValues(Dimens.lg)
         ) {
             items(categories) { category ->
                 CategoryCard(
@@ -1164,68 +1054,49 @@ fun CategoriesContent(
 @Composable
 fun CategoryCard(
     category: Category,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .padding(vertical = Dimens.s)
             .clickable { onClick() },
-        backgroundColor = MaterialTheme.colors.surface,
         elevation = 4.dp,
         shape = MaterialTheme.shapes.medium
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(Dimens.lg)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono de categoría
-            Card(
-                backgroundColor = Color(0xFFFF6F00).copy(alpha = 0.1f),
-                shape = MaterialTheme.shapes.medium,
-                elevation = 0.dp,
-                modifier = Modifier.size(60.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Image(
-                        painter = painterResource(id = category.iconRes),
-                        contentDescription = category.name,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            }
+            Image(
+                painter = painterResource(id = category.iconRes),
+                contentDescription = category.name,
+                modifier = Modifier.size(Dimens.imageMedium)
+            )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimens.md))
 
-            // Información de categoría
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = category.name,
-                    style = MaterialTheme.typography.h6,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = MaterialTheme.colors.onSurface
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Dimens.s))
                 Text(
                     text = category.description,
-                    style = MaterialTheme.typography.body2,
                     fontSize = 13.sp,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
                 )
             }
 
-            // Icono de flecha
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_forward),
-                contentDescription = "Ver categoría",
-                tint = Color(0xFFFF6F00),
-                modifier = Modifier.size(24.dp)
-            )
+            TextButton(onClick = onClick) {
+                Text(text = "Ver", color = MaterialTheme.colors.primary)
+            }
         }
     }
 }

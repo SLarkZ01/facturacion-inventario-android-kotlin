@@ -1,7 +1,6 @@
 package com.example.facturacion_inventario.ui.login
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,6 +20,8 @@ import androidx.navigation.NavController
 import com.example.facturacion_inventario.R
 import com.example.auth.AuthViewModel
 import kotlinx.coroutines.launch
+import com.example.facturacion_inventario.ui.components.*
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = null, onLoginSuccess: (() -> Unit)? = null) {
@@ -63,130 +64,61 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = nu
 
                 Spacer(Modifier.height(60.dp))
 
-                // Header (logo + title)
-                Image(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo",
-                    modifier = Modifier.size(80.dp))
-                Spacer(Modifier.height(12.dp))
-                Text(text = "Moto Parts", color = MaterialTheme.colors.onBackground, fontSize = 28.sp)
-                Text(text = "Repuestos y accesorios", color = MaterialTheme.colors.secondary, fontSize = 14.sp)
+                // Header (logo + title) reutilizando AuthHeader
+                AuthHeader(title = "Moto Parts", subtitle = "Repuestos y accesorios")
 
                 Spacer(Modifier.height(32.dp))
 
-                Card(modifier = Modifier.fillMaxWidth(), backgroundColor = MaterialTheme.colors.surface, border = BorderStroke(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.12f)), shape = RoundedCornerShape(8.dp), elevation = 4.dp) {
-                    Column(modifier = Modifier.padding(24.dp)) {
-                        OutlinedTextField(
-                            value = username,
-                            onValueChange = { username = it },
-                            label = { Text(text = "Usuario o correo", color = MaterialTheme.colors.secondary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground,
-                                focusedLabelColor = MaterialTheme.colors.primary,
-                                unfocusedLabelColor = MaterialTheme.colors.secondary
-                            )
-                        )
+                AuthCard {
+                    // Campos de input reutilizables
+                    InputField(value = username, onValueChange = { username = it }, labelText = "Usuario o correo")
+                    Spacer(Modifier.height(12.dp))
+                    InputField(value = password, onValueChange = { password = it }, labelText = "Contraseña", isPassword = true)
+
+                    Spacer(Modifier.height(16.dp))
+
+                    if (uiState.loading) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = MaterialTheme.colors.primary)
+                        }
+                    } else {
+                        PrimaryButton(text = "Ingresar", onClick = {
+                            if (username.isBlank() || password.isBlank()) {
+                                Toast.makeText(context, "Completa usuario y contraseña", Toast.LENGTH_SHORT).show()
+                                return@PrimaryButton
+                            }
+                            scope.launch {
+                                authViewModel.login(username, password)
+                            }
+                        })
 
                         Spacer(Modifier.height(12.dp))
 
-                        OutlinedTextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = { Text(text = "Contraseña", color = MaterialTheme.colors.secondary) },
-                            visualTransformation = PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground,
-                                focusedLabelColor = MaterialTheme.colors.primary,
-                                unfocusedLabelColor = MaterialTheme.colors.secondary
-                            )
-                        )
+                        Divider(color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f), thickness = 1.dp)
+                        Spacer(Modifier.height(12.dp))
+                        Text(text = "o continuar con", color = MaterialTheme.colors.secondary, modifier = Modifier.align(Alignment.CenterHorizontally))
+                        Spacer(Modifier.height(8.dp))
 
-                        Spacer(Modifier.height(16.dp))
+                        SocialButton(text = "Continuar con Google", iconRes = R.drawable.ic_google, onClick = { /* implementar google */ })
+                        Spacer(Modifier.height(8.dp))
+                        // Facebook con color propio
+                        SocialButton(text = "Continuar con Facebook", iconRes = R.drawable.ic_facebook, onClick = { /* implementar facebook */ }, background = Color(0xFF1877F2))
 
-                        if (uiState.loading) {
-                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator(color = MaterialTheme.colors.primary)
-                            }
-                        } else {
-                            Button(onClick = {
-                                if (username.isBlank() || password.isBlank()) {
-                                    Toast.makeText(context, "Completa usuario y contraseña", Toast.LENGTH_SHORT).show()
-                                    return@Button
+                        Spacer(Modifier.height(12.dp))
+
+                        SecondaryTextButton(text = "Crear cuenta", onClick = { navController?.navigate("register") })
+
+                        Spacer(Modifier.height(8.dp))
+
+                        SecondaryTextButton(text = "Omitir inicio de sesión", onClick = {
+                            authViewModel.skipLogin()
+                            onLoginSuccess?.invoke()
+                            navController?.let { nc ->
+                                nc.navigate("store") {
+                                    popUpTo("login") { inclusive = true }
                                 }
-                                // Si se nos pasó navController (modo navegación interna), simulamos éxito y vamos a la tienda
-                                navController?.let { nc ->
-                                    nc.navigate("store") {
-                                        popUpTo("login") { inclusive = true }
-                                    }
-                                    return@Button
-                                }
-
-                                // En caso de uso fuera de la navegación (LoginActivity), usar el ViewModel real
-                                scope.launch {
-                                    authViewModel.login(username, password)
-                                }
-
-                            }, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
-                                Text(text = "Ingresar", color = MaterialTheme.colors.onPrimary)
                             }
-
-                            Spacer(Modifier.height(12.dp))
-
-                            // Social login separator
-                            Divider(color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f), thickness = 1.dp)
-                            Spacer(Modifier.height(12.dp))
-                            Text(text = "o continuar con", color = MaterialTheme.colors.secondary, modifier = Modifier.align(Alignment.CenterHorizontally))
-                            Spacer(Modifier.height(8.dp))
-
-                            // Google button
-                            OutlinedButton(onClick = { /* implementar google */ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp), colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.surface)) {
-                                Image(painter = painterResource(id = R.drawable.ic_google), contentDescription = "google", modifier = Modifier.size(24.dp))
-                                Spacer(Modifier.width(12.dp))
-                                Text(text = "Continuar con Google", color = MaterialTheme.colors.onBackground)
-                            }
-
-                            Spacer(Modifier.height(8.dp))
-
-                            Button(onClick = { /* implementar facebook */ }, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp), colors = ButtonDefaults.buttonColors(backgroundColor = androidx.compose.ui.graphics.Color(0xFF1877F2))) {
-                                Image(painter = painterResource(id = R.drawable.ic_facebook), contentDescription = "facebook", modifier = Modifier.size(24.dp))
-                                Spacer(Modifier.width(12.dp))
-                                Text(text = "Continuar con Facebook", color = androidx.compose.ui.graphics.Color.White)
-                            }
-
-                            Spacer(Modifier.height(12.dp))
-
-                            TextButton(onClick = { navController?.navigate("register") }, modifier = Modifier.fillMaxWidth()) {
-                                Text(text = "Crear cuenta", color = MaterialTheme.colors.primary)
-                            }
-
-                            Spacer(Modifier.height(8.dp))
-
-                            // Nuevo: botón para omitir inicio de sesión y continuar como invitado
-                            TextButton(onClick = {
-                                // marcar skip y navegar al store
-                                authViewModel.skipLogin()
-                                onLoginSuccess?.invoke()
-                                navController?.let { nc ->
-                                    nc.navigate("store") {
-                                        popUpTo("login") { inclusive = true }
-                                    }
-                                }
-                            }, modifier = Modifier.fillMaxWidth()) {
-                                Text(text = "Omitir inicio de sesión", color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f))
-                            }
-                        }
+                        })
                     }
                 }
 

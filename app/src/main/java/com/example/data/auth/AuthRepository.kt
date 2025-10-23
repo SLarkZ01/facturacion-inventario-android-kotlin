@@ -87,13 +87,39 @@ class AuthRepository : AuthDataSource {
 
     override suspend fun register(req: com.example.data.auth.RegisterRequest): com.example.data.auth.LoginResponse? {
         Log.d("AuthRepository", "register request: $req")
-        val resp = api.register(req)
-        if (!resp.isSuccessful) {
-            val err = resp.errorBody()?.string()
-            Log.d("AuthRepository", "register failed code=${resp.code()} body=$err")
-            throw Exception("Register failed: ${resp.code()} ${err}")
+        // Loggear el JSON que enviaremos para facilitar debugging en Logcat
+        try {
+            val gsonForLog = GsonBuilder().create()
+            val jsonReq = gsonForLog.toJson(req)
+            Log.d("AuthRepository", "register jsonBody: $jsonReq")
+        } catch (e: Exception) {
+            Log.w("AuthRepository", "failed to serialize register request for logging", e)
         }
-        return resp.body()
+        try {
+            val usedApi = authApi ?: api
+            val resp = usedApi.register(req)
+            if (resp.isSuccessful) return resp.body()
+
+            val errBody = resp.errorBody()?.string()
+            Log.d("AuthRepository", "register failed code=${resp.code()} body=$errBody")
+
+            // Intentar parsear JSON de error común {"error":"..."} o {"message":"..."}
+            val parsedMessage = try {
+                val gson = GsonBuilder().create()
+                val map: Map<String, Any?> = gson.fromJson(errBody ?: "{}", Map::class.java) as Map<String, Any?>
+                (map["error"] ?: map["message"] ?: map["errors"] ?: errBody)?.toString()
+            } catch (e: Exception) {
+                errBody
+            }
+
+            throw Exception("Register failed: ${resp.code()} ${parsedMessage ?: "sin cuerpo"}")
+        } catch (t: Throwable) {
+            Log.e("AuthRepository", "register exception", t)
+            when (t) {
+                is IOException -> throw Exception("Error de conexión: verifica tu red y el servidor.")
+                else -> throw Exception("Error en el registro: ${t.message}")
+            }
+        }
     }
 
     override suspend fun refresh(refreshToken: String): String? {

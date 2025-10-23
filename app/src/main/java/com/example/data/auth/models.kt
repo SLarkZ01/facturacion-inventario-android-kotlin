@@ -4,18 +4,18 @@ import com.google.gson.annotations.SerializedName
 
 // Requests
 data class RegisterRequest(
-    val username: String,
-    val email: String,
-    val password: String,
-    val inviteCode: String? = null,
-    val nombre: String,
-    val apellido: String
+    @SerializedName("username") val username: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("password") val password: String,
+    @SerializedName("inviteCode") val inviteCode: String? = null,
+    @SerializedName("nombre") val nombre: String,
+    @SerializedName("apellido") val apellido: String
 )
 
 data class LoginRequest(
-    val usernameOrEmail: String,
-    val password: String,
-    val device: String? = null
+    @SerializedName("usernameOrEmail") val usernameOrEmail: String,
+    @SerializedName("password") val password: String,
+    @SerializedName("device") val device: String? = null
 )
 
 // Responses
@@ -40,4 +40,3 @@ data class RefreshResponse(
     val accessTokenNormalized: String?
         get() = accessToken ?: access_token
 }
-

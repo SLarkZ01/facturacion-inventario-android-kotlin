@@ -26,6 +26,11 @@ import androidx.compose.ui.res.painterResource
 import com.example.facturacion_inventario.domain.model.Product as DomainProduct
 import androidx.compose.material.IconButton
 
+// Tokens de tema
+import com.example.facturacion_inventario.ui.theme.Dimens
+import com.example.facturacion_inventario.ui.theme.AmazonYellow
+import com.example.facturacion_inventario.ui.theme.SuccessGreen
+
 // Data model UI para un repuesto (evita conflicto con domain.model.Product)
 data class ProductUi(
     val id: String,
@@ -49,16 +54,16 @@ fun ProductCard(
 
     Card(
         modifier = modifier
-            .width(160.dp)
-            .padding(6.dp)
+            .width(Dimens.cardCompactWidth)
+            .padding(Dimens.s)
             .clickable { onClick(product) },
         elevation = 4.dp,
-        shape = RoundedCornerShape(8.dp)
+        shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Imagen simulada / placeholder
             Box(modifier = Modifier
-                .height(110.dp)
+                .height(Dimens.cardImageHeight)
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface)) {
 
@@ -68,7 +73,7 @@ fun ProductCard(
                         contentDescription = product.name,
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                            .clip(RoundedCornerShape(topStart = Dimens.cornerMedium, topEnd = Dimens.cornerMedium))
                     )
                 } else {
                     // Placeholder estilizado similar a tarjetas compactas de e-commerce
@@ -92,9 +97,9 @@ fun ProductCard(
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(36.dp)
-                        .background(MaterialTheme.colors.surface.copy(alpha = 0.6f), shape = RoundedCornerShape(18.dp))
+                        .padding(Dimens.xs)
+                        .size(Dimens.favoriteBadgeSize)
+                        .background(MaterialTheme.colors.surface.copy(alpha = 0.6f), shape = MaterialTheme.shapes.small)
                 ) {
                     if (favorite) {
                         // corazón lleno
@@ -106,9 +111,9 @@ fun ProductCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(Dimens.s))
 
-            Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            Column(modifier = Modifier.padding(horizontal = Dimens.md, vertical = Dimens.s)) {
                 Text(
                     text = product.name,
                     maxLines = 2,
@@ -117,7 +122,7 @@ fun ProductCard(
                     fontSize = 13.sp
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(Dimens.s))
 
                 // Precio y rating
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
@@ -140,19 +145,19 @@ fun ProductCard(
                     product.rating?.let { r ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             // estrella como texto Unicode
-                            Text(text = "★", color = Color(0xFFFFC107), fontSize = 12.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = "★", color = AmazonYellow, fontSize = 12.sp)
+                            Spacer(modifier = Modifier.width(Dimens.s))
                             Text(text = "%.1f".format(r), style = MaterialTheme.typography.caption)
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(Dimens.s))
 
                 Text(
                     text = if (product.inStock) "En stock" else "Agotado",
                     style = MaterialTheme.typography.overline,
-                    color = if (product.inStock) Color(0xFF2E7D32) else Color(0xFFD32F2F)
+                    color = if (product.inStock) SuccessGreen else MaterialTheme.colors.error
                 )
             }
         }
@@ -160,17 +165,50 @@ fun ProductCard(
 }
 
 @Composable
-fun ProductGrid(products: List<ProductUi>, modifier: Modifier = Modifier, onItemClick: (ProductUi) -> Unit = {}) {
-    LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier.padding(6.dp), content = {
-        items(products) { p ->
-            ProductCard(product = p, onClick = onItemClick)
+fun ProductGrid(
+    products: List<ProductUi>,
+    modifier: Modifier = Modifier,
+    onItemClick: (ProductUi) -> Unit = {},
+    useLazyLayout: Boolean = true
+) {
+    if (useLazyLayout) {
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier.padding(Dimens.s), content = {
+            items(products) { p ->
+                ProductCard(product = p, onClick = onItemClick)
+            }
+        })
+    } else {
+        // Layout estático para usar dentro de otros componentes Lazy
+        Column(modifier = modifier.padding(Dimens.s)) {
+            products.chunked(2).forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.s)
+                ) {
+                    row.forEach { p ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            ProductCard(product = p, onClick = onItemClick)
+                        }
+                    }
+                    // Si solo hay un elemento en la fila, añadir spacer
+                    if (row.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+                Spacer(modifier = Modifier.height(Dimens.s))
+            }
         }
-    })
+    }
 }
 
 // Adaptador para usar la grid con el modelo de dominio
 @Composable
-fun ProductGridFromDomain(products: List<DomainProduct>, modifier: Modifier = Modifier, onItemClick: (DomainProduct) -> Unit = {}) {
+fun ProductGridFromDomain(
+    products: List<DomainProduct>,
+    modifier: Modifier = Modifier,
+    onItemClick: (DomainProduct) -> Unit = {},
+    useLazyLayout: Boolean = true
+) {
     // Mapeo simple: usamos campos disponibles y añadimos valores por defecto para precio/rating/stock
     val uiList = products.map { dp ->
         ProductUi(
@@ -185,11 +223,37 @@ fun ProductGridFromDomain(products: List<DomainProduct>, modifier: Modifier = Mo
         )
     }
 
-    LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier.padding(6.dp), content = {
-        items(uiList) { p ->
-            ProductCard(product = p, onClick = { onItemClick(products.first { it.id == p.id }) })
+    if (useLazyLayout) {
+        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier.padding(Dimens.s), content = {
+            items(uiList) { p ->
+                ProductCard(product = p, onClick = { onItemClick(products.first { it.id == p.id }) })
+            }
+        })
+    } else {
+        // Layout estático para usar dentro de otros componentes Lazy
+        Column(modifier = modifier.padding(Dimens.s)) {
+            uiList.chunked(2).forEach { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.s)
+                ) {
+                    row.forEach { p ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            ProductCard(
+                                product = p,
+                                onClick = { onItemClick(products.first { it.id == p.id }) }
+                            )
+                        }
+                    }
+                    // Si solo hay un elemento en la fila, añadir spacer
+                    if (row.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+                Spacer(modifier = Modifier.height(Dimens.s))
+            }
         }
-    })
+    }
 }
 
 // Previews

@@ -1,7 +1,7 @@
 package com.example.facturacion_inventario.ui.register
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
+import android.util.Patterns
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +21,7 @@ import com.example.facturacion_inventario.R
 import com.example.auth.AuthViewModel
 import com.example.data.auth.RegisterRequest
 import kotlinx.coroutines.launch
+import com.example.facturacion_inventario.ui.components.*
 
 @Composable
 fun RegisterScreen(authViewModel: AuthViewModel, navController: NavController? = null, onRegisterSuccess: (() -> Unit)? = null) {
@@ -77,138 +78,68 @@ fun RegisterScreen(authViewModel: AuthViewModel, navController: NavController? =
 
                 Spacer(Modifier.height(12.dp))
 
-                Card(modifier = Modifier.fillMaxWidth(), backgroundColor = MaterialTheme.colors.surface, border = BorderStroke(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.12f)), shape = RoundedCornerShape(8.dp), elevation = 4.dp) {
-                    Column(modifier = Modifier.padding(24.dp)) {
+                // Reemplazamos la Card estática por AuthCard y InputField reutilizables
+                AuthCard {
+                    InputField(value = username, onValueChange = { username = it }, labelText = "Usuario")
+                    Spacer(Modifier.height(12.dp))
+                    InputField(value = email, onValueChange = { email = it }, labelText = "Email")
+                    Spacer(Modifier.height(12.dp))
+                    InputField(value = password, onValueChange = { password = it }, labelText = "Contraseña", isPassword = true)
+                    Spacer(Modifier.height(12.dp))
+                    InputField(value = nombre, onValueChange = { nombre = it }, labelText = "Nombre")
+                    Spacer(Modifier.height(12.dp))
+                    InputField(value = apellido, onValueChange = { apellido = it }, labelText = "Apellido")
 
-                        OutlinedTextField(
-                            value = username,
-                            onValueChange = { username = it },
-                            label = { Text("Usuario", color = MaterialTheme.colors.secondary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground
-                            )
-                        )
+                    Spacer(Modifier.height(12.dp))
 
-                        Spacer(Modifier.height(12.dp))
+                    Text(text = "Código de invitación (opcional)", color = MaterialTheme.colors.primary)
+                    Spacer(Modifier.height(8.dp))
 
-                        OutlinedTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = { Text("Email", color = MaterialTheme.colors.secondary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground
-                            )
-                        )
+                    InputField(value = inviteCode, onValueChange = { inviteCode = it }, labelText = "Código de invitación")
 
-                        Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(20.dp))
 
-                        OutlinedTextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = { Text("Contraseña", color = MaterialTheme.colors.secondary) },
-                            visualTransformation = PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground
-                            )
-                        )
-
-                        Spacer(Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = nombre,
-                            onValueChange = { nombre = it },
-                            label = { Text("Nombre", color = MaterialTheme.colors.secondary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground
-                            )
-                        )
-
-                        Spacer(Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = apellido,
-                            onValueChange = { apellido = it },
-                            label = { Text("Apellido", color = MaterialTheme.colors.secondary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground
-                            )
-                        )
-
-                        Spacer(Modifier.height(12.dp))
-
-                        Text(text = "Código de invitación (opcional)", color = MaterialTheme.colors.primary)
-                        Spacer(Modifier.height(8.dp))
-
-                        OutlinedTextField(
-                            value = inviteCode,
-                            onValueChange = { inviteCode = it },
-                            label = { Text("Código de invitación", color = MaterialTheme.colors.secondary) },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colors.primary,
-                                unfocusedBorderColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-                                textColor = MaterialTheme.colors.onBackground
-                            )
-                        )
-
-                        Spacer(Modifier.height(20.dp))
-
-                        if (uiState.loading) {
-                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator(color = MaterialTheme.colors.primary)
-                            }
-                        } else {
-                            Button(onClick = {
-                                // Validaciones: username, email, password, nombre, apellido
-                                if (username.isBlank() || email.isBlank() || password.isBlank() || nombre.isBlank() || apellido.isBlank()) {
-                                    Toast.makeText(context, "Rellena usuario, email, contraseña, nombre y apellido", Toast.LENGTH_SHORT).show()
-                                    return@Button
-                                }
-                                scope.launch {
-                                    val req = RegisterRequest(
-                                        username = username,
-                                        email = email,
-                                        password = password,
-                                        inviteCode = if (inviteCode.isBlank()) null else inviteCode,
-                                        nombre = nombre,
-                                        apellido = apellido
-                                    )
-                                    authViewModel.register(req)
-                                }
-
-                            }, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp), colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)) {
-                                Text(text = "Crear cuenta", color = MaterialTheme.colors.onPrimary)
-                            }
-
-                            Spacer(Modifier.height(12.dp))
-
-                            Text(text = "Al crear una cuenta aceptas los términos", color = MaterialTheme.colors.secondary, fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    if (uiState.loading) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = MaterialTheme.colors.primary)
                         }
+                    } else {
+                        PrimaryButton(onClick = {
+                            // Validaciones: username, email, password, nombre, apellido
+                            if (username.isBlank() || email.isBlank() || password.isBlank() || nombre.isBlank() || apellido.isBlank()) {
+                                Toast.makeText(context, "Rellena usuario, email, contraseña, nombre y apellido", Toast.LENGTH_SHORT).show()
+                                return@PrimaryButton
+                            }
+                            // Validar formato de email
+                            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                Toast.makeText(context, "Ingresa un email válido", Toast.LENGTH_SHORT).show()
+                                return@PrimaryButton
+                            }
 
+                            // Longitud mínima de contraseña
+                            if (password.length < 6) {
+                                Toast.makeText(context, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                                return@PrimaryButton
+                            }
+                            scope.launch {
+                                val req = RegisterRequest(
+                                    username = username,
+                                    email = email,
+                                    password = password,
+                                    inviteCode = if (inviteCode.isBlank()) null else inviteCode,
+                                    nombre = nombre,
+                                    apellido = apellido
+                                )
+                                authViewModel.register(req)
+                            }
+
+                        }, text = "Crear cuenta")
+
+                        Spacer(Modifier.height(12.dp))
+
+                        Text(text = "Al crear una cuenta aceptas los términos", color = MaterialTheme.colors.secondary, fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
+
                 }
 
                 Spacer(Modifier.weight(1f))

@@ -7,23 +7,31 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.material.Typography
 import androidx.compose.material.Shapes
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 private val LightColorPalette = lightColors(
-    primary = com.example.facturacion_inventario.ui.theme.Accent,
-    primaryVariant = com.example.facturacion_inventario.ui.theme.PrimaryVariant,
-    secondary = com.example.facturacion_inventario.ui.theme.SecondaryColor,
-    background = com.example.facturacion_inventario.ui.theme.BackgroundTop,
-    surface = com.example.facturacion_inventario.ui.theme.CardColor,
-    onPrimary = com.example.facturacion_inventario.ui.theme.OnPrimary,
-    onSecondary = com.example.facturacion_inventario.ui.theme.OnSecondary,
-    onBackground = com.example.facturacion_inventario.ui.theme.OnBackground,
-    onSurface = com.example.facturacion_inventario.ui.theme.OnSurface
+    primary = Accent,
+    primaryVariant = PrimaryVariant,
+    secondary = SecondaryColor,
+    background = BackgroundTop,
+    surface = CardColor,
+    onPrimary = OnPrimary,
+    onSecondary = OnSecondary,
+    onBackground = OnBackground,
+    onSurface = OnSurface
 )
 
 private val DarkColorPalette = darkColors(
-    primary = com.example.facturacion_inventario.ui.theme.Accent,
-    primaryVariant = com.example.facturacion_inventario.ui.theme.PrimaryVariant,
-    secondary = com.example.facturacion_inventario.ui.theme.SecondaryColor
+    primary = Accent,
+    primaryVariant = PrimaryVariant,
+    secondary = SecondaryColor
+)
+
+// Shapes usando tokens centralizados
+private val AppShapes = Shapes(
+    small = RoundedCornerShape(Dimens.cornerSmall),
+    medium = RoundedCornerShape(Dimens.cornerMedium),
+    large = RoundedCornerShape(Dimens.cornerLarge)
 )
 
 @Composable
@@ -32,7 +40,7 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
     MaterialTheme(
         colors = colors,
         typography = Typography(),
-        shapes = Shapes(),
+        shapes = AppShapes,
         content = content
     )
 }
