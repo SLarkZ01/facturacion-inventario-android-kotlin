@@ -59,7 +59,8 @@ fun CartIconWithBadge(
 ) {
     Box(modifier = modifier) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_badge),
+            // Icono base del carrito (nuevo drawable ic_cart)
+            painter = painterResource(id = R.drawable.ic_cart),
             contentDescription = "cart",
             tint = iconColor,
             modifier = Modifier.size(26.dp)
@@ -261,11 +262,12 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                     .navigationBarsPadding()
                     .padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
                     Surface(
-                        shape = RoundedCornerShape(28.dp),
-                        elevation = 16.dp,
+                        // Full-width flat bar: sin esquinas redondeadas ocupando ancho total
+                        shape = RoundedCornerShape(0.dp),
+                        elevation = 4.dp, // estilo más plano
                         color = Color.White,
                         modifier = Modifier
-                            .fillMaxWidth(0.92f)
+                            .fillMaxWidth()
                             .height(62.dp)
                     ) {
                         Row(modifier = Modifier
@@ -280,6 +282,17 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "home", tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(text = "Inicio", color = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                            }
+
+                            // Categories (nuevo botón movido desde la parte superior)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
+                                selectedTab = "categories"
+                                storeNavController.navigate("categories") { popUpTo("home") }
+                            }) {
+                                // Icono representativo de categorías
+                                Icon(painter = painterResource(id = R.drawable.ic_categories), contentDescription = "categories", tint = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(text = "Categorías", color = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "categories") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
                             }
 
                             // Profile

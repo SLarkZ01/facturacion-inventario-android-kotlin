@@ -146,67 +146,6 @@ fun StoreScreenScaffold(
     }
 }
 
-@Composable
-fun ProductCardItem(item: Product, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = Dimens.s)
-            .clickable { onClick(item.id) },
-        backgroundColor = MaterialTheme.colors.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.08f)),
-        elevation = 4.dp,
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Row(modifier = Modifier.padding(Dimens.md), verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = item.imageRes),
-                contentDescription = item.name,
-                modifier = Modifier.size(Dimens.imageMedium)
-            )
-            Spacer(modifier = Modifier.width(Dimens.md))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.name,
-                    color = MaterialTheme.colors.onBackground,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.subtitle1
-                )
-                Spacer(modifier = Modifier.height(Dimens.s))
-                Text(
-                    text = item.description,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(Dimens.s))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Disponible", color = MaterialTheme.colors.primary, fontSize = 12.sp)
-                    Spacer(modifier = Modifier.width(Dimens.md))
-                    Text(text = "Código: ${item.id}", color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), fontSize = 11.sp)
-                }
-            }
-
-            Spacer(modifier = Modifier.width(Dimens.s))
-
-            Column(horizontalAlignment = Alignment.End) {
-                Text(text = "Precio: --", color = MaterialTheme.colors.primary, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(Dimens.s))
-                Button(
-                    onClick = { /* acción */ },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
-                    modifier = Modifier.height(Dimens.buttonHeight)
-                ) {
-                    Text(text = "Añadir", color = MaterialTheme.colors.onPrimary)
-                }
-            }
-        }
-    }
-}
-
 // Sección de categoría con productos horizontales estilo Amazon
 @Composable
 fun CategorySection(
@@ -270,8 +209,6 @@ fun CategorySection(
 fun HomeContent(
     repository: ProductRepository,
     onProductClick: (String) -> Unit,
-    onCartClick: () -> Unit,
-    onCategoriesClick: () -> Unit,
     onSeeAllCategoryClick: (String) -> Unit,
     selectedCategoryId: String? = null
 ) {
@@ -371,33 +308,9 @@ fun HomeContent(
                 }
             }
 
-            // Botones fijos en la parte inferior
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = 8.dp,
-                color = MaterialTheme.colors.background
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.md),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dimens.lg)
-                ) {
-                    OutlinedButton(
-                        onClick = onCategoriesClick,
-                        modifier = Modifier.weight(1f).height(Dimens.buttonHeight)
-                    ) {
-                        Text(text = "Categorías", color = MaterialTheme.colors.primary)
-                    }
-                    Button(
-                        onClick = onCartClick,
-                        modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
-                    ) {
-                        Text(text = "Carrito", color = MaterialTheme.colors.onPrimary)
-                    }
-                }
-            }
+            // Se eliminó la barra inferior con los botones "Categorías" y "Carrito" porque ya no son usados aquí.
+            // Dejamos un espacio para que el contenido no quede pegado al borde inferior.
+            Spacer(modifier = Modifier.height(Dimens.lg))
         }
     }
 }
@@ -427,7 +340,7 @@ fun ProductMediaCarousel(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(Dimens.pagerHeight)
+                .height(280.dp)
         ) {
             HorizontalPager(
                 state = pagerState,
@@ -438,10 +351,9 @@ fun ProductMediaCarousel(
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = Dimens.s),
+                        .padding(horizontal = 8.dp),
                     elevation = 0.dp,
-                    backgroundColor = MaterialTheme.colors.surface,
-                    shape = MaterialTheme.shapes.medium
+                    backgroundColor = MaterialTheme.colors.surface
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -454,7 +366,7 @@ fun ProductMediaCarousel(
                                     contentDescription = "Imagen ${page + 1} de ${product.name}",
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(Dimens.pagerHeight - Dimens.xs)
+                                        .height(240.dp)
                                 )
                             }
                             MediaType.VIDEO -> {
@@ -468,7 +380,7 @@ fun ProductMediaCarousel(
                                         contentDescription = "Video ${page + 1} de ${product.name}",
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(Dimens.pagerHeight - Dimens.xs)
+                                            .height(240.dp)
                                     )
                                     // Overlay con icono de play
                                     Surface(
@@ -500,7 +412,7 @@ fun ProductMediaCarousel(
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(Dimens.lg),
+                        .padding(16.dp),
                     shape = MaterialTheme.shapes.small,
                     color = Color.Black.copy(alpha = 0.6f)
                 ) {
@@ -508,7 +420,7 @@ fun ProductMediaCarousel(
                         text = "${pagerState.currentPage + 1}/${mediaList.size}",
                         color = Color.White,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = Dimens.md, vertical = Dimens.xs)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
@@ -516,28 +428,28 @@ fun ProductMediaCarousel(
 
         // Indicadores de posición (puntos)
         if (mediaList.size > 1) {
-            Spacer(modifier = Modifier.height(Dimens.md))
+            Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(Dimens.s),
+                    .padding(8.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
                 repeat(mediaList.size) { index ->
                     Box(
                         modifier = Modifier
                             .size(if (index == pagerState.currentPage) 10.dp else 8.dp)
-                            .padding(Dimens.xs)
+                            .padding(2.dp)
                             .clip(CircleShape)
                             .background(
                                 if (index == pagerState.currentPage)
-                                    AccentOrange
+                                    Color(0xFFFF6F00)
                                 else
                                     MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
                             )
                     )
                     if (index < mediaList.size - 1) {
-                        Spacer(modifier = Modifier.width(Dimens.s))
+                        Spacer(modifier = Modifier.width(4.dp))
                     }
                 }
             }
