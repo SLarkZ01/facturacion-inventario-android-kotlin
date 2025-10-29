@@ -11,8 +11,6 @@ fun HomeScreen(navController: NavController, selectedCategoryId: String? = null)
     HomeContent(
         repository = repository,
         onProductClick = { id -> navController.navigate(Routes.productRoute(id)) },
-        onCartClick = { navController.navigate(Routes.CART) },
-        onCategoriesClick = { navController.navigate(Routes.CATEGORIES) },
         onSeeAllCategoryClick = { categoryId ->
             navController.navigate(Routes.homeWithCategory(categoryId))
         },
