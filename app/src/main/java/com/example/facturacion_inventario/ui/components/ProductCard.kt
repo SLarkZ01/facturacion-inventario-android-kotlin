@@ -27,7 +27,6 @@ import com.example.facturacion_inventario.domain.model.Product as DomainProduct
 
 // Tokens de tema
 import com.example.facturacion_inventario.ui.theme.Dimens
-import com.example.facturacion_inventario.ui.theme.AmazonYellow
 import com.example.facturacion_inventario.ui.theme.SuccessGreen
 
 // Data model UI para un repuesto (evita conflicto con domain.model.Product)
@@ -150,11 +149,11 @@ fun ProductCard(
                     }
 
                     product.rating?.let { r ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // estrella como texto Unicode
-                            Text(text = "★", color = AmazonYellow, fontSize = 12.sp)
-                            Spacer(modifier = Modifier.width(Dimens.s))
-                            Text(text = "%.1f".format(r), style = MaterialTheme.typography.body2)
+                        // Rating eliminado por petición: no se muestra la estrella ni el número.
+                        // Reservamos un ancho fijo para que la tarjeta mantenga la misma alineación
+                        // y espaciado que antes (evita que el diseño se mueva).
+                        Box(modifier = Modifier.width(48.dp)) {
+                            // espacio reservado (intencionalmente vacío)
                         }
                     }
                 }
