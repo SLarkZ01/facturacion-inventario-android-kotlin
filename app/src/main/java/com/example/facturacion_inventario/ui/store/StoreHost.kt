@@ -180,6 +180,10 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
     // ViewModel del carrito compartido entre todas las pantallas
     val cartViewModel: CartViewModel = viewModel()
 
+    // OPTIMIZACIÓN CRÍTICA: Usar collectAsState para observar StateFlow de forma eficiente
+    // Solo se recompone cuando cambia el valor, no todo el ViewModel
+    val cartItemCount by cartViewModel.totalItemCount.collectAsState()
+
     // Mantener query en el scope del host para usarla en el topbar y en las sugerencias
     var query by rememberSaveable { mutableStateOf("") }
 
@@ -311,7 +315,7 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 storeNavController.navigate("cart") { popUpTo("home") }
                             }) {
                                 CartIconWithBadge(
-                                    itemCount = cartViewModel.totalItemCount, // Usar el contador real del carrito
+                                    itemCount = cartItemCount, // Usar el contador real del carrito
                                     iconColor = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
                                     modifier = Modifier.size(26.dp)
                                 )

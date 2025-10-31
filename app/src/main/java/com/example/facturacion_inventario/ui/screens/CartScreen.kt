@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,8 +21,19 @@ import com.example.facturacion_inventario.ui.components.CartItemCard
 import com.example.facturacion_inventario.ui.components.PriceSummaryCard
 import com.example.facturacion_inventario.ui.components.EmptyCartCard
 
+/**
+ * CartContent optimizado con collectAsState para observar StateFlow.
+ */
 @Composable
 fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartViewModel: CartViewModel? = null) {
+    // Retornar temprano si cartViewModel es null
+    if (cartViewModel == null) return
+
+    // OPTIMIZACIÓN: Observar StateFlow con collectAsState
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val totalItemCount by cartViewModel.totalItemCount.collectAsState()
+    val totalPrice by cartViewModel.totalPrice.collectAsState()
+
     StoreScreenScaffold {
         // Pongo el encabezado dentro del LazyColumn para que se desplace con el contenido
         LazyColumn(
@@ -28,24 +41,25 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
             verticalArrangement = Arrangement.spacedBy(Dimens.md),
             contentPadding = PaddingValues(Dimens.lg)
         ) {
-            item {
+            item(key = "header") {
                 Spacer(modifier = Modifier.height(32.dp))
                 Text(text = "Carrito / Documentos", color = MaterialTheme.colors.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(Dimens.md))
             }
 
-            if (cartViewModel == null || cartViewModel.cartItems.isEmpty()) {
-                item {
+            if (cartItems.isEmpty()) {
+                item(key = "empty_cart") {
                     // Usar componente reutilizable EmptyCartCard
                     EmptyCartCard()
                 }
 
                 // espacio para que la barra inferior no tape contenido
-                item {
+                item(key = "empty_spacer") {
                     Spacer(modifier = Modifier.height(Dimens.xxl))
                 }
             } else {
-                items(cartViewModel.cartItems) { cartItem ->
+                // KEY CRÍTICO: usar cartItem.product.id para identificar items únicos
+                items(cartItems, key = { it.product.id }) { cartItem ->
                     // Usar componente reutilizable CartItemCard
                     CartItemCard(
                         cartItem = cartItem,
@@ -54,18 +68,18 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                     )
                 }
 
-                item {
+                item(key = "summary") {
                     Spacer(modifier = Modifier.height(Dimens.lg))
                     // Usar componente reutilizable PriceSummaryCard
                     PriceSummaryCard(
-                        totalPrice = cartViewModel.getTotalPrice(),
-                        itemCount = cartViewModel.totalItemCount,
+                        totalPrice = totalPrice,
+                        itemCount = totalItemCount,
                         backgroundColor = AccentOrange.copy(alpha = 0.08f)
                     )
                 }
 
                 // espacio para que la barra inferior no tape contenido
-                item {
+                item(key = "bottom_spacer") {
                     Spacer(modifier = Modifier.height(Dimens.xxl))
                 }
             }
@@ -90,7 +104,7 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
                 Button(
                     onClick = onCheckout,
                     modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
-                    enabled = cartViewModel?.cartItems?.isNotEmpty() == true,
+                    enabled = cartItems.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
                 ) {
                     Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)

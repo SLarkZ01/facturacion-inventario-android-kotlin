@@ -15,6 +15,9 @@ import com.example.facturacion_inventario.ui.store.StoreScreenScaffold
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.components.CategoryBanner
 
+/**
+ * HomeContent optimizado con keys en LazyColumn y uso de remember/derivedStateOf.
+ */
 @Composable
 fun HomeContent(
     repository: ProductRepository,
@@ -28,6 +31,7 @@ fun HomeContent(
 
     val listState = rememberLazyListState()
 
+    // Usar derivedStateOf para evitar recomposiciones innecesarias al calcular progress
     val progress by remember {
         derivedStateOf {
             if (listState.firstVisibleItemIndex > 0) 1f
@@ -35,39 +39,49 @@ fun HomeContent(
         }
     }
 
+    // Cachear las categorías y productos para evitar recalcular en cada recomposición
+    val repo = remember { repository as? FakeProductRepository }
+    val categories = remember { repo?.getCategories() ?: emptyList() }
+
+    // Filtrar categorías si hay una seleccionada - usar remember para cachear el resultado
+    val displayCategories = remember(selectedCategoryId, categories) {
+        if (selectedCategoryId != null) {
+            categories.filter { it.id == selectedCategoryId }
+        } else {
+            categories
+        }
+    }
+
+    // Cachear la categoría seleccionada
+    val selectedCategory = remember(selectedCategoryId, categories) {
+        categories.find { it.id == selectedCategoryId }
+    }
+
     StoreScreenScaffold(headerProgress = progress) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Obtenemos las categorías y productos desde el repositorio
-            val repo = repository as? FakeProductRepository
-            val categories = repo?.getCategories() ?: emptyList()
-
-            // Filtrar categorías si hay una seleccionada
-            val displayCategories = if (selectedCategoryId != null) {
-                categories.filter { it.id == selectedCategoryId }
-            } else {
-                categories
-            }
-
             LazyColumn(
                 state = listState,
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(Dimens.lg)
             ) {
                 // Mostrar banner si hay categoría seleccionada
-                if (selectedCategoryId != null) {
-                    item {
-                        val selectedCategory = categories.find { it.id == selectedCategoryId }
-                        selectedCategory?.let { category ->
-                            // Usar el componente reutilizable CategoryBanner
-                            CategoryBanner(category = category)
-                        }
+                if (selectedCategoryId != null && selectedCategory != null) {
+                    item(key = "category_banner_$selectedCategoryId") {
+                        CategoryBanner(category = selectedCategory)
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(Dimens.s)) }
+                item(key = "top_spacer") {
+                    Spacer(modifier = Modifier.height(Dimens.s))
+                }
 
-                items(displayCategories) { category ->
-                    val productsInCategory = repo?.getProductsByCategory(category.id) ?: emptyList()
+                // KEY CRÍTICO: usar category.id como key para identificar cada sección
+                items(displayCategories, key = { it.id }) { category ->
+                    // Cachear productos por categoría
+                    val productsInCategory = remember(category.id) {
+                        repo?.getProductsByCategory(category.id) ?: emptyList()
+                    }
+
                     if (productsInCategory.isNotEmpty()) {
                         CategorySection(
                             category = category,
@@ -79,7 +93,9 @@ fun HomeContent(
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(Dimens.xxl)) }
+                item(key = "bottom_spacer") {
+                    Spacer(modifier = Modifier.height(Dimens.xxl))
+                }
             }
 
             Spacer(modifier = Modifier.height(Dimens.lg))

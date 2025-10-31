@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.facturacion_inventario.data.repository.FakeProductRepository
@@ -18,7 +19,8 @@ import com.example.facturacion_inventario.ui.theme.Dimens
 
 @Composable
 fun HomeScreen(navController: NavController, selectedCategoryId: String? = null) {
-    val repository = FakeProductRepository()
+    // Usar remember para cachear el repositorio
+    val repository = remember { FakeProductRepository() }
     HomeContent(
         repository = repository,
         onProductClick = { id -> navController.navigate(Routes.productRoute(id)) },
@@ -31,8 +33,9 @@ fun HomeScreen(navController: NavController, selectedCategoryId: String? = null)
 
 @Composable
 fun ProductDetailScreen(productId: String?, cartViewModel: CartViewModel = viewModel()) {
-    val repository = FakeProductRepository()
-    val product = productId?.let { repository.getProductById(it) }
+    // Usar remember para cachear el repositorio
+    val repository = remember { FakeProductRepository() }
+    val product = remember(productId) { productId?.let { repository.getProductById(it) } }
     ProductDetailContent(
         product = product,
         onAddToCart = { /* Ya no navegamos automáticamente, mostramos mensaje */ },
@@ -49,6 +52,9 @@ fun CartScreen(navController: NavController, cartViewModel: CartViewModel = view
     )
 }
 
+/**
+ * CategoriesContent optimizado con keys para mejor rendimiento.
+ */
 @Composable
 fun CategoriesContent(categories: List<Category>, onCategoryClick: (String) -> Unit) {
     StoreScreenScaffold {
@@ -58,13 +64,14 @@ fun CategoriesContent(categories: List<Category>, onCategoryClick: (String) -> U
             contentPadding = PaddingValues(horizontal = Dimens.lg, vertical = Dimens.md),
             verticalArrangement = Arrangement.spacedBy(Dimens.md)
         ) {
-            item {
+            item(key = "header") {
                 Spacer(modifier = Modifier.height(Dimens.lg))
                 Text(text = "Todas las Categorías", style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(Dimens.md))
             }
 
-            items(categories) { category ->
+            // KEY CRÍTICO: permite a Compose identificar items únicos
+            items(categories, key = { it.id }) { category ->
                 // Usamos CategoryCard que ya muestra el icono (category.iconRes) y la descripción
                 CategoryCard(
                     category = category,
@@ -78,8 +85,10 @@ fun CategoriesContent(categories: List<Category>, onCategoryClick: (String) -> U
 
 @Composable
 fun CategoriesScreen(navController: NavController) {
-    val repository = FakeProductRepository()
-    val categories = repository.getCategories()
+    // Usar remember para cachear el repositorio y las categorías
+    val repository = remember { FakeProductRepository() }
+    val categories = remember { repository.getCategories() }
+
     CategoriesContent(
         categories = categories,
         onCategoryClick = { categoryId: String ->
