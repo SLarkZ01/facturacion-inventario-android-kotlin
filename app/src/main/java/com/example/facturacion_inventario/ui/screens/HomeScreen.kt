@@ -1,24 +1,19 @@
 package com.example.facturacion_inventario.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.painterResource
 import com.example.facturacion_inventario.domain.repository.ProductRepository
 import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import com.example.facturacion_inventario.ui.store.CategorySection
 import com.example.facturacion_inventario.ui.store.StoreScreenScaffold
 import com.example.facturacion_inventario.ui.theme.Dimens
+import com.example.facturacion_inventario.ui.components.CategoryBanner
 
 @Composable
 fun HomeContent(
@@ -63,44 +58,8 @@ fun HomeContent(
                     item {
                         val selectedCategory = categories.find { it.id == selectedCategoryId }
                         selectedCategory?.let { category ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = Dimens.s),
-                                backgroundColor = MaterialTheme.colors.primary.copy(alpha = 0.08f),
-                                elevation = 2.dp,
-                                shape = MaterialTheme.shapes.medium
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(Dimens.lg),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Imagen del icono de la categoría a la izquierda
-                                    Image(
-                                        painter = painterResource(id = category.iconRes),
-                                        contentDescription = category.name,
-                                        modifier = Modifier.size(Dimens.imageLarge)
-                                    )
-
-                                    Spacer(modifier = Modifier.width(Dimens.md))
-
-                                    // Nombre y descripción a la derecha
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = category.name,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 18.sp,
-                                            color = MaterialTheme.colors.onSurface
-                                        )
-                                        Spacer(modifier = Modifier.height(Dimens.s))
-                                        Text(
-                                            text = category.description,
-                                            fontSize = 14.sp,
-                                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.75f)
-                                        )
-                                    }
-                                }
-                            }
+                            // Usar el componente reutilizable CategoryBanner
+                            CategoryBanner(category = category)
                         }
                     }
                 }

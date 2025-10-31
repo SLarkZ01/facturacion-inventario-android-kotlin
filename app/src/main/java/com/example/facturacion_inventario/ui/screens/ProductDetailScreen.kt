@@ -16,15 +16,15 @@ import com.example.facturacion_inventario.ui.components.QuantitySelector
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.theme.AccentOrange
 import com.example.facturacion_inventario.ui.theme.AmazonYellow
-import com.example.facturacion_inventario.ui.theme.SuccessGreen
 import com.example.facturacion_inventario.ui.store.StoreScreenScaffold
 import com.example.facturacion_inventario.ui.store.CartViewModel
-import java.text.NumberFormat
-import java.util.Locale
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 import androidx.compose.ui.graphics.graphicsLayer
+import com.example.facturacion_inventario.ui.components.StockBadge
+import com.example.facturacion_inventario.ui.components.OutOfStockCard
+import com.example.facturacion_inventario.ui.components.PriceTag
 
 @Composable
 fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewModel: CartViewModel? = null) {
@@ -68,17 +68,21 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
 
                             Text(text = "Precio", color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f), fontSize = 12.sp)
                             Spacer(modifier = Modifier.height(Dimens.xs))
-                            Text(text = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("es-CO")).format(prod.price), color = AccentOrange, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                            // Usar componente reutilizable PriceTag
+                            PriceTag(
+                                price = prod.price,
+                                currency = "S/",
+                                priceColor = AccentOrange,
+                                fontSize = 24
+                            )
 
                             Spacer(modifier = Modifier.height(Dimens.lg))
 
-                            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                Text(text = if (prod.stock > 0) "En stock" else "Sin stock", color = if (prod.stock > 0) SuccessGreen else MaterialTheme.colors.error, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                if (prod.stock > 0 && prod.stock <= 10) {
-                                    Spacer(modifier = Modifier.width(Dimens.s))
-                                    Text(text = "¡Solo quedan ${prod.stock}!", color = MaterialTheme.colors.error, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
+                            // Usar componente reutilizable StockBadge
+                            StockBadge(
+                                stock = prod.stock,
+                                lowStockThreshold = 10
+                            )
 
                             Spacer(modifier = Modifier.height(Dimens.xl))
                             Divider()
@@ -99,13 +103,8 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                     Text(text = "Comprar ahora", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                 }
                             } else {
-                                Card(backgroundColor = MaterialTheme.colors.error.copy(alpha = 0.1f), elevation = 0.dp, shape = MaterialTheme.shapes.medium) {
-                                    Column(modifier = Modifier.padding(Dimens.lg), horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                                        Text(text = "Producto agotado", color = MaterialTheme.colors.error, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                        Spacer(modifier = Modifier.height(Dimens.s))
-                                        Text(text = "Este producto no está disponible actualmente", color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f), fontSize = 13.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                                    }
-                                }
+                                // Usar componente reutilizable OutOfStockCard
+                                OutOfStockCard()
                             }
                         }
                     }
