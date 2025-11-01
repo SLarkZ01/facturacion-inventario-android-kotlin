@@ -1,11 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Facturacioninventario" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.Facturacioninventario" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Forzar modo claro, desactivar modo oscuro -->
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
     <style name="Theme.Facturacioninventario" parent="Base.Theme.Facturacioninventario" />
 
 </resources>
-
