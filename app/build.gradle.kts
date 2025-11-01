@@ -99,6 +99,7 @@ dependencies {
     // Google Sign-In (Play Services Auth)
     implementation(libs.google.play.services.auth)
 
-    // Facebook Login (usar mavenCentral, catálogo de versiones)
-    implementation(libs.facebook.login)
+
+    // Coil para carga de imágenes optimizada (performance crítico)
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

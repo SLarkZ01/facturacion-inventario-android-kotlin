@@ -1,6 +1,5 @@
 package com.example.facturacion_inventario.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
@@ -15,10 +14,10 @@ private val AppShapes = Shapes(
 )
 
 @Composable
-fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) DarkColors else LightColors
+fun AppTheme(content: @Composable () -> Unit) {
+    // Siempre usar LightColors, sin importar el tema del sistema
     MaterialTheme(
-        colors = colors,
+        colors = LightColors,
         typography = Typography(),
         shapes = AppShapes,
         content = content

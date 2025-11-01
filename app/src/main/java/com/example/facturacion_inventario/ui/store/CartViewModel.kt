@@ -1,64 +1,84 @@
 package com.example.facturacion_inventario.ui.store
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.facturacion_inventario.domain.model.Product
+import com.example.facturacion_inventario.domain.model.CartItem
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-data class CartItem(
-    val product: Product,
-    val quantity: Int
-)
-
+/**
+ * CartViewModel optimizado con StateFlow para máximo rendimiento.
+ * StateFlow es más eficiente que mutableStateOf para ViewModels
+ * y permite recomposiciones granulares solo cuando cambian los datos.
+ */
 class CartViewModel : ViewModel() {
-    var cartItems by mutableStateOf<List<CartItem>>(emptyList())
-        private set
+    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
 
-    val totalItemCount: Int
-        get() = cartItems.sumOf { it.quantity }
+    private val _totalItemCount = MutableStateFlow(0)
+    val totalItemCount: StateFlow<Int> = _totalItemCount.asStateFlow()
 
-    fun getItemCount(): Int = totalItemCount
+    private val _totalPrice = MutableStateFlow(0.0)
+    val totalPrice: StateFlow<Double> = _totalPrice.asStateFlow()
 
     fun addToCart(product: Product, quantity: Int = 1) {
-        val existingItem = cartItems.find { it.product.id == product.id }
+        _cartItems.update { currentItems ->
+            val existingItem = currentItems.find { it.product.id == product.id }
 
-        cartItems = if (existingItem != null) {
-            cartItems.map { item ->
-                if (item.product.id == product.id) {
-                    item.copy(quantity = item.quantity + quantity)
-                } else {
-                    item
+            if (existingItem != null) {
+                currentItems.map { item ->
+                    if (item.product.id == product.id) {
+                        item.copy(quantity = item.quantity + quantity)
+                    } else {
+                        item
+                    }
                 }
+            } else {
+                currentItems + CartItem(product, quantity)
             }
-        } else {
-            cartItems + CartItem(product, quantity)
         }
+        updateTotals()
     }
 
     fun removeFromCart(productId: String) {
-        cartItems = cartItems.filter { it.product.id != productId }
+        _cartItems.update { currentItems ->
+            currentItems.filter { it.product.id != productId }
+        }
+        updateTotals()
     }
 
     fun updateQuantity(productId: String, quantity: Int) {
         if (quantity <= 0) {
             removeFromCart(productId)
         } else {
-            cartItems = cartItems.map { item ->
-                if (item.product.id == productId) {
-                    item.copy(quantity = quantity)
-                } else {
-                    item
+            _cartItems.update { currentItems ->
+                currentItems.map { item ->
+                    if (item.product.id == productId) {
+                        item.copy(quantity = quantity)
+                    } else {
+                        item
+                    }
                 }
             }
+            updateTotals()
         }
     }
 
     fun clearCart() {
-        cartItems = emptyList()
+        _cartItems.value = emptyList()
+        updateTotals()
     }
 
-    fun getTotalPrice(): Double {
-        return cartItems.sumOf { it.product.price * it.quantity }
+    private fun updateTotals() {
+        val items = _cartItems.value
+        _totalItemCount.value = items.sumOf { it.quantity }
+        _totalPrice.value = items.sumOf { it.product.price * it.quantity }
     }
+
+    // Métodos de compatibilidad para código existente
+    fun getItemCount(): Int = _totalItemCount.value
+
+    fun getTotalPrice(): Double = _totalPrice.value
 }

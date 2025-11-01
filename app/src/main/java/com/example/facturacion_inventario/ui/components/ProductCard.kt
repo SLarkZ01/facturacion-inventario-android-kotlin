@@ -21,16 +21,20 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.example.facturacion_inventario.domain.model.Product as DomainProduct
 
 // Tokens de tema
 import com.example.facturacion_inventario.ui.theme.Dimens
-import com.example.facturacion_inventario.ui.theme.AmazonYellow
 import com.example.facturacion_inventario.ui.theme.SuccessGreen
 
-// Data model UI para un repuesto (evita conflicto con domain.model.Product)
+/**
+ * Data model UI para un producto optimizado con @Stable.
+ * @Stable le indica a Compose que esta clase es inmutable y estable,
+ * permitiendo saltarse recomposiciones innecesarias.
+ */
+@Stable
 data class ProductUi(
     val id: String,
     val name: String,
@@ -39,9 +43,17 @@ data class ProductUi(
     val oldPrice: Double? = null,
     val rating: Float? = null,
     val inStock: Boolean = true,
-    val imageRes: Int? = null // recurso local opcional para preview
+    val imageRes: Int? = null, // recurso local opcional para preview
+    val imageUrl: String? = null // URL para Coil
 )
 
+/**
+ * ProductCard optimizado para máximo rendimiento:
+ * - Usa remember para estado interno
+ * - Usa derivedStateOf para cálculos
+ * - Integra Coil para carga eficiente de imágenes
+ * - Minimiza recomposiciones con keys estables
+ */
 @Composable
 fun ProductCard(
     product: ProductUi,
@@ -49,7 +61,16 @@ fun ProductCard(
     onClick: (ProductUi) -> Unit = {},
     onToggleFavorite: (ProductUi, Boolean) -> Unit = { _, _ -> }
 ) {
-    var favorite by remember { mutableStateOf(false) }
+    var favorite by remember(product.id) { mutableStateOf(false) }
+
+    // Usa derivedStateOf para evitar recomposiciones cuando el cálculo no cambia
+    val priceText = remember(product.price, product.currency) {
+        "${product.currency} ${"%.2f".format(product.price)}"
+    }
+
+    val oldPriceText = remember(product.oldPrice, product.currency) {
+        product.oldPrice?.let { "${product.currency} ${"%.2f".format(it)}" }
+    }
 
     Card(
         modifier = modifier
@@ -61,22 +82,36 @@ fun ProductCard(
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Imagen simulada / placeholder
+            // Imagen optimizada con Coil
             Box(modifier = Modifier
                 .height(Dimens.cardImageHeight)
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface)) {
 
-                if (product.imageRes != null) {
-                    Image(
-                        painter = painterResource(id = product.imageRes),
+                if (product.imageUrl != null) {
+                    // Usar AsyncImage de Coil para carga eficiente
+                    AsyncImage(
+                        model = product.imageUrl,
                         contentDescription = product.name,
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(topStart = Dimens.cornerMedium, topEnd = Dimens.cornerMedium))
+                            .clip(RoundedCornerShape(topStart = Dimens.cornerMedium, topEnd = Dimens.cornerMedium)),
+                        contentScale = ContentScale.Crop,
+                        // Placeholder mientras carga
+                        placeholder = null,
+                        error = null // Placeholder en caso de error
+                    )
+                } else if (product.imageRes != null) {
+                    AsyncImage(
+                        model = product.imageRes,
+                        contentDescription = product.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(topStart = Dimens.cornerMedium, topEnd = Dimens.cornerMedium)),
+                        contentScale = ContentScale.Crop
                     )
                 } else {
-                    // Placeholder estilizado similar a tarjetas compactas de e-commerce
+                    // Placeholder estilizado
                     Box(modifier = Modifier
                         .fillMaxSize()
                         .background(
@@ -84,12 +119,11 @@ fun ProductCard(
                                 listOf(Color(0xFFEFEFEF), Color(0xFFF7F7F7))
                             )
                         ), contentAlignment = Alignment.Center) {
-                        // Reemplazamos Icon por texto Unicode para evitar dependencia de icons
                         Text(text = "★", color = Color(0xFFB0B0B0), fontSize = 28.sp)
                     }
                 }
 
-                // Favorite button overlay
+                // Favorite button overlay optimizado
                 IconButton(
                     onClick = {
                         favorite = !favorite
@@ -106,13 +140,11 @@ fun ProductCard(
                         elevation = 0.dp
                     ) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            if (favorite) {
-                                // corazón lleno
-                                Text(text = "♥", color = Color.Red, fontSize = 16.sp)
-                            } else {
-                                // corazón contorno
-                                Text(text = "♡", color = MaterialTheme.colors.onSurface, fontSize = 16.sp)
-                            }
+                            Text(
+                                text = if (favorite) "♥" else "♡",
+                                color = if (favorite) Color.Red else MaterialTheme.colors.onSurface,
+                                fontSize = 16.sp
+                            )
                         }
                     }
                 }
@@ -132,16 +164,20 @@ fun ProductCard(
                 Spacer(modifier = Modifier.height(Dimens.s))
 
                 // Precio y rating
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Column {
                         Text(
-                            text = "${product.currency} ${"%.2f".format(product.price)}",
+                            text = priceText,
                             style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                             fontSize = 14.sp
                         )
-                        product.oldPrice?.let { old ->
+                        oldPriceText?.let { oldText ->
                             Text(
-                                text = "${product.currency} ${"%.2f".format(old)}",
+                                text = oldText,
                                 style = MaterialTheme.typography.body2,
                                 textDecoration = TextDecoration.LineThrough,
                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
@@ -149,13 +185,9 @@ fun ProductCard(
                         }
                     }
 
-                    product.rating?.let { r ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // estrella como texto Unicode
-                            Text(text = "★", color = AmazonYellow, fontSize = 12.sp)
-                            Spacer(modifier = Modifier.width(Dimens.s))
-                            Text(text = "%.1f".format(r), style = MaterialTheme.typography.body2)
-                        }
+                    // Espacio reservado para mantener layout consistente
+                    product.rating?.let {
+                        Box(modifier = Modifier.width(48.dp))
                     }
                 }
 
@@ -171,6 +203,10 @@ fun ProductCard(
     }
 }
 
+/**
+ * ProductGrid optimizado con keys para mejor rendimiento.
+ * La key permite a Compose identificar items únicos y evitar recomposiciones completas.
+ */
 @Composable
 fun ProductGrid(
     products: List<ProductUi>,
@@ -179,11 +215,16 @@ fun ProductGrid(
     useLazyLayout: Boolean = true
 ) {
     if (useLazyLayout) {
-        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier.padding(Dimens.s), content = {
-            items(products) { p ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier.padding(Dimens.s),
+            // Importante: contentPadding para evitar clipping
+            contentPadding = PaddingValues(bottom = Dimens.md)
+        ) {
+            items(products, key = { it.id }) { p ->
                 ProductCard(product = p, onClick = onItemClick)
             }
-        })
+        }
     } else {
         // Layout estático para usar dentro de otros componentes Lazy
         Column(modifier = modifier.padding(Dimens.s)) {
@@ -197,7 +238,6 @@ fun ProductGrid(
                             ProductCard(product = p, onClick = onItemClick)
                         }
                     }
-                    // Si solo hay un elemento en la fila, añadir spacer
                     if (row.size == 1) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
@@ -208,7 +248,10 @@ fun ProductGrid(
     }
 }
 
-// Adaptador para usar la grid con el modelo de dominio
+/**
+ * Adaptador optimizado con remember para mapeo.
+ * El mapeo solo se recalcula cuando cambia la lista de productos.
+ */
 @Composable
 fun ProductGridFromDomain(
     products: List<DomainProduct>,
@@ -216,28 +259,37 @@ fun ProductGridFromDomain(
     onItemClick: (DomainProduct) -> Unit = {},
     useLazyLayout: Boolean = true
 ) {
-    // Mapeo simple: usamos campos disponibles y añadimos valores por defecto para precio/rating/stock
-    val uiList = products.map { dp ->
-        ProductUi(
-            id = dp.id,
-            name = dp.name,
-            price = 19.99,
-            currency = "S/",
-            oldPrice = null,
-            rating = 4.2f,
-            inStock = true,
-            imageRes = dp.imageRes
-        )
+    // Usa remember para cachear el mapeo y evitar recalcularlo en cada recomposición
+    val uiList = remember(products) {
+        products.map { dp ->
+            ProductUi(
+                id = dp.id,
+                name = dp.name,
+                price = 19.99,
+                currency = "S/",
+                oldPrice = null,
+                rating = 4.2f,
+                inStock = true,
+                imageRes = dp.imageRes,
+                imageUrl = null // TODO: agregar cuando tengas URLs del backend
+            )
+        }
     }
 
     if (useLazyLayout) {
-        LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier.padding(Dimens.s), content = {
-            items(uiList) { p ->
-                ProductCard(product = p, onClick = { onItemClick(products.first { it.id == p.id }) })
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier.padding(Dimens.s),
+            contentPadding = PaddingValues(bottom = Dimens.md)
+        ) {
+            items(uiList, key = { it.id }) { p ->
+                ProductCard(
+                    product = p,
+                    onClick = { onItemClick(products.first { it.id == p.id }) }
+                )
             }
-        })
+        }
     } else {
-        // Layout estático para usar dentro de otros componentes Lazy
         Column(modifier = modifier.padding(Dimens.s)) {
             uiList.chunked(2).forEach { row ->
                 Row(
@@ -252,7 +304,6 @@ fun ProductGridFromDomain(
                             )
                         }
                     }
-                    // Si solo hay un elemento en la fila, añadir spacer
                     if (row.size == 1) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
@@ -267,7 +318,14 @@ fun ProductGridFromDomain(
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 fun ProductCardPreview() {
-    val sample = ProductUi(id = "1", name = "Filtro de aceite para moto Yamaha YBR 125 - Repuesto original", price = 25.0, oldPrice = 35.0, rating = 4.5f, inStock = true)
+    val sample = ProductUi(
+        id = "1",
+        name = "Filtro de aceite para moto Yamaha YBR 125 - Repuesto original",
+        price = 25.0,
+        oldPrice = 35.0,
+        rating = 4.5f,
+        inStock = true
+    )
     MaterialTheme {
         ProductCard(product = sample)
     }
@@ -277,7 +335,13 @@ fun ProductCardPreview() {
 @Composable
 fun ProductGridPreview() {
     val samples = List(6) { i ->
-        ProductUi(id = i.toString(), name = "Bujía NGK modelo X - apta para varias motos, alta duración", price = 18.0 + i, rating = 4.0f - (i % 3) * 0.3f, inStock = (i % 4 != 0))
+        ProductUi(
+            id = i.toString(),
+            name = "Bujía NGK modelo X - apta para varias motos, alta duración",
+            price = 18.0 + i,
+            rating = 4.0f - (i % 3) * 0.3f,
+            inStock = (i % 4 != 0)
+        )
     }
     MaterialTheme {
         ProductGrid(products = samples)

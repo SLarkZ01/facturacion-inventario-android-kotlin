@@ -1,10 +1,9 @@
 package com.example.facturacion_inventario.ui.login
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
@@ -12,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -21,16 +18,65 @@ import com.example.facturacion_inventario.R
 import com.example.auth.AuthViewModel
 import kotlinx.coroutines.launch
 import com.example.facturacion_inventario.ui.components.*
-import androidx.compose.ui.graphics.Color
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.LocalActivity
+import android.app.Activity
+import android.content.Intent
+import com.example.facturacion_inventario.BuildConfig
 
 @Composable
 fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = null, onLoginSuccess: (() -> Unit)? = null) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     val uiState by authViewModel.uiState.collectAsState()
+
+    // GoogleSignInClient setup
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestEmail()
+        .requestIdToken(BuildConfig.GOOGLE_SERVER_CLIENT_ID)
+        .build()
+
+    val googleSignInClient: GoogleSignInClient? = activity?.let { GoogleSignIn.getClient(it, gso) }
+
+    // Launcher para recibir el resultado del intent de Google
+    val googleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(Exception::class.java)
+                val idToken = account?.idToken
+                // Aquí llamamos al ViewModel para manejar el token si tu backend lo requiere
+                if (!idToken.isNullOrBlank()) {
+                    scope.launch {
+                        // Usa la API del repo: oauthGoogle
+                        // authViewModel debería exponer una función que llamara a repo.oauthGoogle
+                        // Si no existe, puedes implementar un handler en el ViewModel. Aquí invocamos un metodo esperado
+                        try {
+                            val method = authViewModel::class.java.getMethod("loginWithGoogle", String::class.java)
+                            method.invoke(authViewModel, idToken)
+                        } catch (_: NoSuchMethodException) {
+                            // Si no existe, llamamos a la función estándar del repo vía login usando token (si tu ViewModel la expone en otro nombre, ajústalo)
+                            // Por ahora solo mostramos un mensaje y delegamos al desarrollador implementar el handler en AuthViewModel
+                            Toast.makeText(context, "Token de Google recibido, implementa loginWithGoogle en AuthViewModel", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "No se obtuvo token de Google", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Google sign-in falló: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            Toast.makeText(context, "Google sign-in cancelado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Mostrar errores con efecto
     LaunchedEffect(key1 = uiState.errorMessage) {
@@ -99,10 +145,15 @@ fun LoginScreen(authViewModel: AuthViewModel, navController: NavController? = nu
                         Text(text = "o continuar con", color = MaterialTheme.colors.secondary, modifier = Modifier.align(Alignment.CenterHorizontally))
                         Spacer(Modifier.height(8.dp))
 
-                        SocialButton(text = "Continuar con Google", iconRes = R.drawable.ic_google, onClick = { /* implementar google */ })
-                        Spacer(Modifier.height(8.dp))
-                        // Facebook con color propio
-                        SocialButton(text = "Continuar con Facebook", iconRes = R.drawable.ic_facebook, onClick = { /* implementar facebook */ }, background = Color(0xFF1877F2))
+                        // Botón Google: mantiene ícono y texto
+                        SocialButton(text = "Continuar con Google", iconRes = R.drawable.ic_google, onClick = {
+                            val signInIntent: Intent? = googleSignInClient?.signInIntent
+                            if (signInIntent != null) {
+                                googleLauncher.launch(signInIntent)
+                            } else {
+                                Toast.makeText(context, "No se pudo inicializar Google Sign-In", Toast.LENGTH_LONG).show()
+                            }
+                        })
 
                         Spacer(Modifier.height(12.dp))
 

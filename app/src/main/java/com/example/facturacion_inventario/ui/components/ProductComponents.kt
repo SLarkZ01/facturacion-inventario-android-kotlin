@@ -1,10 +1,12 @@
 package com.example.facturacion_inventario.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.example.facturacion_inventario.domain.model.Product
 
@@ -12,13 +14,15 @@ import com.example.facturacion_inventario.domain.model.Product
 import com.example.facturacion_inventario.ui.theme.Dimens
 
 /**
- * ProductComponents - composables reutilizables para listas de productos a partir del modelo de dominio.
- * Provee:
- * - ProductHorizontalFromDomain: fila horizontal con tarjetas (usa `ProductCard` interno)
- * - ProductListFromDomain: adaptador que elige entre grid (2 columnas) o fila horizontal
+ * ProductComponents - composables reutilizables optimizados para listas de productos.
+ * Optimizaciones:
+ * - Usa remember para cachear mapeos
+ * - Usa keys en items() para mejor rendimiento
+ * - Evita recalcular transformaciones en cada recomposición
  */
 
 // Convierte Product (dominio) a ProductUi (simplificado) para ser usado por `ProductCard`.
+// Ahora es una función de utilidad que se cachea con remember.
 private fun mapToUi(products: List<Product>): List<ProductUi> = products.map { dp ->
     ProductUi(
         id = dp.id,
@@ -28,17 +32,32 @@ private fun mapToUi(products: List<Product>): List<ProductUi> = products.map { d
         oldPrice = null,
         rating = null,
         inStock = dp.stock > 0,
-        imageRes = dp.imageRes
+        imageRes = dp.imageRes,
+        imageUrl = null // TODO: agregar cuando tengas URLs del backend
     )
 }
 
+/**
+ * ProductHorizontalFromDomain optimizado con remember y keys.
+ */
 @Composable
-fun ProductHorizontalFromDomain(products: List<Product>, modifier: Modifier = Modifier, onItemClick: (Product) -> Unit = {}) {
-    val uiList = mapToUi(products)
+fun ProductHorizontalFromDomain(
+    products: List<Product>,
+    modifier: Modifier = Modifier,
+    onItemClick: (Product) -> Unit = {}
+) {
+    // Cachea el mapeo - solo se recalcula cuando cambia products
+    val uiList = remember(products) { mapToUi(products) }
 
-    LazyRow(modifier = modifier.padding(Dimens.s), horizontalArrangement = Arrangement.spacedBy(Dimens.s)) {
-        items(uiList) { ui ->
-            // Encontrar el producto de dominio correspondiente por id
+    LazyRow(
+        modifier = modifier.padding(Dimens.s),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.s),
+        // Agrega contentPadding para mejor UX
+        contentPadding = PaddingValues(horizontal = Dimens.s)
+    ) {
+        // KEY CRÍTICO: permite a Compose identificar items únicos y evitar recomposiciones completas
+        items(uiList, key = { it.id }) { ui ->
+            // Busca el producto de dominio correspondiente por id
             val domain = products.firstOrNull { it.id == ui.id }
             ProductCard(product = ui, onClick = {
                 domain?.let { onItemClick(it) }
@@ -47,6 +66,9 @@ fun ProductHorizontalFromDomain(products: List<Product>, modifier: Modifier = Mo
     }
 }
 
+/**
+ * ProductListFromDomain optimizado que delega a componentes especializados.
+ */
 @Composable
 fun ProductListFromDomain(
     products: List<Product>,
@@ -57,7 +79,7 @@ fun ProductListFromDomain(
 ) {
     when (layout) {
         "grid" -> {
-            // Reusar ProductGridFromDomain que ya mapea y muestra una grid
+            // Reusar ProductGridFromDomain que ya está optimizado
             ProductGridFromDomain(
                 products = products,
                 modifier = modifier,
@@ -66,7 +88,11 @@ fun ProductListFromDomain(
             )
         }
         else -> {
-            ProductHorizontalFromDomain(products = products, modifier = modifier, onItemClick = onItemClick)
+            ProductHorizontalFromDomain(
+                products = products,
+                modifier = modifier,
+                onItemClick = onItemClick
+            )
         }
     }
 }
