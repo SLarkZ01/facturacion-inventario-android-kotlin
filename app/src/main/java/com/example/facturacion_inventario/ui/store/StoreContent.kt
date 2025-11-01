@@ -13,7 +13,7 @@ import com.example.facturacion_inventario.domain.model.Product
 import com.example.facturacion_inventario.domain.model.Category
 
 // Componentes reutilizables
-import com.example.facturacion_inventario.ui.components.ProductListFromDomain
+import com.example.facturacion_inventario.ui.components.product.ProductListFromDomain
 
 // Tokens visuales
 import com.example.facturacion_inventario.ui.theme.Dimens
@@ -78,13 +78,16 @@ fun CategorySection(
         }
 
         if (showAll) {
+            // Cuando showAll es true, mostrar en grid de 2 columnas con useLazyLayout = false
+            // para que funcione dentro del LazyColumn padre
             ProductListFromDomain(
                 products = products,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Dimens.lg),
                 layout = "grid",
-                onItemClick = { p -> onProductClick(p.id) }
+                onItemClick = { p -> onProductClick(p.id) },
+                useLazyLayout = false // IMPORTANTE: false para usar dentro de LazyColumn
             )
         } else {
             ProductListFromDomain(

@@ -21,7 +21,12 @@ import com.example.facturacion_inventario.R
 import com.example.auth.AuthViewModel
 import com.example.data.auth.RegisterRequest
 import kotlinx.coroutines.launch
-import com.example.facturacion_inventario.ui.components.*
+import com.example.facturacion_inventario.ui.components.shared.AuthHeader
+import com.example.facturacion_inventario.ui.components.shared.InputField
+import com.example.facturacion_inventario.ui.components.controls.PrimaryButton
+import com.example.facturacion_inventario.ui.components.controls.SecondaryTextButton
+import com.example.facturacion_inventario.ui.components.controls.SocialButton
+import com.example.facturacion_inventario.ui.components.controls.AuthCard
 
 @Composable
 fun RegisterScreen(authViewModel: AuthViewModel, navController: NavController? = null, onRegisterSuccess: (() -> Unit)? = null) {

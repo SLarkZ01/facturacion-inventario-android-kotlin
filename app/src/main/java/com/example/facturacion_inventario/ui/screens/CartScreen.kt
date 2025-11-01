@@ -17,9 +17,9 @@ import com.example.facturacion_inventario.ui.theme.AccentOrange
 import com.example.facturacion_inventario.R
 import androidx.compose.foundation.layout.Arrangement
 import com.example.facturacion_inventario.ui.store.CartViewModel
-import com.example.facturacion_inventario.ui.components.CartItemCard
-import com.example.facturacion_inventario.ui.components.PriceSummaryCard
-import com.example.facturacion_inventario.ui.components.EmptyCartCard
+import com.example.facturacion_inventario.ui.components.cart.CartItemCard
+import com.example.facturacion_inventario.ui.components.cart.PriceSummaryCard
+import com.example.facturacion_inventario.ui.components.cart.EmptyCartCard
 
 /**
  * CartContent optimizado con collectAsState para observar StateFlow.

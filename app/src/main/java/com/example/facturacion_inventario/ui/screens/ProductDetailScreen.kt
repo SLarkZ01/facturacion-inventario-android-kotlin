@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.example.facturacion_inventario.domain.model.Product
-import com.example.facturacion_inventario.ui.components.ProductMediaCarousel
-import com.example.facturacion_inventario.ui.components.ProductDetailsSection
-import com.example.facturacion_inventario.ui.components.QuantitySelector
+import com.example.facturacion_inventario.ui.components.product.ProductMediaCarousel
+import com.example.facturacion_inventario.ui.components.product.ProductDetailsSection
+import com.example.facturacion_inventario.ui.components.product.QuantitySelector
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.theme.AccentOrange
 import com.example.facturacion_inventario.ui.theme.AmazonYellow
@@ -22,9 +22,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 import androidx.compose.ui.graphics.graphicsLayer
-import com.example.facturacion_inventario.ui.components.StockBadge
-import com.example.facturacion_inventario.ui.components.OutOfStockCard
-import com.example.facturacion_inventario.ui.components.PriceTag
+import com.example.facturacion_inventario.ui.components.badge.StockBadge
+import com.example.facturacion_inventario.ui.components.badge.OutOfStockCard
+import com.example.facturacion_inventario.ui.components.badge.PriceTag
 
 @Composable
 fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewModel: CartViewModel? = null) {
@@ -99,7 +99,48 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
 
                                 Spacer(modifier = Modifier.height(Dimens.md))
 
-                                Button(onClick = { /* comprar ahora */ }, modifier = Modifier.fillMaxWidth().height(Dimens.buttonHeight), colors = ButtonDefaults.buttonColors(backgroundColor = AccentOrange), shape = MaterialTheme.shapes.medium) {
+                                /**
+                                 * 🚧 BOTÓN PLACEHOLDER - IMPLEMENTACIÓN PENDIENTE
+                                 *
+                                 * PROPÓSITO ORIGINAL:
+                                 * Permitir la compra directa de un producto sin agregarlo al carrito,
+                                 * navegando directamente al checkout con ese único producto para
+                                 * una experiencia de compra rápida (quick buy / buy now).
+                                 *
+                                 * ESTADO ACTUAL:
+                                 * Placeholder sin implementación. El botón es visible y clickeable
+                                 * pero no ejecuta ninguna acción (lambda vacía).
+                                 *
+                                 * RAZÓN DE MANTENERLO:
+                                 * - Diseño de UX ya definido (botón visible en ProductDetailScreen)
+                                 * - Feature planificada para implementación futura
+                                 * - Evita tener que modificar la UI más adelante
+                                 * - Patrón común en e-commerce (Amazon, MercadoLibre, etc.)
+                                 *
+                                 * CONDICIONES PARA IMPLEMENTACIÓN:
+                                 * - Cuando se complete la pantalla de Checkout
+                                 * - Cuando se implemente el flujo de pago/facturación inmediato
+                                 * - Cuando se defina la lógica de "carrito temporal" para compra rápida
+                                 * - Según priorización del backlog del proyecto
+                                 *
+                                 * IMPLEMENTACIÓN FUTURA:
+                                 * Debe:
+                                 * 1. Crear un carrito temporal o usar un flag "buyNow" en el carrito
+                                 * 2. Navegar a la pantalla de checkout/facturación
+                                 * 3. Pasar contexto de compra rápida (producto + cantidad)
+                                 * 4. Saltar el paso de revisar carrito (ir directo a pago)
+                                 *
+                                 * @see CartViewModel para gestión del carrito
+                                 */
+                                Button(
+                                    onClick = {
+                                        //  Implementar compra directa (buy now)
+                                        // Ejemplo: navController.navigate("checkout?buyNow=true&productId=${prod.id}&quantity=$selectedQuantity")
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(Dimens.buttonHeight),
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = AccentOrange),
+                                    shape = MaterialTheme.shapes.medium
+                                ) {
                                     Text(text = "Comprar ahora", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                 }
                             } else {

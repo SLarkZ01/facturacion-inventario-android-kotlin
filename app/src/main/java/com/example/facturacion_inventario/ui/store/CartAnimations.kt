@@ -1,9 +1,50 @@
 package com.example.facturacion_inventario.ui.store
 
-// Este archivo se mantiene por compatibilidad pero no se usa actualmente
-// El badge del carrito está implementado directamente en StoreHost.kt
+/**
+ * ⚠️ ARCHIVO PLACEHOLDER - IMPLEMENTACIÓN PARCIAL NO UTILIZADA
+ *
+ * PROPÓSITO ORIGINAL:
+ * Proporcionar animaciones avanzadas para el carrito de compras, específicamente
+ * la animación "fly to cart" donde un producto vuela visualmente desde su
+ * posición en la pantalla hasta el ícono del carrito (efecto común en e-commerce).
+ *
+ * ESTADO ACTUAL:
+ * - Implementación parcial completada con animaciones funcionales
+ * - NO SE USA en ninguna pantalla actualmente
+ * - El badge del carrito está implementado directamente en StoreHost.kt
+ * - La animación de "agregar al carrito" usa solo scale en ProductDetailScreen
+ *
+ * RAZÓN DE MANTENERLO:
+ * - Diseño de animación ya implementado y funcional
+ * - Feature planificada para mejorar experiencia de usuario
+ * - Código reutilizable para futuras mejoras visuales
+ * - Evita rehacer el trabajo de animación desde cero
+ *
+ * CONDICIONES PARA IMPLEMENTACIÓN:
+ * - Cuando se priorice mejorar la experiencia visual del carrito
+ * - Cuando se quiera agregar feedback visual más rico al agregar productos
+ * - Requiere integrar con ProductCard y ProductDetailScreen
+ * - Requiere pasar coordenadas del producto y del ícono del carrito
+ *
+ * CONDICIONES PARA ELIMINACIÓN:
+ * - Si se decide no implementar animaciones "fly to cart"
+ * - Si se opta por una solución de animación diferente
+ * - Si el peso del código no justifica la feature (minimalismo)
+ * - En refactorización mayor de animaciones (v2.0+)
+ *
+ * IMPLEMENTACIÓN FUTURA:
+ * Para usar este componente:
+ * 1. Obtener coordenadas del producto clickeado (usando onGloballyPositioned)
+ * 2. Obtener coordenadas del ícono del carrito en StoreHost
+ * 3. Crear FlyingItem con las coordenadas
+ * 4. Mostrar FlyToCartAnimation sobre la UI con zIndex alto
+ * 5. Al finalizar animación, actualizar badge del carrito
+ *
+ * @see StoreHost donde debería integrarse el badge del carrito
+ * @see ProductDetailScreen donde se activa al agregar al carrito
+ * @since v1.0
+ */
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,7 +64,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import kotlin.math.roundToInt
 
-// Estado para manejar la animación "fly to cart"
+/**
+ * Modelo de datos para un item volando hacia el carrito.
+ *
+ * @property startX Posición X inicial (donde está el producto)
+ * @property startY Posición Y inicial (donde está el producto)
+ * @property targetX Posición X del ícono del carrito
+ * @property targetY Posición Y del ícono del carrito
+ * @property iconRes Recurso drawable del ícono del producto (opcional)
+ */
 data class FlyingItem(
     val startX: Float,
     val startY: Float,
@@ -32,8 +81,38 @@ data class FlyingItem(
     val iconRes: Int? = null
 )
 
-// Composable para la animación "fly to cart"
-// Esta es una implementación de ejemplo que puede ser extendida en el futuro
+/**
+ * 🚧 COMPOSABLE PLACEHOLDER - IMPLEMENTADO PERO NO USADO
+ *
+ * Animación "fly to cart" que muestra un elemento volando desde su posición
+ * original hasta el ícono del carrito con efectos de escala y opacidad.
+ *
+ * ESTADO: Implementación completa y funcional, pero no integrada en la UI.
+ *
+ * USO FUTURO:
+ * ```kotlin
+ * var flyingItem by remember { mutableStateOf<FlyingItem?>(null) }
+ *
+ * // Al agregar producto:
+ * flyingItem = FlyingItem(
+ *     startX = productX,
+ *     startY = productY,
+ *     targetX = cartIconX,
+ *     targetY = cartIconY
+ * )
+ *
+ * // En el composable raíz:
+ * FlyToCartAnimation(
+ *     flyingItem = flyingItem,
+ *     onAnimationEnd = { flyingItem = null }
+ * )
+ * ```
+ *
+ * @param flyingItem Datos del item volador o null si no hay animación activa
+ * @param onAnimationEnd Callback al terminar la animación
+ * @param modifier Modificador para el contenedor de la animación
+ */
+@Suppress("unused")
 @Composable
 fun FlyToCartAnimation(
     flyingItem: FlyingItem?,
