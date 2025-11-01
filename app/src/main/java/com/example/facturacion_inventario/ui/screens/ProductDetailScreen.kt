@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.example.facturacion_inventario.domain.model.Product
-import com.example.facturacion_inventario.ui.components.ProductMediaCarousel
-import com.example.facturacion_inventario.ui.components.ProductDetailsSection
-import com.example.facturacion_inventario.ui.components.QuantitySelector
+import com.example.facturacion_inventario.ui.components.product.ProductMediaCarousel
+import com.example.facturacion_inventario.ui.components.product.ProductDetailsSection
+import com.example.facturacion_inventario.ui.components.product.QuantitySelector
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.theme.AccentOrange
 import com.example.facturacion_inventario.ui.theme.AmazonYellow
@@ -22,9 +22,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 import androidx.compose.ui.graphics.graphicsLayer
-import com.example.facturacion_inventario.ui.components.StockBadge
-import com.example.facturacion_inventario.ui.components.OutOfStockCard
-import com.example.facturacion_inventario.ui.components.PriceTag
+import com.example.facturacion_inventario.ui.components.badge.StockBadge
+import com.example.facturacion_inventario.ui.components.badge.OutOfStockCard
+import com.example.facturacion_inventario.ui.components.badge.PriceTag
 
 @Composable
 fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewModel: CartViewModel? = null) {

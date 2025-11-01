@@ -1,9 +1,8 @@
-package com.example.facturacion_inventario.ui.components
+package com.example.facturacion_inventario.ui.components.controls
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,8 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.ColumnScope
-
-// Tokens
 import com.example.facturacion_inventario.ui.theme.Dimens
 
 // PrimaryButton: botón principal reutilizable para acciones importantes

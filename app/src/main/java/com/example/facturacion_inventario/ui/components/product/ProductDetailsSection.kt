@@ -1,4 +1,4 @@
-package com.example.facturacion_inventario.ui.components
+package com.example.facturacion_inventario.ui.components.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

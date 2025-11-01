@@ -17,7 +17,12 @@ import androidx.navigation.NavController
 import com.example.facturacion_inventario.R
 import com.example.auth.AuthViewModel
 import kotlinx.coroutines.launch
-import com.example.facturacion_inventario.ui.components.*
+import com.example.facturacion_inventario.ui.components.shared.AuthHeader
+import com.example.facturacion_inventario.ui.components.shared.InputField
+import com.example.facturacion_inventario.ui.components.controls.PrimaryButton
+import com.example.facturacion_inventario.ui.components.controls.SecondaryTextButton
+import com.example.facturacion_inventario.ui.components.controls.SocialButton
+import com.example.facturacion_inventario.ui.components.controls.AuthCard
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

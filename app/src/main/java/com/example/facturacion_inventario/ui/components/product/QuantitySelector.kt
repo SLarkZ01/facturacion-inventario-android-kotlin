@@ -1,4 +1,4 @@
-package com.example.facturacion_inventario.ui.components
+package com.example.facturacion_inventario.ui.components.product
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*

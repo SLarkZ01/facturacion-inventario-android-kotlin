@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.example.facturacion_inventario.ui.components.InputField
-import com.example.facturacion_inventario.ui.components.ProductUi
-import com.example.facturacion_inventario.ui.components.ProductCard
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.facturacion_inventario.ui.components.shared.InputField
+import com.example.facturacion_inventario.ui.components.product.ProductUi
+import com.example.facturacion_inventario.ui.components.product.ProductCard
 
 // Tokens
 import com.example.facturacion_inventario.ui.theme.Dimens
@@ -49,7 +51,3 @@ fun EmptySearchPlaceholder(modifier: Modifier = Modifier) {
         }
     }
 }
-
-
-
-

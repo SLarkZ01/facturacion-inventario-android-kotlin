@@ -1,4 +1,4 @@
-package com.example.facturacion_inventario.ui.components
+package com.example.facturacion_inventario.ui.components.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.example.facturacion_inventario.domain.model.Product as DomainProduct
-
-// Tokens de tema
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.theme.SuccessGreen
 
@@ -265,13 +263,13 @@ fun ProductGridFromDomain(
             ProductUi(
                 id = dp.id,
                 name = dp.name,
-                price = 19.99,
+                price = dp.price.takeIf { it > 0.0 } ?: 0.0,
                 currency = "S/",
                 oldPrice = null,
-                rating = 4.2f,
-                inStock = true,
+                rating = null,
+                inStock = dp.stock > 0,
                 imageRes = dp.imageRes,
-                imageUrl = null // TODO: agregar cuando tengas URLs del backend
+                imageUrl = null
             )
         }
     }
@@ -280,70 +278,59 @@ fun ProductGridFromDomain(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier.padding(Dimens.s),
-            contentPadding = PaddingValues(bottom = Dimens.md)
+            horizontalArrangement = Arrangement.spacedBy(Dimens.s),
+            verticalArrangement = Arrangement.spacedBy(Dimens.s),
+            contentPadding = PaddingValues(Dimens.s)
         ) {
-            items(uiList, key = { it.id }) { p ->
-                ProductCard(
-                    product = p,
-                    onClick = { onItemClick(products.first { it.id == p.id }) }
-                )
+            items(uiList, key = { it.id }) { ui ->
+                val domain = products.firstOrNull { it.id == ui.id }
+                ProductCard(product = ui, onClick = {
+                    domain?.let { onItemClick(it) }
+                })
             }
         }
     } else {
-        Column(modifier = modifier.padding(Dimens.s)) {
-            uiList.chunked(2).forEach { row ->
+        // Grid de 2 columnas para usar dentro de LazyColumn
+        Column(
+            modifier = modifier.padding(Dimens.s),
+            verticalArrangement = Arrangement.spacedBy(Dimens.s)
+        ) {
+            uiList.chunked(2).forEach { rowProducts ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(Dimens.s)
                 ) {
-                    row.forEach { p ->
+                    rowProducts.forEach { ui ->
+                        val domain = products.firstOrNull { it.id == ui.id }
                         Box(modifier = Modifier.weight(1f)) {
-                            ProductCard(
-                                product = p,
-                                onClick = { onItemClick(products.first { it.id == p.id }) }
-                            )
+                            ProductCard(product = ui, onClick = {
+                                domain?.let { onItemClick(it) }
+                            })
                         }
                     }
-                    if (row.size == 1) {
+                    // Si solo hay 1 producto en la fila, agregar espacio vacío
+                    if (rowProducts.size == 1) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
-                Spacer(modifier = Modifier.height(Dimens.s))
             }
         }
     }
 }
 
-// Previews
-@Preview(showBackground = true, widthDp = 360)
+// Preview
+@Preview(showBackground = true)
 @Composable
 fun ProductCardPreview() {
-    val sample = ProductUi(
-        id = "1",
-        name = "Filtro de aceite para moto Yamaha YBR 125 - Repuesto original",
-        price = 25.0,
-        oldPrice = 35.0,
-        rating = 4.5f,
-        inStock = true
-    )
     MaterialTheme {
-        ProductCard(product = sample)
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 640)
-@Composable
-fun ProductGridPreview() {
-    val samples = List(6) { i ->
-        ProductUi(
-            id = i.toString(),
-            name = "Bujía NGK modelo X - apta para varias motos, alta duración",
-            price = 18.0 + i,
-            rating = 4.0f - (i % 3) * 0.3f,
-            inStock = (i % 4 != 0)
+        ProductCard(
+            product = ProductUi(
+                id = "1",
+                name = "Aceite Motor Castrol 20W-50",
+                price = 45.99,
+                oldPrice = 55.00,
+                inStock = true
+            )
         )
-    }
-    MaterialTheme {
-        ProductGrid(products = samples)
     }
 }

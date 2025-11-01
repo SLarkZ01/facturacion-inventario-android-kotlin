@@ -13,7 +13,7 @@ import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import com.example.facturacion_inventario.ui.store.CategorySection
 import com.example.facturacion_inventario.ui.store.StoreScreenScaffold
 import com.example.facturacion_inventario.ui.theme.Dimens
-import com.example.facturacion_inventario.ui.components.CategoryBanner
+import com.example.facturacion_inventario.ui.components.banner.CategoryBanner
 
 /**
  * HomeContent optimizado con keys en LazyColumn y uso de remember/derivedStateOf.

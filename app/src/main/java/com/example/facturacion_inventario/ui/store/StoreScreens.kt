@@ -14,7 +14,7 @@ import com.example.facturacion_inventario.ui.screens.CartContent
 import com.example.facturacion_inventario.ui.screens.HomeContent
 import com.example.facturacion_inventario.ui.screens.ProductDetailContent
 import androidx.compose.ui.Modifier
-import com.example.facturacion_inventario.ui.components.CategoryCard
+import com.example.facturacion_inventario.ui.components.category.CategoryCard
 import com.example.facturacion_inventario.ui.theme.Dimens
 
 @Composable
