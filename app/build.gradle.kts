@@ -102,4 +102,7 @@ dependencies {
 
     // Coil para carga de imágenes optimizada (performance crítico)
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Accompanist System UI Controller para control de barras de estado
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 }
