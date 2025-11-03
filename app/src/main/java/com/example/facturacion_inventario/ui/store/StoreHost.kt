@@ -49,6 +49,9 @@ import androidx.core.view.WindowCompat
 import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.facturacion_inventario.ui.animations.NavigationTransitions
+import com.example.facturacion_inventario.ui.animations.bounceClick
+import com.example.facturacion_inventario.ui.theme.TransparentStatusBar
 
 // Badge del carrito con animación
 @Composable
@@ -172,6 +175,9 @@ fun SearchBar(
 
 @Composable
 fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
+    // Configurar barras transparentes para el store
+    TransparentStatusBar(darkIcons = false)
+
     val storeNavController = rememberNavController()
     val repo = remember { FakeProductRepository() }
     var selectedTab by remember { mutableStateOf("home") }
@@ -276,51 +282,99 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                     ) {
                         Row(modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
+                            .padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            verticalAlignment = Alignment.CenterVertically) {
 
-                            // Home
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-                                selectedTab = "home"
-                                storeNavController.navigate("home") { popUpTo("home") }
-                            }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "home", tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                            // Home con microinteracción
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.bounceClick {
+                                    selectedTab = "home"
+                                    storeNavController.navigate("home") { popUpTo("home") }
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_motorcycle_animated),
+                                    contentDescription = "home",
+                                    tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
+                                    modifier = Modifier.size(26.dp)
+                                )
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Inicio", color = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(
+                                    text = "Inicio",
+                                    color = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
+                                    fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal,
+                                    style = MaterialTheme.typography.caption
+                                )
                             }
 
-                            // Categories (nuevo botón movido desde la parte superior)
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-                                selectedTab = "categories"
-                                storeNavController.navigate("categories") { popUpTo("home") }
-                            }) {
-                                // Icono representativo de categorías
-                                Icon(painter = painterResource(id = R.drawable.ic_categories), contentDescription = "categories", tint = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                            // Categories con microinteracción
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.bounceClick {
+                                    selectedTab = "categories"
+                                    storeNavController.navigate("categories") { popUpTo("home") }
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_categories),
+                                    contentDescription = "categories",
+                                    tint = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E),
+                                    modifier = Modifier.size(26.dp)
+                                )
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Categorías", color = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "categories") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(
+                                    text = "Categorías",
+                                    color = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E),
+                                    fontWeight = if (selectedTab == "categories") FontWeight.SemiBold else FontWeight.Normal,
+                                    style = MaterialTheme.typography.caption
+                                )
                             }
 
-                            // Profile
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-                                selectedTab = "profile"
-                                storeNavController.navigate("profile") { popUpTo("home") }
-                            }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "profile", tint = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), modifier = Modifier.size(26.dp))
+                            // Profile con microinteracción
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.bounceClick {
+                                    selectedTab = "profile"
+                                    storeNavController.navigate("profile") { popUpTo("home") }
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_person),
+                                    contentDescription = "profile",
+                                    tint = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E),
+                                    modifier = Modifier.size(26.dp)
+                                )
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Perfil", color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(
+                                    text = "Perfil",
+                                    color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E),
+                                    fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal,
+                                    style = MaterialTheme.typography.caption
+                                )
                             }
 
-                            // Cart
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable {
-                                selectedTab = "cart"
-                                storeNavController.navigate("cart") { popUpTo("home") }
-                            }) {
+                            // Cart con microinteracción
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.bounceClick {
+                                    selectedTab = "cart"
+                                    storeNavController.navigate("cart") { popUpTo("home") }
+                                }
+                            ) {
                                 CartIconWithBadge(
-                                    itemCount = cartItemCount, // Usar el contador real del carrito
+                                    itemCount = cartItemCount,
                                     iconColor = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
                                     modifier = Modifier.size(26.dp)
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(text = "Carrito", color = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E), fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal, style = MaterialTheme.typography.caption)
+                                Text(
+                                    text = "Carrito",
+                                    color = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
+                                    fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal,
+                                    style = MaterialTheme.typography.caption
+                                )
                             }
                         }
                     }
@@ -442,29 +496,49 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                 }
             }
 
-            // Contenido principal desplazable bajo el header
+            // Contenido principal con transiciones animadas
             Box(modifier = Modifier
                 .fillMaxSize()
                 .padding(top = headerHeightDp + extraTop)
-                 .zIndex(1f)) {
-                NavHost(navController = storeNavController, startDestination = "home") {
-                    composable("home") {
+                .zIndex(1f)) {
+                NavHost(
+                    navController = storeNavController,
+                    startDestination = "home",
+                    enterTransition = { NavigationTransitions.fadeInOnly() },
+                    exitTransition = { NavigationTransitions.fadeOutOnly() },
+                    popEnterTransition = { NavigationTransitions.fadeInOnly() },
+                    popExitTransition = { NavigationTransitions.fadeOutOnly() }
+                ) {
+                    composable(
+                        "home",
+                        enterTransition = { NavigationTransitions.fadeInOnly() },
+                        exitTransition = { NavigationTransitions.fadeOutOnly() }
+                    ) {
                         HomeScreen(navController = storeNavController)
                     }
+
                     composable("home/{categoryId}") { backStackEntry ->
                         val categoryId = backStackEntry.arguments?.getString("categoryId")
                         HomeScreen(navController = storeNavController, selectedCategoryId = categoryId)
                     }
-                    composable("product/{productId}") { backStackEntry ->
+
+                    composable(
+                        "product/{productId}",
+                        enterTransition = { NavigationTransitions.slideInFromRight() },
+                        exitTransition = { NavigationTransitions.slideOutToRight() }
+                    ) { backStackEntry ->
                         val pid = backStackEntry.arguments?.getString("productId")
                         ProductDetailScreen(productId = pid, cartViewModel = cartViewModel)
                     }
+
                     composable("cart") {
                         CartScreen(navController = storeNavController, cartViewModel = cartViewModel)
                     }
+
                     composable("profile") {
                         ProfileScreen(authViewModel = authViewModel, rootNavController = rootNavController)
                     }
+
                     composable("categories") {
                         CategoriesScreen(navController = storeNavController)
                     }

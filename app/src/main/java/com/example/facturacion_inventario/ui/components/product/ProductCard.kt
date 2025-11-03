@@ -26,6 +26,7 @@ import coil.compose.AsyncImage
 import com.example.facturacion_inventario.domain.model.Product as DomainProduct
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.theme.SuccessGreen
+import com.example.facturacion_inventario.ui.animations.bounceClick
 
 /**
  * Data model UI para un producto optimizado con @Stable.
@@ -51,6 +52,7 @@ data class ProductUi(
  * - Usa derivedStateOf para cálculos
  * - Integra Coil para carga eficiente de imágenes
  * - Minimiza recomposiciones con keys estables
+ * - Microinteracciones con bounceClick
  */
 @Composable
 fun ProductCard(
@@ -74,7 +76,7 @@ fun ProductCard(
         modifier = modifier
             .width(Dimens.cardCompactWidth)
             .padding(Dimens.s)
-            .clickable { onClick(product) },
+            .bounceClick { onClick(product) }, // Microinteracción bounce
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 4.dp,
         shape = MaterialTheme.shapes.medium
