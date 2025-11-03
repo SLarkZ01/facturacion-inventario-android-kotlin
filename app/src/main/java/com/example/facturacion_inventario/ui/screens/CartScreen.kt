@@ -1,12 +1,12 @@
 package com.example.facturacion_inventario.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,9 +20,12 @@ import com.example.facturacion_inventario.ui.store.CartViewModel
 import com.example.facturacion_inventario.ui.components.cart.CartItemCard
 import com.example.facturacion_inventario.ui.components.cart.PriceSummaryCard
 import com.example.facturacion_inventario.ui.components.cart.EmptyCartCard
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * CartContent optimizado con collectAsState para observar StateFlow.
+ * Ahora incluye animaciones suaves al eliminar items.
  */
 @Composable
 fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartViewModel: CartViewModel? = null) {
@@ -33,6 +36,10 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
     val cartItems by cartViewModel.cartItems.collectAsState()
     val totalItemCount by cartViewModel.totalItemCount.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
+
+    // Estado para controlar items que están siendo eliminados
+    var itemsBeingRemoved by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val coroutineScope = rememberCoroutineScope()
 
     StoreScreenScaffold {
         // Pongo el encabezado dentro del LazyColumn para que se desplace con el contenido
@@ -60,12 +67,50 @@ fun CartContent(onContinueShopping: () -> Unit, onCheckout: () -> Unit, cartView
             } else {
                 // KEY CRÍTICO: usar cartItem.product.id para identificar items únicos
                 items(cartItems, key = { it.product.id }) { cartItem ->
-                    // Usar componente reutilizable CartItemCard
-                    CartItemCard(
-                        cartItem = cartItem,
-                        onRemoveClick = { cartViewModel.removeFromCart(cartItem.product.id) },
-                        removeIconRes = R.drawable.ic_arrow_back
-                    )
+                    // AnimatedVisibility para animación de salida suave
+                    AnimatedVisibility(
+                        visible = !itemsBeingRemoved.contains(cartItem.product.id),
+                        enter = expandVertically(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        ) + fadeIn(animationSpec = tween(300)),
+                        exit = shrinkVertically(
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = LinearEasing
+                            )
+                        ) + slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(
+                                durationMillis = 400,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    ) {
+                        // Usar componente reutilizable CartItemCard
+                        CartItemCard(
+                            cartItem = cartItem,
+                            onRemoveClick = {
+                                // Marcar como "siendo eliminado" para iniciar animación
+                                itemsBeingRemoved = itemsBeingRemoved + cartItem.product.id
+
+                                // Esperar a que termine la animación antes de eliminar del ViewModel
+                                coroutineScope.launch {
+                                    delay(400) // Duración de la animación de salida
+                                    cartViewModel.removeFromCart(cartItem.product.id)
+                                    itemsBeingRemoved = itemsBeingRemoved - cartItem.product.id
+                                }
+                            },
+                            removeIconRes = R.drawable.ic_arrow_back
+                        )
+                    }
                 }
 
                 item(key = "summary") {
