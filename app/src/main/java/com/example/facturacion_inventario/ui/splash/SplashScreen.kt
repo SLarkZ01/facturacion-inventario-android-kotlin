@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,7 +20,7 @@ import com.example.facturacion_inventario.R
 import kotlinx.coroutines.delay
 
 /**
- * SplashScreen profesional con animaciones suaves y transición automática.
+ * Pantalla de carga con el logo de Ermotos animado.
  * Optimizado para mantener 60 FPS estables.
  */
 @Composable
@@ -30,11 +29,10 @@ fun SplashScreen(
 ) {
     // Duraciones de las animaciones
     val logoScaleDelay = 100L
-    val logoScaleDuration = 600
     val logoFadeDuration = 400
     val textDelay = 400L
     val textDuration = 500
-    val splashDuration = 2500L // Duración total antes de navegar
+    val splashDuration = 2000L // Duración total antes de navegar
 
     // Estados de animación
     var startLogoAnimation by remember { mutableStateOf(false) }
@@ -91,47 +89,36 @@ fun SplashScreen(
         onSplashComplete()
     }
 
-    // Gradiente de fondo elegante
-    val gradientColors = listOf(
-        MaterialTheme.colors.primary,
-        MaterialTheme.colors.primaryVariant,
-        MaterialTheme.colors.secondary
-    )
-
+    // Fondo naranja oscuro de Ermotos
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = gradientColors,
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
-                )
-            ),
+            .background(Color(0xFFE65100)), // Naranja oscuro de la marca
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo animado
+            // Logo de Ermotos animado
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "App Logo",
+                painter = painterResource(id = R.drawable.ermotoshd),
+                contentDescription = "Logo Ermotos",
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(180.dp)
                     .scale(logoScale)
                     .alpha(logoAlpha)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Nombre de la app
+            // Nombre de la marca
             Text(
-                text = "Facturación",
-                fontSize = 32.sp,
+                text = "ERMOTOS",
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
+                letterSpacing = 4.sp,
                 modifier = Modifier
                     .alpha(textAlpha)
                     .offset(y = textOffset.dp)
@@ -140,8 +127,8 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Inventario",
-                fontSize = 24.sp,
+                text = "Venta de Repuestos, Lubricantes y Accesorios",
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.White.copy(alpha = 0.9f),
                 modifier = Modifier
@@ -196,4 +183,3 @@ private fun LoadingDots(modifier: Modifier = Modifier) {
         }
     }
 }
-

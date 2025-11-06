@@ -78,6 +78,9 @@ dependencies {
     // Usar referencia del catálogo para la tooling library
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    // SplashScreen API
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
     // Networking & JSON (usar catálogo de versiones)
     implementation(libs.retrofit)
     implementation(libs.retrofit.moshi)

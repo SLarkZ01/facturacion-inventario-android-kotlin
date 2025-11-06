@@ -7,4 +7,19 @@
 
     <style name="Theme.Facturacioninventario" parent="Base.Theme.Facturacioninventario" />
 
+    <!-- SplashScreen Theme para Android < 12 -->
+    <style name="Theme.Facturacioninventario.Splash" parent="Theme.Facturacioninventario">
+        <!-- Fondo con logo centrado -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <!-- Barras de sistema -->
+        <item name="android:statusBarColor">@color/splash_background</item>
+        <item name="android:navigationBarColor">@color/splash_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Evitar parpadeo al cambiar de tema -->
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 </resources>

@@ -2,6 +2,5 @@
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_ermotos_background"/>
     <foreground android:drawable="@mipmap/ic_ermotos_foreground"/>
-    <!-- Monochrome tag agregado para cumplir con linters y lanzadores que lo requieren -->
-    <monochrome android:drawable="@mipmap/ic_ermotos_foreground"/>
+    <monochrome android:drawable="@drawable/ic_ermotos_monochrome"/>
 </adaptive-icon>
