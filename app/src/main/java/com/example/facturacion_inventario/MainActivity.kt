@@ -11,9 +11,13 @@ import com.example.auth.AuthViewModelFactory
 import com.example.data.auth.AuthRepository
 import com.example.data.auth.ApiConfig
 import androidx.core.view.WindowCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Instalar el SplashScreen antes de super.onCreate
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
 
         // Permitir que el contenido se dibuje detrás de las system bars (status/navigation)

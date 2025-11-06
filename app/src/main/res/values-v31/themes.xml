@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SplashScreen Theme para Android 12+ con APIs nativas -->
+    <style name="Theme.Facturacioninventario.Splash" parent="Theme.SplashScreen">
+        <!-- Fondo naranja oscuro -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <!-- Ícono del splash (el logo de Ermotos) -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ermotoshd</item>
+        <!-- Color de fondo del ícono (igual al fondo para que se vea integrado) -->
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_icon_background</item>
+        <!-- Duración de la animación: 2 segundos -->
+        <item name="windowSplashScreenAnimationDuration">2000</item>
+        <!-- Tema que se aplicará después del splash -->
+        <item name="postSplashScreenTheme">@style/Theme.Facturacioninventario</item>
+        <!-- Barras de sistema -->
+        <item name="android:statusBarColor">@color/splash_background</item>
+        <item name="android:navigationBarColor">@color/splash_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
