@@ -12,15 +12,6 @@
             </PendingDiffInfo>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_ermotos.xml">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_ermotos.xml" />
-              <option name="originalContent" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&#10;&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&gt;&#10;    &lt;background android:drawable=&quot;@color/ic_ermotos_background&quot;/&gt;&#10;    &lt;foreground android:drawable=&quot;@mipmap/ic_ermotos_foreground&quot;/&gt;&#10;&lt;/adaptive-icon&gt;" />
-              <option name="updatedContent" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&#13;&#10;&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&gt;&#13;&#10;    &lt;background android:drawable=&quot;@color/ic_ermotos_background&quot;/&gt;&#13;&#10;    &lt;foreground android:drawable=&quot;@mipmap/ic_ermotos_foreground&quot;/&gt;&#13;&#10;    &lt;!-- Añadido para soportar iconos monocromo (Android TV, wearables, lanzadores que lo requieren) --&gt;&#13;&#10;    &lt;monochrome android:drawable=&quot;@mipmap/ic_ermotos_foreground&quot;/&gt;&#13;&#10;&lt;/adaptive-icon&gt;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/res/values-v31/themes.xml">
           <value>
             <PendingDiffInfo>
@@ -67,14 +58,6 @@
             <PendingDiffInfo>
               <option name="filePath" value="$PROJECT_DIR$/../facturacion-inventory-android-kotlin/app/src/main/java/com/example/facturacion_inventario/ui/splash/SplashScreen.kt" />
               <option name="updatedContent" value="// ...existing code...&#10;    // Duraciones de las animaciones&#10;    val logoScaleDelay = 100L&#10;-    val logoScaleDuration = 600&#10;+    // nota: &quot;logoScaleDuration&quot; no se usa actualmente, se elimina para evitar warning&#10;    val logoFadeDuration = 400&#10;    val textDelay = 400L&#10;    val textDuration = 500&#10;    val splashDuration = 2000L // Duración total antes de navegar&#10;// ...existing code...&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../facturacion-inventory-android-kotlin/app/src/main/res/mipmap-anydpi-v26/ic_ermotos.xml">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/../facturacion-inventory-android-kotlin/app/src/main/res/mipmap-anydpi-v26/ic_ermotos.xml" />
-              <option name="updatedContent" value="// ...existing code...&#10;&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&#10;-&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&gt;&#10;-    &lt;background android:drawable=&quot;@color/ic_ermotos_background&quot;/&gt;&#10;-    &lt;foreground android:drawable=&quot;@mipmap/ic_ermotos_foreground&quot;/&gt;&#10;-&lt;/adaptive-icon&gt;&#10;+&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&gt;&#10;+    &lt;background android:drawable=&quot;@color/ic_ermotos_background&quot;/&gt;&#10;+    &lt;foreground android:drawable=&quot;@mipmap/ic_ermotos_foreground&quot;/&gt;&#10;+    &lt;!-- Añadido para soportar iconos monocromo (Android TV, wearables, lanzadores que lo requieren) --&gt;&#10;+    &lt;monochrome android:drawable=&quot;@mipmap/ic_ermotos_foreground&quot;/&gt;&#10;+&lt;/adaptive-icon&gt;&#10;// ...existing code...&#10;" />
             </PendingDiffInfo>
           </value>
         </entry>

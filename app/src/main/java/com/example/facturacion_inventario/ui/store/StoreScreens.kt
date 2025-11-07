@@ -12,35 +12,37 @@ import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import com.example.facturacion_inventario.domain.model.Category
 import com.example.facturacion_inventario.ui.screens.CartContent
 import com.example.facturacion_inventario.ui.screens.HomeContent
+import com.example.facturacion_inventario.ui.screens.HomeScreenRemote
 import com.example.facturacion_inventario.ui.screens.ProductDetailContent
+import com.example.facturacion_inventario.ui.screens.ProductDetailScreenRemote
 import androidx.compose.ui.Modifier
 import com.example.facturacion_inventario.ui.components.category.CategoryCard
 import com.example.facturacion_inventario.ui.theme.Dimens
 
+/**
+ * HomeScreen ahora consume datos REALES de la API de Spring Boot
+ * Cambiado para usar HomeScreenRemote en lugar de FakeProductRepository
+ */
 @Composable
 fun HomeScreen(navController: NavController, selectedCategoryId: String? = null) {
-    // Usar remember para cachear el repositorio
-    val repository = remember { FakeProductRepository() }
-    HomeContent(
-        repository = repository,
+    HomeScreenRemote(
         onProductClick = { id -> navController.navigate(Routes.productRoute(id)) },
-        onSeeAllCategoryClick = { categoryId ->
-            navController.navigate(Routes.homeWithCategory(categoryId))
-        },
-        selectedCategoryId = selectedCategoryId
+        categoryId = selectedCategoryId
     )
 }
 
+/**
+ * ProductDetailScreen ahora consume datos REALES de la API
+ * Cambiado para usar ProductDetailScreenRemote
+ */
 @Composable
 fun ProductDetailScreen(productId: String?, cartViewModel: CartViewModel = viewModel()) {
-    // Usar remember para cachear el repositorio
-    val repository = remember { FakeProductRepository() }
-    val product = remember(productId) { productId?.let { repository.getProductById(it) } }
-    ProductDetailContent(
-        product = product,
-        onAddToCart = { /* Ya no navegamos automáticamente, mostramos mensaje */ },
-        cartViewModel = cartViewModel
-    )
+    if (productId != null) {
+        ProductDetailScreenRemote(
+            productId = productId,
+            cartViewModel = cartViewModel
+        )
+    }
 }
 
 @Composable
