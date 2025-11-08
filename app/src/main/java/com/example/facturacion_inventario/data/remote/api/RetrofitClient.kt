@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 /**
- * Cliente Retrofit singleton para la API de productos
+ * Cliente Retrofit singleton para la API de productos y categorías
  * Usa la misma BASE_URL que el módulo de autenticación
  */
 object RetrofitClient {
@@ -41,5 +41,8 @@ object RetrofitClient {
     val productoApiService: ProductoApiService by lazy {
         retrofit.create(ProductoApiService::class.java)
     }
-}
 
+    val categoriaApiService: CategoriaApiService by lazy {
+        retrofit.create(CategoriaApiService::class.java)
+    }
+}

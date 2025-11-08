@@ -5,16 +5,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import com.example.facturacion_inventario.domain.model.Category
 import com.example.facturacion_inventario.ui.screens.CartContent
-import com.example.facturacion_inventario.ui.screens.HomeContent
 import com.example.facturacion_inventario.ui.screens.HomeScreenRemote
-import com.example.facturacion_inventario.ui.screens.ProductDetailContent
 import com.example.facturacion_inventario.ui.screens.ProductDetailScreenRemote
+import com.example.facturacion_inventario.ui.screens.CategoriesScreenRemote
 import androidx.compose.ui.Modifier
 import com.example.facturacion_inventario.ui.components.category.CategoryCard
 import com.example.facturacion_inventario.ui.theme.Dimens
@@ -27,6 +24,7 @@ import com.example.facturacion_inventario.ui.theme.Dimens
 fun HomeScreen(navController: NavController, selectedCategoryId: String? = null) {
     HomeScreenRemote(
         onProductClick = { id -> navController.navigate(Routes.productRoute(id)) },
+        onCategoryClick = { categoryId -> navController.navigate(Routes.homeWithCategory(categoryId)) },
         categoryId = selectedCategoryId
     )
 }
@@ -87,12 +85,8 @@ fun CategoriesContent(categories: List<Category>, onCategoryClick: (String) -> U
 
 @Composable
 fun CategoriesScreen(navController: NavController) {
-    // Usar remember para cachear el repositorio y las categorías
-    val repository = remember { FakeProductRepository() }
-    val categories = remember { repository.getCategories() }
-
-    CategoriesContent(
-        categories = categories,
+    // Usar CategoriesScreenRemote que consume la API real
+    CategoriesScreenRemote(
         onCategoryClick = { categoryId: String ->
             navController.navigate(Routes.homeWithCategory(categoryId)) {
                 popUpTo(Routes.HOME) { inclusive = false }

@@ -40,7 +40,7 @@ object Dimens {
     val cornerLarge = 16.dp
 
     // Tokens específicos para tarjetas compactas
-    val cardCompactWidth = 160.dp
+    val cardCompactWidth = 140.dp  // Reducido de 160dp a 140dp
     val cardImageHeight = 110.dp
     val favoriteBadgeSize = 36.dp
 }

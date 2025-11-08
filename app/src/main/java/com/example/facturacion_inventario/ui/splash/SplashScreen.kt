@@ -29,6 +29,7 @@ fun SplashScreen(
 ) {
     // Duraciones de las animaciones
     val logoScaleDelay = 100L
+    val logoScaleDuration = 600
     val logoFadeDuration = 400
     val textDelay = 400L
     val textDuration = 500

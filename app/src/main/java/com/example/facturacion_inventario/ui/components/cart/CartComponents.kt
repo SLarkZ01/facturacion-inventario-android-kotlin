@@ -12,6 +12,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.example.facturacion_inventario.domain.model.CartItem
 import com.example.facturacion_inventario.domain.model.Product
 import com.example.facturacion_inventario.ui.theme.Dimens
@@ -21,11 +23,13 @@ import java.util.Locale
 /**
  * CartItemCard - Tarjeta para mostrar un item del carrito
  * Reutilizable en carrito, facturación, y resúmenes de pedido
+ * Soporta tanto imágenes locales (recursos) como remotas (URLs)
  */
 @Composable
 fun CartItemCard(
     productName: String,
     productImageRes: Int,
+    productImageUrl: String? = null, // URL de la imagen (opcional)
     quantity: Int,
     price: Double,
     currency: String = "S/",
@@ -43,11 +47,24 @@ fun CartItemCard(
             modifier = Modifier.padding(Dimens.lg),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = productImageRes),
-                contentDescription = productName,
-                modifier = Modifier.size(Dimens.imageLarge)
-            )
+            // Usar AsyncImage de Coil para soportar URLs
+            if (!productImageUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = productImageUrl,
+                    contentDescription = productName,
+                    modifier = Modifier.size(Dimens.imageLarge),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(id = productImageRes),
+                    error = painterResource(id = productImageRes)
+                )
+            } else {
+                AsyncImage(
+                    model = productImageRes,
+                    contentDescription = productName,
+                    modifier = Modifier.size(Dimens.imageLarge),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Spacer(modifier = Modifier.width(Dimens.md))
 
@@ -100,9 +117,13 @@ fun CartItemCard(
     showRemoveButton: Boolean = true,
     removeIconRes: Int? = null
 ) {
+    // Obtener la URL de la primera imagen si existe
+    val firstImageUrl = cartItem.product.mediaList.firstOrNull()?.url
+
     CartItemCard(
         productName = cartItem.product.name,
         productImageRes = cartItem.product.imageRes,
+        productImageUrl = firstImageUrl,
         quantity = cartItem.quantity,
         price = cartItem.product.price,
         currency = "S/",

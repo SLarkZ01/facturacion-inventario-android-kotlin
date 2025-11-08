@@ -7,7 +7,7 @@ data class Category(
     val id: String,
     val name: String,
     val description: String,
-    @DrawableRes val iconRes: Int = R.drawable.ic_motorcycle_animated,
+    @DrawableRes val iconRes: Int = R.drawable.ermotoshd,
+    val imageUrl: String? = null,
     val subcategories: List<String> = emptyList()
 )
-

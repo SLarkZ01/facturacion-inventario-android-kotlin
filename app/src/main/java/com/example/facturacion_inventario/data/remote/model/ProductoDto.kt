@@ -1,7 +1,6 @@
 package com.example.facturacion_inventario.data.remote.model
 
 import com.google.gson.annotations.SerializedName
-import java.util.Date
 
 /**
  * DTO que coincide exactamente con el modelo de Spring Boot MongoDB
@@ -35,7 +34,7 @@ data class ProductoDto(
     val listaMedios: List<MedioDto>? = null,
 
     @SerializedName("creadoEn")
-    val creadoEn: Date? = null
+    val creadoEn: String? = null  // Cambiado de Date a String
 )
 
 /**
@@ -43,10 +42,16 @@ data class ProductoDto(
  */
 data class MedioDto(
     @SerializedName("idRecurso")
-    val idRecurso: Int,
+    val idRecurso: Int = 0,
 
-    @SerializedName("tipo")
-    val tipo: String // "IMAGE" o "VIDEO"
+    @SerializedName("type")
+    val tipo: String? = null, // "IMAGE" o "VIDEO" - El backend envía "type" en lugar de "tipo"
+
+    @SerializedName("url")
+    val url: String? = null, // URL de la imagen o video
+
+    @SerializedName("order")
+    val order: Int = 0
 )
 
 /**
@@ -98,4 +103,3 @@ data class ErrorResponse(
     @SerializedName("error")
     val error: String
 )
-
