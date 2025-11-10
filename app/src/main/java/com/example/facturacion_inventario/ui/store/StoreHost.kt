@@ -46,7 +46,6 @@ import java.nio.charset.StandardCharsets
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.facturacion_inventario.ui.animations.NavigationTransitions
@@ -179,26 +178,49 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
     TransparentStatusBar(darkIcons = false)
 
     val storeNavController = rememberNavController()
-    val repo = remember { FakeProductRepository() }
     var selectedTab by remember { mutableStateOf("home") }
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
-    // ViewModel del carrito compartido entre todas las pantallas
-    val cartViewModel: CartViewModel = viewModel()
+    // 🔥 CAMBIO CRÍTICO: Usar RemoteCartViewModel en lugar de CartViewModel local
+    // Esto permite que el badge se actualice cuando se agregan productos al carrito del backend
+    val context = LocalContext.current
+    val remoteCartViewModel: RemoteCartViewModel = viewModel(
+        factory = RemoteCartViewModelFactory(
+            context.applicationContext as android.app.Application
+        )
+    )
+
+    // 🔥 NUEVO: SearchViewModel para buscar productos en el backend
+    val searchViewModel: SearchViewModel = viewModel()
+    val searchResults by searchViewModel.searchResults.collectAsState()
+    val isSearching by searchViewModel.isSearching.collectAsState()
 
     // OPTIMIZACIÓN CRÍTICA: Usar collectAsState para observar StateFlow de forma eficiente
     // Solo se recompone cuando cambia el valor, no todo el ViewModel
-    val cartItemCount by cartViewModel.totalItemCount.collectAsState()
+    val cartItemCount by remoteCartViewModel.totalItemCount.collectAsState()
+
+    // Inicializar carrito al cargar la pantalla
+    LaunchedEffect(Unit) {
+        remoteCartViewModel.obtenerOCrearCarrito(usuarioId = null)
+    }
 
     // Mantener query en el scope del host para usarla en el topbar y en las sugerencias
     var query by rememberSaveable { mutableStateOf("") }
+
+    // Buscar productos cuando cambia el query
+    LaunchedEffect(query) {
+        if (query.isNotBlank()) {
+            searchViewModel.searchProducts(query)
+        } else {
+            searchViewModel.clearResults()
+        }
+    }
 
     // Colores del header (inspiración Amazon)
     val headerStartColor = Color(0xFFFF6F00) // naranja intenso
     val headerEndColor = Color.Transparent
 
     val view = LocalView.current
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
 
@@ -457,7 +479,7 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
 
             // Sugerencias: aparecen justo bajo el header, superpuestas sobre el contenido
             val suggestions = remember(query) {
-                if (query.isBlank()) emptyList() else repo.getProducts().filter { it.name.contains(query, ignoreCase = true) }
+                if (query.isBlank()) emptyList() else searchResults.filter { it.name.contains(query, ignoreCase = true) }
             }
 
             if (suggestions.isNotEmpty()) {
@@ -528,11 +550,11 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                         exitTransition = { NavigationTransitions.slideOutToRight() }
                     ) { backStackEntry ->
                         val pid = backStackEntry.arguments?.getString("productId")
-                        ProductDetailScreen(productId = pid, cartViewModel = cartViewModel)
+                        ProductDetailScreen(productId = pid, cartViewModel = remoteCartViewModel)
                     }
 
                     composable("cart") {
-                        CartScreen(navController = storeNavController, cartViewModel = cartViewModel)
+                        CartScreen(navController = storeNavController, cartViewModel = remoteCartViewModel)
                     }
 
                     composable("profile") {

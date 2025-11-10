@@ -16,7 +16,7 @@ import com.example.facturacion_inventario.ui.theme.Dimens
 @Composable
 fun ProductDetailScreenRemote(
     productId: String,
-    cartViewModel: CartViewModel = viewModel(),
+    cartViewModel: RemoteCartViewModel,
     detailViewModel: ProductDetailViewModel = viewModel()
 ) {
     val uiState by detailViewModel.uiState.collectAsState()

@@ -35,11 +35,11 @@ fun HomeScreenExample(navController: NavController, selectedCategoryId: String? 
  * COPIA ESTA FUNCIÓN para reemplazar ProductDetailScreen en StoreScreens.kt
  */
 @Composable
-fun ProductDetailScreenExample(productId: String?, cartViewModel: CartViewModel = viewModel()) {
+fun ProductDetailScreenExample(productId: String?, remoteCartViewModel: RemoteCartViewModel) {
     if (productId != null) {
         ProductDetailScreenRemote(
             productId = productId,
-            cartViewModel = cartViewModel
+            cartViewModel = remoteCartViewModel
         )
     }
 }
