@@ -17,13 +17,13 @@ import com.example.facturacion_inventario.domain.model.Category
 import com.example.facturacion_inventario.ui.components.cart.CartItemCard
 import com.example.facturacion_inventario.ui.components.cart.EmptyCartCard
 import com.example.facturacion_inventario.ui.components.cart.PriceSummaryCard
+import com.example.facturacion_inventario.ui.components.factura.CheckoutDialog
 import com.example.facturacion_inventario.ui.screens.HomeScreenRemote
 import com.example.facturacion_inventario.ui.screens.ProductDetailScreenRemote
 import com.example.facturacion_inventario.ui.screens.CategoriesScreenRemote
 import com.example.facturacion_inventario.ui.components.category.CategoryCard
 import com.example.facturacion_inventario.ui.theme.Dimens
 import com.example.facturacion_inventario.ui.theme.AccentOrange
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -54,8 +54,7 @@ fun ProductDetailScreen(productId: String?, cartViewModel: RemoteCartViewModel) 
 }
 
 @Composable
-fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel) {
-    // Observar estados del RemoteCartViewModel compartido
+fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel = viewModel()) {
     val cartItems by cartViewModel.cartItems.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     val totalItemCount by cartViewModel.totalItemCount.collectAsState()
@@ -63,117 +62,172 @@ fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel)
     val errorMessage by cartViewModel.errorMessage.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
+    val scaffoldState = rememberScaffoldState()
+
+    // Estado para controlar el diálogo de checkout
+    var showCheckoutDialog by remember { mutableStateOf(false) }
+    var carritoIdParaCheckout by remember { mutableStateOf<String?>(null) }
 
     // Cargar el carrito actual al montar la pantalla
     LaunchedEffect(Unit) {
         cartViewModel.cargarCarritoActual()
     }
 
-    StoreScreenScaffold {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Indicador de carga
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
+    // Mostrar el diálogo de checkout cuando se presiona el botón
+    if (showCheckoutDialog && carritoIdParaCheckout != null) {
+        CheckoutDialog(
+            carritoId = carritoIdParaCheckout!!,
+            onDismiss = {
+                showCheckoutDialog = false
+                carritoIdParaCheckout = null
+            },
+            onSuccess = { _ ->
+                showCheckoutDialog = false
+                carritoIdParaCheckout = null
 
-            // Contenido del carrito
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(Dimens.md),
-                contentPadding = PaddingValues(Dimens.lg)
-            ) {
-                item(key = "header") {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Text(
-                        text = "Carrito / Documentos",
-                        color = MaterialTheme.colors.onBackground,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                // Mostrar mensaje de éxito
+                coroutineScope.launch {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = "✓ Factura creada exitosamente",
+                        duration = SnackbarDuration.Long
                     )
-                    Spacer(modifier = Modifier.height(Dimens.md))
+                    // Limpiar el carrito después del checkout exitoso
+                    cartViewModel.cargarCarritoActual()
+                }
+            }
+        )
+    }
+
+    Scaffold(scaffoldState = scaffoldState) { paddingValues ->
+        StoreScreenScaffold {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                // Indicador de carga
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
 
-                // Mostrar error si existe
-                errorMessage?.let { error ->
-                    item(key = "error") {
-                        Card(
-                            backgroundColor = MaterialTheme.colors.error.copy(alpha = 0.1f),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colors.error,
-                                modifier = Modifier.padding(Dimens.md)
+                // Contenido del carrito
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.md),
+                    contentPadding = PaddingValues(Dimens.lg)
+                ) {
+                    item(key = "header") {
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Text(
+                            text = "Carrito / Documentos",
+                            color = MaterialTheme.colors.onBackground,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(Dimens.md))
+                    }
+
+                    // Mostrar error si existe
+                    errorMessage?.let { error ->
+                        item(key = "error") {
+                            Card(
+                                backgroundColor = MaterialTheme.colors.error.copy(alpha = 0.1f),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = error,
+                                    color = MaterialTheme.colors.error,
+                                    modifier = Modifier.padding(Dimens.md)
+                                )
+                            }
+                        }
+                    }
+
+                    if (cartItems.isEmpty() && !isLoading) {
+                        item(key = "empty_cart") {
+                            EmptyCartCard()
+                        }
+                        item(key = "empty_spacer") {
+                            Spacer(modifier = Modifier.height(Dimens.xxl))
+                        }
+                    } else {
+                        items(cartItems, key = { it.product.id }) { cartItem ->
+                            CartItemCard(
+                                cartItem = cartItem,
+                                onRemoveClick = {
+                                    // Eliminar directamente del backend
+                                    coroutineScope.launch {
+                                        cartViewModel.removerProducto(cartItem.product.id)
+                                    }
+                                },
+                                removeIconRes = R.drawable.ic_arrow_back
                             )
+                        }
+
+                        item(key = "summary") {
+                            Spacer(modifier = Modifier.height(Dimens.lg))
+                            PriceSummaryCard(
+                                totalPrice = totalPrice,
+                                itemCount = totalItemCount,
+                                backgroundColor = AccentOrange.copy(alpha = 0.08f)
+                            )
+                        }
+
+                        item(key = "bottom_spacer") {
+                            Spacer(modifier = Modifier.height(Dimens.xxl))
                         }
                     }
                 }
 
-                if (cartItems.isEmpty() && !isLoading) {
-                    item(key = "empty_cart") {
-                        EmptyCartCard()
-                    }
-                    item(key = "empty_spacer") {
-                        Spacer(modifier = Modifier.height(Dimens.xxl))
-                    }
-                } else {
-                    items(cartItems, key = { it.product.id }) { cartItem ->
-                        CartItemCard(
-                            cartItem = cartItem,
-                            onRemoveClick = {
-                                // Eliminar directamente del backend
-                                coroutineScope.launch {
-                                    cartViewModel.removerProducto(cartItem.product.id)
-                                }
-                            },
-                            removeIconRes = R.drawable.ic_arrow_back
-                        )
-                    }
-
-                    item(key = "summary") {
-                        Spacer(modifier = Modifier.height(Dimens.lg))
-                        PriceSummaryCard(
-                            totalPrice = totalPrice,
-                            itemCount = totalItemCount,
-                            backgroundColor = AccentOrange.copy(alpha = 0.08f)
-                        )
-                    }
-
-                    item(key = "bottom_spacer") {
-                        Spacer(modifier = Modifier.height(Dimens.xxl))
-                    }
-                }
-            }
-
-            // Barra fija en la parte inferior con botones
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
-                elevation = 8.dp,
-                color = MaterialTheme.colors.background
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.md),
+                // Barra fija en la parte inferior con botones
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(Dimens.lg)
+                        .align(Alignment.BottomCenter),
+                    elevation = 8.dp,
+                    color = MaterialTheme.colors.background
                 ) {
-                    OutlinedButton(
-                        onClick = { navController.navigate(Routes.HOME) },
-                        modifier = Modifier.weight(1f).height(Dimens.buttonHeight)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.md),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dimens.lg)
                     ) {
-                        Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
-                    }
-                    Button(
-                        onClick = { /* implementar checkout */ },
-                        modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
-                        enabled = cartItems.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
-                    ) {
-                        Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)
+                        OutlinedButton(
+                            onClick = { navController.navigate(Routes.HOME) },
+                            modifier = Modifier.weight(1f).height(Dimens.buttonHeight)
+                        ) {
+                            Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
+                        }
+                        Button(
+                            onClick = {
+                                // Obtener el ID del carrito actual y abrir diálogo
+                                val carritoId = cartViewModel.carritoId.value
+                                if (carritoId != null && cartItems.isNotEmpty()) {
+                                    carritoIdParaCheckout = carritoId
+                                    showCheckoutDialog = true
+                                } else if (cartItems.isEmpty()) {
+                                    coroutineScope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar(
+                                            "El carrito está vacío"
+                                        )
+                                    }
+                                } else {
+                                    coroutineScope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar(
+                                            "Error: No se pudo obtener el ID del carrito"
+                                        )
+                                    }
+                                }
+                            },
+                            modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
+                            enabled = cartItems.isNotEmpty() && !isLoading,
+                            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+                        ) {
+                            Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)
+                        }
                     }
                 }
             }
@@ -184,6 +238,7 @@ fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel)
 /**
  * CategoriesContent optimizado con keys para mejor rendimiento.
  */
+@Suppress("unused", "UNUSED_PARAMETER")
 @Composable
 fun CategoriesContent(categories: List<Category>, onCategoryClick: (String) -> Unit) {
     StoreScreenScaffold {

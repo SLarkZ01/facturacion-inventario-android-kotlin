@@ -22,6 +22,7 @@ interface CategoriaApiService {
      * @param size Tamaño de página (default: 20)
      * @param tallerId Filtro por taller (opcional, null = todas)
      * @param global Si true, solo categorías globales (tallerId == null)
+     * @param todas Si true, retorna TODAS las categorías sin filtro (globales + talleres)
      */
     @GET("api/categorias")
     suspend fun listarCategorias(
@@ -29,7 +30,8 @@ interface CategoriaApiService {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("tallerId") tallerId: String? = null,
-        @Query("global") global: Boolean = false
+        @Query("global") global: Boolean = false,
+        @Query("todas") todas: Boolean = false
     ): Response<CategoriasResponse>
 
     /**
@@ -43,4 +45,3 @@ interface CategoriaApiService {
         @Path("id") id: String
     ): Response<CategoriaResponse>
 }
-

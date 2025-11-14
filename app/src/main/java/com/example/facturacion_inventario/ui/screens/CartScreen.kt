@@ -24,6 +24,7 @@ import com.example.facturacion_inventario.ui.store.RemoteCartViewModelFactory
 import com.example.facturacion_inventario.ui.components.cart.CartItemCard
 import com.example.facturacion_inventario.ui.components.cart.PriceSummaryCard
 import com.example.facturacion_inventario.ui.components.cart.EmptyCartCard
+import com.example.facturacion_inventario.ui.components.factura.CheckoutDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -168,7 +169,13 @@ fun CartContent(
                     Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
                 }
                 Button(
-                    onClick = onCheckout,
+                    onClick = {
+                        // Lógica para el botón "Generar factura"
+                        // Aquí puedes abrir un diálogo de confirmación o proceder directamente al checkout
+                        // Por ahora, solo mostramos un mensaje
+                        // TO DO: Implementar navegación o acción de checkout
+                        onCheckout()
+                    },
                     modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
                     enabled = cartItems.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)

@@ -40,7 +40,8 @@ object CategoriaMapper {
             name = dto.nombre,
             description = dto.descripcion ?: "",
             iconRes = getIconRes(dto),
-            imageUrl = dto.imagenUrl
+            imageUrl = dto.imagenUrl,
+            tallerId = dto.tallerId // ← AGREGAR: Mapear el tallerId desde el DTO
         )
     }
 

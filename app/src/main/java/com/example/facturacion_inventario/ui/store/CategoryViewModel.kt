@@ -43,6 +43,7 @@ class CategoryViewModel(
     val uiState: StateFlow<CategoryListState> = _uiState.asStateFlow()
 
     private val _categoryDetail = MutableStateFlow<CategoryDetailState>(CategoryDetailState.Loading)
+    @Suppress("unused", "MemberVisibilityCanBePrivate")
     val categoryDetail: StateFlow<CategoryDetailState> = _categoryDetail.asStateFlow()
 
     init {
@@ -52,30 +53,35 @@ class CategoryViewModel(
 
     /**
      * Carga todas las categorías desde la API (sin fallback a datos locales)
+     * Por defecto carga TODAS las categorías (globales + de talleres)
      */
     fun loadCategories(
         query: String? = null,
         tallerId: String? = null,
         global: Boolean = false,
+        todas: Boolean = true, // ← CAMBIADO: Por defecto obtener TODAS
         page: Int = 0,
         size: Int = 100
     ) {
         viewModelScope.launch {
             try {
                 _uiState.value = CategoryListState.Loading
-                Log.d(TAG, "🔍 Loading categories from API - query: $query, tallerId: $tallerId, global: $global")
+                Log.d(TAG, "🔍 Loading categories from API")
+                Log.d(TAG, "  📋 Params: query=$query, tallerId=$tallerId, global=$global, todas=$todas")
 
                 repository.getCategoriesAsync(
                     query = query,
                     tallerId = tallerId,
                     global = global,
+                    todas = todas, // ← AGREGAR el parámetro todas
                     page = page,
                     size = size
                 ).fold(
                     onSuccess = { categories ->
                         Log.d(TAG, "✅ SUCCESS: Loaded ${categories.size} categories from API")
                         categories.forEachIndexed { index, cat ->
-                            Log.d(TAG, "  [$index] ID: ${cat.id}, Name: ${cat.name}")
+                            val tipo = if (cat.tallerId == null) "GLOBAL" else "TALLER(${cat.tallerId})"
+                            Log.d(TAG, "  [$index] ${cat.name} - $tipo - ID: ${cat.id}")
                         }
                         _uiState.value = if (categories.isEmpty()) {
                             Log.w(TAG, "⚠️ Empty list received from API")
@@ -103,6 +109,7 @@ class CategoryViewModel(
     /**
      * Carga una categoría específica por ID
      */
+    @Suppress("unused", "MemberVisibilityCanBePrivate")
     fun loadCategoryById(id: String) {
         viewModelScope.launch {
             try {
@@ -133,6 +140,7 @@ class CategoryViewModel(
     /**
      * Busca categorías por nombre
      */
+    @Suppress("unused")
     fun searchCategories(query: String, page: Int = 0, size: Int = 100) {
         viewModelScope.launch {
             try {
@@ -167,6 +175,7 @@ class CategoryViewModel(
     /**
      * Carga solo categorías globales
      */
+    @Suppress("unused")
     fun loadGlobalCategories(page: Int = 0, size: Int = 100) {
         loadCategories(global = true, page = page, size = size)
     }
@@ -174,6 +183,7 @@ class CategoryViewModel(
     /**
      * Carga categorías de un taller específico
      */
+    @Suppress("unused")
     fun loadCategoriesByTaller(tallerId: String, page: Int = 0, size: Int = 100) {
         loadCategories(tallerId = tallerId, global = false, page = page, size = size)
     }
@@ -181,8 +191,8 @@ class CategoryViewModel(
     /**
      * Reintentar carga
      */
+    @Suppress("unused")
     fun retry() {
         loadCategories()
     }
 }
-

@@ -40,27 +40,35 @@ class RemoteCategoryRepository : CategoryRepository {
      * @param query Búsqueda opcional por nombre
      * @param tallerId Filtro opcional por taller
      * @param global Si true devuelve solo categorías globales
+     * @param todas Si true devuelve TODAS las categorías (globales + talleres)
      * @param page Número de página (default: 0)
      * @param size Elementos por página (default: 20)
+     *
+     * IMPORTANTE:
+     * - Por defecto (sin parámetros): Solo categorías GLOBALES (tallerId = null)
+     * - Con todas=true: TODAS las categorías (globales + de talleres)
+     * - Con tallerId="xxx": Solo categorías de ese taller
      */
     suspend fun getCategoriesAsync(
         query: String? = null,
         tallerId: String? = null,
         global: Boolean = false,
+        todas: Boolean = false, // ← Parámetro para obtener todas
         page: Int = 0,
         size: Int = 20
     ): Result<List<Category>> {
         return withContext(Dispatchers.IO) {
             try {
                 Log.d(TAG, "📡 API Call - Fetching categories...")
-                Log.d(TAG, "  Parameters: query=$query, tallerId=$tallerId, global=$global, page=$page, size=$size")
+                Log.d(TAG, "  Parameters: query=$query, tallerId=$tallerId, global=$global, todas=$todas, page=$page, size=$size")
 
                 val response = apiService.listarCategorias(
                     query = query,
                     page = page,
                     size = size,
                     tallerId = tallerId,
-                    global = global
+                    global = global,
+                    todas = todas // ← Pasar el parámetro al backend
                 )
 
                 Log.d(TAG, "📡 Response code: ${response.code()}")
@@ -129,16 +137,57 @@ class RemoteCategoryRepository : CategoryRepository {
 
     /**
      * Obtiene categorías globales (tallerId == null)
+     * Comportamiento por defecto de la app pública
      */
+    @Suppress("unused")
     suspend fun getGlobalCategories(page: Int = 0, size: Int = 20): Result<List<Category>> {
-        return getCategoriesAsync(global = true, page = page, size = size)
+        return getCategoriesAsync(global = true, todas = false, page = page, size = size)
     }
 
     /**
      * Obtiene categorías por taller
      */
+    @Suppress("unused")
     suspend fun getCategoriesByTaller(tallerId: String, page: Int = 0, size: Int = 20): Result<List<Category>> {
-        return getCategoriesAsync(tallerId = tallerId, page = page, size = size)
+        return getCategoriesAsync(tallerId = tallerId, todas = false, page = page, size = size)
+    }
+
+    /**
+     * Obtiene TODAS las categorías (globales + de talleres) sin filtros
+     * Útil para administración o listados completos
+     * USA EL PARÁMETRO todas=true DEL BACKEND
+     */
+    @Suppress("unused")
+    suspend fun getAllCategoriesWithoutFilter(page: Int = 0, size: Int = 100): Result<List<Category>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "📡 Fetching ALL categories (globales + talleres)")
+
+                val response = apiService.listarCategorias(
+                    todas = true,  // ← Parámetro clave para obtener todas
+                    page = page,
+                    size = size
+                )
+
+                Log.d(TAG, "📡 Response code: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val categorias = response.body()?.categorias ?: emptyList()
+                    Log.d(TAG, "✅ Total categories fetched (sin filtro): ${categorias.size}")
+                    categorias.forEachIndexed { index, cat ->
+                        val tipo = if (cat.tallerId == null) "GLOBAL" else "TALLER(${cat.tallerId})"
+                        Log.d(TAG, "  [$index] ${cat.nombre} - $tipo")
+                    }
+                    Result.success(CategoriaMapper.toDomainList(categorias))
+                } else {
+                    val errorMsg = "Error ${response.code()}: ${response.message()}"
+                    Log.e(TAG, "❌ $errorMsg")
+                    Result.failure(Exception(errorMsg))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Exception fetching all categories: ${e.message}", e)
+                Result.failure(e)
+            }
+        }
     }
 }
-

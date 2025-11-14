@@ -32,8 +32,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/productos/**").permitAll()
                 .requestMatchers("/api/categorias/**").permitAll()
 
-                // ← ACTUALIZADO: Permitir TODAS las operaciones con carritos
+                // Permitir TODAS las operaciones con carritos
                 .requestMatchers("/api/carritos/**").permitAll()
+
+                // 🔥 NUEVO: Permitir operaciones de stock (para descuento automático en facturas)
+                .requestMatchers("/api/stock/**").permitAll()
+
+                // Permitir facturas sin autenticación (para pruebas)
+                .requestMatchers("/api/facturas/**").permitAll()
 
                 // Permitir favoritos sin autenticación
                 .requestMatchers("/api/favoritos/**").permitAll()
