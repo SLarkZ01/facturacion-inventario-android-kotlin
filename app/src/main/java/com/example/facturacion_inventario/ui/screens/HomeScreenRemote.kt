@@ -26,7 +26,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.example.facturacion_inventario.data.repository.FakeProductRepository
 import com.example.facturacion_inventario.domain.model.Product
 import com.example.facturacion_inventario.domain.model.Category
 import com.example.facturacion_inventario.ui.components.product.ProductCard
@@ -628,31 +627,5 @@ fun SingleCategoryProductsView(
                 }
             }
         }
-    }
-}
-
-/**
- * Versión híbrida: usa datos fake por defecto pero puede cambiar a API real
- */
-@Composable
-fun HomeScreenHybrid(
-    useRemoteData: Boolean = false,
-    onProductClick: (String) -> Unit,
-    selectedCategoryId: String? = null
-) {
-    if (useRemoteData) {
-        HomeScreenRemote(
-            onProductClick = onProductClick,
-            categoryId = selectedCategoryId
-        )
-    } else {
-        // Mantener la versión original con datos fake
-        val repository = remember { FakeProductRepository() }
-        HomeContent(
-            repository = repository,
-            onProductClick = onProductClick,
-            onSeeAllCategoryClick = { /* navegar a categoría */ },
-            selectedCategoryId = selectedCategoryId
-        )
     }
 }

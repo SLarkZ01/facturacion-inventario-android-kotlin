@@ -24,9 +24,6 @@ fun StoreScreenScaffold(
     headerProgress: Float = 0f,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    // Sincroniza la barra de estado
-    StatusBarSync(headerProgress = headerProgress)
-
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier

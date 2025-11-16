@@ -58,9 +58,6 @@ fun ProductDetailContentWithStock(
     val successMessage by cartViewModel.successMessage.collectAsState()
     val errorMessage by cartViewModel.errorMessage.collectAsState()
 
-    // Snackbar para mostrar mensajes
-    val scaffoldState = rememberScaffoldState()
-
     // Inicializar carrito al cargar la pantalla
     LaunchedEffect(Unit) {
         if (carritoId == null) {
@@ -68,20 +65,8 @@ fun ProductDetailContentWithStock(
         }
     }
 
-    // Mostrar mensajes
-    LaunchedEffect(successMessage) {
-        successMessage?.let {
-            scaffoldState.snackbarHostState.showSnackbar(it)
-            cartViewModel.clearSuccessMessage()
-        }
-    }
-
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let {
-            scaffoldState.snackbarHostState.showSnackbar("Error: $it")
-            cartViewModel.clearError()
-        }
-    }
+    // TO DO: Mostrar mensajes de éxito/error en un Snackbar cuando se implemente
+    // Por ahora los mensajes se manejan internamente en el ViewModel
 
     // Obtener stock total actual
     val totalStock = when (stockState) {
@@ -92,9 +77,11 @@ fun ProductDetailContentWithStock(
     // Validar que hay stock disponible
     val hasStock = totalStock > 0
 
-    Scaffold(scaffoldState = scaffoldState) {
+    Box {
         StoreScreenScaffold {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
                 item {
                     Spacer(modifier = Modifier.height(96.dp))
                     Text(
@@ -187,8 +174,7 @@ fun ProductDetailContentWithStock(
                                         isAnimating = true
                                         cartViewModel.agregarProducto(
                                             productoId = product.id,
-                                            cantidad = selectedQuantity,
-                                            precioUnitario = product.price
+                                            cantidad = selectedQuantity
                                         )
                                         onAddToCart()
                                     },
