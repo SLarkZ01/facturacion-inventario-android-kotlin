@@ -7,7 +7,8 @@ data class Category(
     val id: String,
     val name: String,
     val description: String,
-    @DrawableRes val iconRes: Int = R.drawable.ic_motorcycle_animated,
-    val subcategories: List<String> = emptyList()
+    @DrawableRes val iconRes: Int = R.drawable.ermotoshd,
+    val imageUrl: String? = null,
+    val subcategories: List<String> = emptyList(),
+    val tallerId: String? = null // ← NUEVO: Para diferenciar categorías globales (null) de categorías de taller
 )
-

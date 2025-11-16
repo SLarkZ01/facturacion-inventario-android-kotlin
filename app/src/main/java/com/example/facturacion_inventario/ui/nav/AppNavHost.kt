@@ -76,23 +76,6 @@ fun AppNavHost(authViewModel: AuthViewModel) {
             ) {
                 StoreHost(authViewModel = authViewModel, rootNavController = navController)
             }
-
-            composable("home") {
-                com.example.facturacion_inventario.ui.store.HomeScreen(navController = navController)
-            }
-
-            composable("product/{productId}") { backStackEntry ->
-                val pid = backStackEntry.arguments?.getString("productId")
-                com.example.facturacion_inventario.ui.store.ProductDetailScreen(productId = pid)
-            }
-
-            composable("cart") {
-                com.example.facturacion_inventario.ui.store.CartScreen(navController = navController)
-            }
-
-            composable("categories") {
-                com.example.facturacion_inventario.ui.store.CategoriesScreen(navController = navController)
-            }
         }
     }
 }

@@ -44,14 +44,6 @@
             </PendingDiffInfo>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/../facturacion-inventory-android-kotlin/app/src/main/java/com/example/facturacion_inventario/ui/splash/SplashScreen.kt">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/../facturacion-inventory-android-kotlin/app/src/main/java/com/example/facturacion_inventario/ui/splash/SplashScreen.kt" />
-              <option name="updatedContent" value="// ...existing code...&#10;    // Duraciones de las animaciones&#10;    val logoScaleDelay = 100L&#10;-    val logoScaleDuration = 600&#10;+    // nota: &quot;logoScaleDuration&quot; no se usa actualmente, se elimina para evitar warning&#10;    val logoFadeDuration = 400&#10;    val textDelay = 400L&#10;    val textDuration = 500&#10;    val splashDuration = 2000L // Duración total antes de navegar&#10;// ...existing code...&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
       </map>
     </option>
   </component>

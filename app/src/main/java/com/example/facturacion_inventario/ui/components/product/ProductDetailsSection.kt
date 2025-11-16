@@ -32,6 +32,37 @@ fun ProductDetailsSection(
 
         Spacer(modifier = Modifier.height(Dimens.lg))
 
+        // Nombre completo del producto
+        Text(
+            text = product.name,
+            style = MaterialTheme.typography.subtitle1,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            color = MaterialTheme.colors.onSurface,
+            lineHeight = 22.sp
+        )
+
+        Spacer(modifier = Modifier.height(Dimens.md))
+
+        // Descripción del producto
+        Text(
+            text = product.description,
+            style = MaterialTheme.typography.body2,
+            fontSize = 14.sp,
+            color = MaterialTheme.colors.onSurface.copy(alpha = 0.8f),
+            lineHeight = 20.sp
+        )
+
+        // Espaciador y divisor antes de las especificaciones
+        if (product.specifications.isNotEmpty() || product.features.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(Dimens.xl))
+            Divider(
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.15f),
+                thickness = 1.dp
+            )
+            Spacer(modifier = Modifier.height(Dimens.xl))
+        }
+
         // Especificaciones técnicas (pares clave-valor)
         if (product.specifications.isNotEmpty()) {
             Text(

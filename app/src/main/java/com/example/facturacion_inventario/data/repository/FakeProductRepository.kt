@@ -9,19 +9,9 @@ import com.example.facturacion_inventario.domain.repository.ProductRepository
 import com.example.facturacion_inventario.R
 
 class FakeProductRepository : ProductRepository {
-    // Categorías principales
-    private val categories = listOf(
-        Category(id = "motor", name = "Motor", description = "Funcionamiento interno de la moto", iconRes = R.drawable.ic_engine),
-        Category(id = "transmision", name = "Transmisión", description = "Transferencia de potencia", iconRes = R.drawable.ic_gear),
-        Category(id = "frenos", name = "Frenos", description = "Sistema de seguridad", iconRes = R.drawable.ic_brake),
-        Category(id = "suspension", name = "Suspensión y Dirección", description = "Estabilidad y manejo", iconRes = R.drawable.ic_suspension),
-        Category(id = "electrico", name = "Eléctrico", description = "Componentes eléctricos", iconRes = R.drawable.ic_electric),
-        Category(id = "carroceria", name = "Carrocería", description = "Visual y estructural", iconRes = R.drawable.ic_body),
-        Category(id = "ruedas", name = "Ruedas y Neumáticos", description = "Contacto con el suelo", iconRes = R.drawable.ic_tire),
-        Category(id = "accesorios", name = "Accesorios", description = "Personalización", iconRes = R.drawable.ic_accessories),
-        Category(id = "lubricantes", name = "Lubricantes", description = "Mantenimiento básico", iconRes = R.drawable.ic_oil),
-        Category(id = "herramientas", name = "Herramientas", description = "Reparación y mantenimiento", iconRes = R.drawable.ic_tools)
-    )
+    // CATEGORÍAS ELIMINADAS - Se consumen desde la API
+    // Ya no se usan categorías fake locales
+    private val categories = emptyList<Category>()
 
     private val items = listOf(
         // Motor

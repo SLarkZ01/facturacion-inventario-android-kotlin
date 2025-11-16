@@ -28,6 +28,7 @@ navigationFragmentKtx = "2.9.4"
 navigationUiKtx = "2.9.4"
 
 googleAuth = "21.4.0"
+coil = "2.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,6 +68,8 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 
 # Google Play Services Auth
 google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleAuth" }
+# Coil for image loading
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 
 [plugins]

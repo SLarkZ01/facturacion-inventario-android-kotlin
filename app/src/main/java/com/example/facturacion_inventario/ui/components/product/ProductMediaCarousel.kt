@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.example.facturacion_inventario.domain.model.Product
 import com.example.facturacion_inventario.domain.model.MediaType
 import com.example.facturacion_inventario.R
@@ -64,13 +66,36 @@ fun ProductMediaCarousel(
                     ) {
                         when (media.type) {
                             MediaType.IMAGE -> {
-                                Image(
-                                    painter = painterResource(id = media.resourceId),
-                                    contentDescription = "Imagen ${page + 1} de ${product.name}",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(240.dp)
-                                )
+                                // Si tiene URL, usar AsyncImage de Coil, sino usar painterResource
+                                if (!media.url.isNullOrEmpty()) {
+                                    AsyncImage(
+                                        model = media.url,
+                                        contentDescription = "Imagen ${page + 1} de ${product.name}",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(240.dp),
+                                        contentScale = ContentScale.Fit,
+                                        placeholder = painterResource(id = R.drawable.ic_motorcycle_animated),
+                                        error = painterResource(id = R.drawable.ic_motorcycle_animated)
+                                    )
+                                } else if (media.resourceId != 0) {
+                                    Image(
+                                        painter = painterResource(id = media.resourceId),
+                                        contentDescription = "Imagen ${page + 1} de ${product.name}",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(240.dp)
+                                    )
+                                } else {
+                                    // Fallback a imagen por defecto
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_motorcycle_animated),
+                                        contentDescription = "Imagen por defecto",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(240.dp)
+                                    )
+                                }
                             }
                             MediaType.VIDEO -> {
                                 // Para videos, mostrar una imagen con un icono de play
@@ -78,13 +103,35 @@ fun ProductMediaCarousel(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier.fillMaxSize()
                                 ) {
-                                    Image(
-                                        painter = painterResource(id = media.resourceId),
-                                        contentDescription = "Video ${page + 1} de ${product.name}",
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(240.dp)
-                                    )
+                                    // Si tiene URL, usar AsyncImage, sino usar painterResource
+                                    if (!media.url.isNullOrEmpty()) {
+                                        AsyncImage(
+                                            model = media.url,
+                                            contentDescription = "Video ${page + 1} de ${product.name}",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(240.dp),
+                                            contentScale = ContentScale.Fit,
+                                            placeholder = painterResource(id = R.drawable.ic_motorcycle_animated),
+                                            error = painterResource(id = R.drawable.ic_motorcycle_animated)
+                                        )
+                                    } else if (media.resourceId != 0) {
+                                        Image(
+                                            painter = painterResource(id = media.resourceId),
+                                            contentDescription = "Video ${page + 1} de ${product.name}",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(240.dp)
+                                        )
+                                    } else {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_motorcycle_animated),
+                                            contentDescription = "Imagen por defecto",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(240.dp)
+                                        )
+                                    }
                                     // Overlay con icono de play
                                     Surface(
                                         modifier = Modifier.size(60.dp),
@@ -151,9 +198,6 @@ fun ProductMediaCarousel(
                                     MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
                             )
                     )
-                    if (index < mediaList.size - 1) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
                 }
             }
         }

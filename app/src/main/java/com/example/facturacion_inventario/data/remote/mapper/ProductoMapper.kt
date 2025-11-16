@@ -43,11 +43,11 @@ object ProductoMapper {
     private fun MedioDto.toDomain(): ProductMedia {
         return ProductMedia(
             resourceId = this.idRecurso,
-            type = when (this.tipo.uppercase()) {
+            type = when (this.tipo?.uppercase()) {
                 "VIDEO" -> MediaType.VIDEO
                 else -> MediaType.IMAGE
-            }
+            },
+            url = this.url // Mapear la URL
         )
     }
 }
-

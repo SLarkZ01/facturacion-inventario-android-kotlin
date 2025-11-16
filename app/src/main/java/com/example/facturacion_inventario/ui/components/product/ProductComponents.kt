@@ -24,6 +24,9 @@ import com.example.facturacion_inventario.ui.theme.Dimens
 // Convierte Product (dominio) a ProductUi (simplificado) para ser usado por `ProductCard`.
 // Ahora es una función de utilidad que se cachea con remember.
 private fun mapToUi(products: List<Product>): List<ProductUi> = products.map { dp ->
+    // Obtener la URL de la primera imagen si existe
+    val firstImageUrl = dp.mediaList.firstOrNull()?.url
+
     ProductUi(
         id = dp.id,
         name = dp.name,
@@ -33,7 +36,7 @@ private fun mapToUi(products: List<Product>): List<ProductUi> = products.map { d
         rating = null,
         inStock = dp.stock > 0,
         imageRes = dp.imageRes,
-        imageUrl = null // TODO: agregar cuando tengas URLs del backend
+        imageUrl = firstImageUrl
     )
 }
 

@@ -12,18 +12,22 @@ import com.example.facturacion_inventario.ui.theme.Dimens
 
 /**
  * Pantalla de detalle de producto que consume datos de la API
+ * Ahora incluye stock en tiempo real desde el backend
  */
 @Composable
 fun ProductDetailScreenRemote(
     productId: String,
-    cartViewModel: CartViewModel = viewModel(),
-    detailViewModel: ProductDetailViewModel = viewModel()
+    cartViewModel: RemoteCartViewModel,
+    detailViewModel: ProductDetailViewModel = viewModel(),
+    stockViewModel: StockViewModel = viewModel()
 ) {
     val uiState by detailViewModel.uiState.collectAsState()
+    val stockState by stockViewModel.stockState.collectAsState()
 
     // Cargar producto cuando se monta la pantalla
     LaunchedEffect(productId) {
         detailViewModel.loadProduct(productId)
+        stockViewModel.loadStock(productId)
     }
 
     when (val state = uiState) {
@@ -44,11 +48,13 @@ fun ProductDetailScreenRemote(
         }
 
         is ProductDetailState.Success -> {
-            // Usar el ProductDetailContent existente
-            ProductDetailContent(
+            // Pasar tanto el producto como el stock al contenido
+            ProductDetailContentWithStock(
                 product = state.product,
+                stockState = stockState,
                 onAddToCart = { /* Mensaje de confirmación */ },
-                cartViewModel = cartViewModel
+                cartViewModel = cartViewModel,
+                stockViewModel = stockViewModel
             )
         }
 
@@ -74,7 +80,10 @@ fun ProductDetailScreenRemote(
                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
                     )
                     Spacer(modifier = Modifier.height(Dimens.lg))
-                    Button(onClick = { detailViewModel.retry(productId) }) {
+                    Button(onClick = {
+                        detailViewModel.retry(productId)
+                        stockViewModel.loadStock(productId)
+                    }) {
                         Text("Reintentar")
                     }
                 }
