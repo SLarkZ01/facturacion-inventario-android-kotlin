@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.auth.AuthViewModel
 import com.example.facturacion_inventario.R
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,6 +52,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.facturacion_inventario.ui.animations.NavigationTransitions
 import com.example.facturacion_inventario.ui.animations.bounceClick
 import com.example.facturacion_inventario.ui.theme.TransparentStatusBar
+import com.example.facturacion_inventario.ui.screens.SearchScreen
 
 // Badge del carrito con animación
 @Composable
@@ -105,6 +107,7 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
+    onClick: (() -> Unit)? = null, // Nuevo parámetro para manejar clicks
     modifier: Modifier = Modifier,
     collapseProgress: Float = 0f // 0 = expanded, 1 = collapsed
 ) {
@@ -113,7 +116,9 @@ fun SearchBar(
     val elevation = if (collapseProgress > 0.5f) 8.dp else 2.dp
 
     Surface(
-        modifier = modifier,
+        modifier = modifier.clickable(enabled = onClick != null) {
+            onClick?.invoke()
+        },
         color = Color.White.copy(alpha = backgroundAlpha),
         shape = RoundedCornerShape(24.dp),
         elevation = elevation
@@ -135,39 +140,57 @@ fun SearchBar(
             Spacer(modifier = Modifier.width(10.dp))
 
             Box(modifier = Modifier.weight(1f)) {
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    decorationBox = { innerTextField ->
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            if (query.isEmpty()) {
-                                Text(
-                                    text = "Buscar productos, marcas y más",
-                                    color = Color(0xFF9E9E9E),
-                                    style = TextStyle(fontSize = 14.sp)
-                                )
+                // Cuando tiene onClick, la barra es solo decorativa
+                if (onClick != null) {
+                    Text(
+                        text = "Buscar productos, marcas y más",
+                        color = Color(0xFF9E9E9E),
+                        style = TextStyle(fontSize = 14.sp)
+                    )
+                } else {
+                    // Barra funcional con TextField
+                    BasicTextField(
+                        value = query,
+                        onValueChange = onQueryChange,
+                        singleLine = true,
+                        textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        decorationBox = { innerTextField ->
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                if (query.isEmpty()) {
+                                    Text(
+                                        text = "Buscar productos, marcas y más",
+                                        color = Color(0xFF9E9E9E),
+                                        style = TextStyle(fontSize = 14.sp)
+                                    )
+                                }
+                                innerTextField()
                             }
-                            innerTextField()
                         }
-                    }
-                )
+                    )
+                }
             }
 
-            if (query.isNotBlank()) {
+            if (query.isNotBlank() && onClick == null) {
                 IconButton(onClick = onClear, modifier = Modifier.size(36.dp)) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
+                        painter = painterResource(id = R.drawable.ic_close),
                         contentDescription = "clear",
                         tint = Color(0xFF757575),
                         modifier = Modifier.size(18.dp)
                     )
                 }
             }
+
+            // Icono de cámara (decorativo)
+            Icon(
+                painter = painterResource(id = R.drawable.ic_camera),
+                contentDescription = "camera",
+                tint = Color(0xFF757575),
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
@@ -179,7 +202,11 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
 
     val storeNavController = rememberNavController()
     var selectedTab by remember { mutableStateOf("home") }
-    var isSearchActive by rememberSaveable { mutableStateOf(false) }
+
+    // Observar la ruta actual para ocultar el header en SearchScreen
+    val currentRoute by storeNavController.currentBackStackEntryAsState()
+    val currentDestination = currentRoute?.destination?.route
+    val isInSearchScreen = currentDestination == Routes.SEARCH
 
     // 🔥 CAMBIO CRÍTICO: Usar RemoteCartViewModel en lugar de CartViewModel local
     // Esto permite que el badge se actualice cuando se agregan productos al carrito del backend
@@ -190,11 +217,6 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
         )
     )
 
-    // 🔥 NUEVO: SearchViewModel para buscar productos en el backend
-    val searchViewModel: SearchViewModel = viewModel()
-    val searchResults by searchViewModel.searchResults.collectAsState()
-    val isSearching by searchViewModel.isSearching.collectAsState()
-
     // OPTIMIZACIÓN CRÍTICA: Usar collectAsState para observar StateFlow de forma eficiente
     // Solo se recompone cuando cambia el valor, no todo el ViewModel
     val cartItemCount by remoteCartViewModel.totalItemCount.collectAsState()
@@ -202,18 +224,6 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
     // Inicializar carrito al cargar la pantalla
     LaunchedEffect(Unit) {
         remoteCartViewModel.obtenerOCrearCarrito(usuarioId = null)
-    }
-
-    // Mantener query en el scope del host para usarla en el topbar y en las sugerencias
-    var query by rememberSaveable { mutableStateOf("") }
-
-    // Buscar productos cuando cambia el query
-    LaunchedEffect(query) {
-        if (query.isNotBlank()) {
-            searchViewModel.searchProducts(query)
-        } else {
-            searchViewModel.clearResults()
-        }
     }
 
     // Colores del header (inspiración Amazon)
@@ -288,116 +298,114 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
         // Eliminamos topBar; ahora el header es personalizado y colapsable
         bottomBar = {
             // Barra inferior estilo cápsula (ajustada para parecerse a la referencia)
-            if (!isSearchActive) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
-                    Surface(
-                        // Full-width flat bar: sin esquinas redondeadas ocupando ancho total
-                        shape = RoundedCornerShape(0.dp),
-                        elevation = 4.dp, // estilo más plano
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(62.dp)
-                    ) {
-                        Row(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(vertical = 10.dp), contentAlignment = Alignment.Center) {
+                Surface(
+                    // Full-width flat bar: sin esquinas redondeadas ocupando ancho total
+                    shape = RoundedCornerShape(0.dp),
+                    elevation = 4.dp, // estilo más plano
+                    color = Color.White,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(62.dp)
+                ) {
+                    Row(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically) {
 
-                            // Home con microinteracción
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.bounceClick {
-                                    selectedTab = "home"
-                                    storeNavController.navigate("home") { popUpTo("home") }
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_motorcycle_animated),
-                                    contentDescription = "home",
-                                    tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
-                                    modifier = Modifier.size(26.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Inicio",
-                                    color = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
-                                    fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal,
-                                    style = MaterialTheme.typography.caption
-                                )
+                        // Home con microinteracción
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.bounceClick {
+                                selectedTab = "home"
+                                storeNavController.navigate("home") { popUpTo("home") }
                             }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_motorcycle_animated),
+                                contentDescription = "home",
+                                tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
+                                modifier = Modifier.size(26.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Inicio",
+                                color = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
+                                fontWeight = if (selectedTab == "home") FontWeight.SemiBold else FontWeight.Normal,
+                                style = MaterialTheme.typography.caption
+                            )
+                        }
 
-                            // Categories con microinteracción
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.bounceClick {
-                                    selectedTab = "categories"
-                                    storeNavController.navigate("categories") { popUpTo("home") }
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_categories),
-                                    contentDescription = "categories",
-                                    tint = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E),
-                                    modifier = Modifier.size(26.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Categorías",
-                                    color = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E),
-                                    fontWeight = if (selectedTab == "categories") FontWeight.SemiBold else FontWeight.Normal,
-                                    style = MaterialTheme.typography.caption
-                                )
+                        // Categories con microinteracción
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.bounceClick {
+                                selectedTab = "categories"
+                                storeNavController.navigate("categories") { popUpTo("home") }
                             }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_categories),
+                                contentDescription = "categories",
+                                tint = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E),
+                                modifier = Modifier.size(26.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Categorías",
+                                color = if (selectedTab == "categories") headerStartColor else Color(0xFF9E9E9E),
+                                fontWeight = if (selectedTab == "categories") FontWeight.SemiBold else FontWeight.Normal,
+                                style = MaterialTheme.typography.caption
+                            )
+                        }
 
-                            // Profile con microinteracción
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.bounceClick {
-                                    selectedTab = "profile"
-                                    storeNavController.navigate("profile") { popUpTo("home") }
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_person),
-                                    contentDescription = "profile",
-                                    tint = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E),
-                                    modifier = Modifier.size(26.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Perfil",
-                                    color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E),
-                                    fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal,
-                                    style = MaterialTheme.typography.caption
-                                )
+                        // Profile con microinteracción
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.bounceClick {
+                                selectedTab = "profile"
+                                storeNavController.navigate("profile") { popUpTo("home") }
                             }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_person),
+                                contentDescription = "profile",
+                                tint = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E),
+                                modifier = Modifier.size(26.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Perfil",
+                                color = if (selectedTab == "profile") headerStartColor else Color(0xFF9E9E9E),
+                                fontWeight = if (selectedTab == "profile") FontWeight.SemiBold else FontWeight.Normal,
+                                style = MaterialTheme.typography.caption
+                            )
+                        }
 
-                            // Cart con microinteracción
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.bounceClick {
-                                    selectedTab = "cart"
-                                    storeNavController.navigate("cart") { popUpTo("home") }
-                                }
-                            ) {
-                                CartIconWithBadge(
-                                    itemCount = cartItemCount,
-                                    iconColor = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
-                                    modifier = Modifier.size(26.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Carrito",
-                                    color = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
-                                    fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal,
-                                    style = MaterialTheme.typography.caption
-                                )
+                        // Cart con microinteracción
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.bounceClick {
+                                selectedTab = "cart"
+                                storeNavController.navigate("cart") { popUpTo("home") }
                             }
+                        ) {
+                            CartIconWithBadge(
+                                itemCount = cartItemCount,
+                                iconColor = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
+                                modifier = Modifier.size(26.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Carrito",
+                                color = if (selectedTab == "cart") headerStartColor else Color(0xFF9E9E9E),
+                                fontWeight = if (selectedTab == "cart") FontWeight.SemiBold else FontWeight.Normal,
+                                style = MaterialTheme.typography.caption
+                            )
                         }
                     }
                 }
@@ -417,102 +425,69 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             val extraTop = 20.dp * (1f - collapseProgress)
 
             // Header colapsable superpuesto (ahora incluye el alto de la barra de estado)
-            Surface(
-                color = backgroundColor,
-                elevation = 4.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(headerHeightDp + statusBarHeightDp)
-                    .zIndex(2f)
-            ) {
-                // Contenido interno del header
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp)
-                    .statusBarsPadding(),
-                    verticalArrangement = Arrangement.Top) { // Cambiado a Top para que la barra no quede tan abajo
-
-                    // Espacio superior pequeño para separarlo del status bar
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    // SearchBar elegante y centrada horizontalmente
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
-                        .zIndex(3f), contentAlignment = Alignment.TopCenter) {
-
-                        SearchBar(
-                            query = query,
-                            onQueryChange = { new: String -> query = new },
-                            onClear = { query = "" },
-                            modifier = Modifier
-                                .fillMaxWidth(0.96f),
-                            collapseProgress = collapseProgress
-                        )
-                    }
-
-                    // Mantener el logo/perfil y el texto de destino, pero ocultarlos según el colapso
-                    val fadingAlpha = 1f - collapseProgress
-
-                    if (fadingAlpha > 0.05f) {
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White.copy(alpha = fadingAlpha), modifier = Modifier.size(24.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(onClick = { /* acción futura */ }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White.copy(alpha = fadingAlpha))
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "Enviar a tu ubicación",
-                            color = Color.White.copy(alpha = fadingAlpha),
-                            style = MaterialTheme.typography.caption
-                        )
-                    }
-                }
-            }
-
-            // Sugerencias: aparecen justo bajo el header, superpuestas sobre el contenido
-            val suggestions = remember(query) {
-                if (query.isBlank()) emptyList() else searchResults.filter { it.name.contains(query, ignoreCase = true) }
-            }
-
-            if (suggestions.isNotEmpty()) {
-                Card(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(8.dp),
+            // Solo se muestra si NO estamos en SearchScreen
+            if (!isInSearchScreen) {
+                Surface(
+                    color = backgroundColor,
+                    elevation = 4.dp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .padding(top = headerHeightDp + 8.dp)
-                        .zIndex(3f)
+                        .height(headerHeightDp + statusBarHeightDp)
+                        .zIndex(2f)
                 ) {
-                    LazyColumn(modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 200.dp)) {
-                        items(suggestions) { product ->
+                    // Contenido interno del header
+                    Column(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp)
+                        .statusBarsPadding(),
+                        verticalArrangement = Arrangement.Top) {
+
+                        // Espacio superior pequeño para separarlo del status bar
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        // SearchBar elegante y centrada horizontalmente
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                            .zIndex(3f), contentAlignment = Alignment.TopCenter) {
+
+                            // Barra de búsqueda del inicio: solo navega a SearchScreen
+                            SearchBar(
+                                query = "", // Siempre vacía porque no es funcional
+                                onQueryChange = { }, // No hace nada
+                                onClear = { },
+                                onClick = {
+                                    // Navegar a la pantalla de búsqueda dedicada
+                                    storeNavController.navigate(Routes.SEARCH)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.96f),
+                                collapseProgress = collapseProgress
+                            )
+                        }
+
+                        // Mantener el logo/perfil y el texto de destino, pero ocultarlos según el colapso
+                        val fadingAlpha = 1f - collapseProgress
+
+                        if (fadingAlpha > 0.05f) {
+                            Spacer(modifier = Modifier.height(4.dp))
+
                             Row(modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    // navegar al producto seleccionado
-                                    storeNavController.navigate("product/${URLEncoder.encode(product.id, StandardCharsets.UTF_8.toString())}")
-                                    query = ""
-                                    focusManager.clearFocus()
-                                }
-                                .padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(painter = painterResource(id = product.imageRes), contentDescription = product.name, tint = Color.Unspecified, modifier = Modifier.size(36.dp))
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = product.name, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    Text(text = product.description, style = MaterialTheme.typography.caption, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White.copy(alpha = fadingAlpha), modifier = Modifier.size(24.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconButton(onClick = { /* acción futura */ }) {
+                                    Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White.copy(alpha = fadingAlpha))
                                 }
                             }
-                            Divider()
+
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Enviar a tu ubicación",
+                                color = Color.White.copy(alpha = fadingAlpha),
+                                style = MaterialTheme.typography.caption
+                            )
                         }
                     }
                 }
@@ -521,7 +496,8 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             // Contenido principal con transiciones animadas
             Box(modifier = Modifier
                 .fillMaxSize()
-                .padding(top = headerHeightDp + extraTop)
+                // Solo agregar padding superior si NO estamos en SearchScreen
+                .padding(top = if (isInSearchScreen) 0.dp else headerHeightDp + extraTop)
                 .zIndex(1f)) {
                 NavHost(
                     navController = storeNavController,
@@ -563,6 +539,14 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
 
                     composable("categories") {
                         CategoriesScreen(navController = storeNavController)
+                    }
+
+                    // Nueva ruta para SearchScreen
+                    composable("search") {
+                        // Simplemente navegamos a la pantalla de búsqueda
+                        SearchScreen(
+                            navController = storeNavController // Pasar el navController directamente
+                        )
                     }
                 }
             }

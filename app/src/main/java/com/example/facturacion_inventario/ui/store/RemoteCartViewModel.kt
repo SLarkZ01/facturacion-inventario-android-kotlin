@@ -88,14 +88,15 @@ class RemoteCartViewModel(
                 val result = carritoUseCases.obtenerCarritosPorUsuario(usuarioId)
 
                 if (result.isSuccess) {
-                    val carritoIds = result.getOrNull() ?: emptyList()
-                    if (carritoIds.isNotEmpty()) {
-                        // Usar el primer carrito encontrado
-                        val primerCarrito = carritoIds.first()
-                        carritoManager.setCarritoActual(primerCarrito, usuarioId)
-                        _carritoId.value = primerCarrito
-                        Log.d(TAG, "✅ Carrito del usuario encontrado: $primerCarrito")
-                        loadCarrito(primerCarrito)
+                    val carritos = result.getOrNull() ?: emptyList()
+                    if (carritos.isNotEmpty()) {
+                        // Usar el primer carrito encontrado y extraer su ID
+                        val primerCarritoDto = carritos.first()
+                        val primerCarritoId = primerCarritoDto.id
+                        carritoManager.setCarritoActual(primerCarritoId, usuarioId)
+                        _carritoId.value = primerCarritoId
+                        Log.d(TAG, "✅ Carrito del usuario encontrado: $primerCarritoId")
+                        loadCarrito(primerCarritoId)
                         return@launch
                     }
                 }
@@ -177,8 +178,9 @@ class RemoteCartViewModel(
             val result = carritoUseCases.crearCarrito(usuarioId)
 
             if (result.isSuccess) {
-                val newCarritoId = result.getOrNull()
-                if (newCarritoId != null) {
+                val carritoDto = result.getOrNull()
+                if (carritoDto != null) {
+                    val newCarritoId = carritoDto.id
                     _carritoId.value = newCarritoId
                     _cartItems.value = emptyList()
                     _totalPrice.value = 0.0
@@ -203,7 +205,7 @@ class RemoteCartViewModel(
     /**
      * Agrega un producto al carrito actual
      */
-    fun agregarProducto(productoId: String, cantidad: Int = 1, precioUnitario: Double? = null) {
+    fun agregarProducto(productoId: String, cantidad: Int = 1) {
         val currentCarritoId = _carritoId.value
         if (currentCarritoId == null) {
             _errorMessage.value = "No hay carrito activo. Creando uno nuevo..."
@@ -220,8 +222,7 @@ class RemoteCartViewModel(
             val result = carritoUseCases.agregarProducto(
                 currentCarritoId,
                 productoId,
-                cantidad,
-                precioUnitario
+                cantidad
             )
 
             if (result.isSuccess) {
@@ -293,7 +294,7 @@ class RemoteCartViewModel(
 
             Log.d(TAG, "➖ Removing product $productoId from carrito")
 
-            val result = carritoUseCases.removerProducto(currentCarritoId, productoId)
+            val result = carritoUseCases.eliminarProducto(currentCarritoId, productoId)
 
             if (result.isSuccess) {
                 val items = result.getOrNull() ?: emptyList()
@@ -394,5 +395,29 @@ class RemoteCartViewModel(
 
     fun clearSuccessMessage() {
         _successMessage.value = null
+    }
+
+    /**
+     * 🔥 NUEVO: Limpia el carrito local inmediatamente y crea uno nuevo
+     * Útil después de generar una factura para que la UI se actualice instantáneamente
+     */
+    fun limpiarYCrearNuevoCarrito(usuarioId: String? = null) {
+        viewModelScope.launch {
+            Log.d(TAG, "🧹 Limpiando carrito actual y creando nuevo...")
+
+            // 1. Limpiar estado local INMEDIATAMENTE (esto actualiza la UI al instante)
+            _cartItems.value = emptyList()
+            _totalPrice.value = 0.0
+            _totalItemCount.value = 0
+            _carritoId.value = null
+
+            // 2. Limpiar SharedPreferences
+            carritoManager.clearCarrito()
+
+            // 3. Crear un nuevo carrito en el backend
+            obtenerOCrearCarrito(usuarioId)
+
+            Log.d(TAG, "✅ Carrito limpiado y nuevo carrito en proceso de creación")
+        }
     }
 }

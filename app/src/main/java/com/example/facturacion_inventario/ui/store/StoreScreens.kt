@@ -85,14 +85,16 @@ fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel 
                 showCheckoutDialog = false
                 carritoIdParaCheckout = null
 
+                // 🔥 SOLUCIÓN: Limpiar carrito inmediatamente y crear uno nuevo
+                // Esto actualiza la UI al instante sin necesidad de cambiar de vista
+                cartViewModel.limpiarYCrearNuevoCarrito()
+
                 // Mostrar mensaje de éxito
                 coroutineScope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(
                         message = "✓ Factura creada exitosamente",
                         duration = SnackbarDuration.Long
                     )
-                    // Limpiar el carrito después del checkout exitoso
-                    cartViewModel.cargarCarritoActual()
                 }
             }
         )

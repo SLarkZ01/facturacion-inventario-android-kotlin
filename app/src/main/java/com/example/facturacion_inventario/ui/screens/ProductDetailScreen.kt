@@ -138,8 +138,7 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
                                             // Agregar al carrito del backend
                                             remoteCartViewModel.agregarProducto(
                                                 productoId = prod.id,
-                                                cantidad = selectedQuantity,
-                                                precioUnitario = prod.price
+                                                cantidad = selectedQuantity
                                             )
                                             onAddToCart()
                                         },
