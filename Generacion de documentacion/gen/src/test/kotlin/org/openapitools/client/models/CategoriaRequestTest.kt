@@ -31,6 +31,12 @@ class CategoriaRequestTest : ShouldSpec() {
             //modelInstance.nombre shouldBe ("TODO")
         }
 
+        // to test the property `tallerId`
+        should("test tallerId") {
+            // uncomment below to test the property
+            //modelInstance.tallerId shouldBe ("TODO")
+        }
+
         // to test the property `idString`
         should("test idString") {
             // uncomment below to test the property
@@ -49,16 +55,16 @@ class CategoriaRequestTest : ShouldSpec() {
             //modelInstance.iconoRecurso shouldBe ("TODO")
         }
 
-        // to test the property `tallerId`
-        should("test tallerId") {
-            // uncomment below to test the property
-            //modelInstance.tallerId shouldBe ("TODO")
-        }
-
         // to test the property `mappedGlobalCategoryId`
         should("test mappedGlobalCategoryId") {
             // uncomment below to test the property
             //modelInstance.mappedGlobalCategoryId shouldBe ("TODO")
+        }
+
+        // to test the property `listaMedios`
+        should("test listaMedios") {
+            // uncomment below to test the property
+            //modelInstance.listaMedios shouldBe ("TODO")
         }
 
     }

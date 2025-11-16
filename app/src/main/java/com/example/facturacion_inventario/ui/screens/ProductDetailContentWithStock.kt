@@ -92,9 +92,11 @@ fun ProductDetailContentWithStock(
     // Validar que hay stock disponible
     val hasStock = totalStock > 0
 
-    Scaffold(scaffoldState = scaffoldState) {
+    Scaffold(scaffoldState = scaffoldState) { padding ->
         StoreScreenScaffold {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)) {
                 item {
                     Spacer(modifier = Modifier.height(96.dp))
                     Text(

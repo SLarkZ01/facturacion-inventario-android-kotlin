@@ -39,16 +39,31 @@ data class ProductoDto(
 
 /**
  * DTO para los elementos de medios (imágenes/videos)
+ * Soporta ambos formatos:
+ * - Legacy: { idRecurso, tipo, url, order }
+ * - Nuevo: { publicId, secure_url, format, type, order }
  */
 data class MedioDto(
     @SerializedName("idRecurso")
-    val idRecurso: Int = 0,
+    val idRecurso: Int? = null,
+
+    // Nombre enviado por backend en la nueva versión
+    @SerializedName("publicId")
+    val publicId: String? = null,
 
     @SerializedName("type")
-    val tipo: String? = null, // "IMAGE" o "VIDEO" - El backend envía "type" en lugar de "tipo"
+    val tipo: String? = null, // "IMAGE" o "VIDEO"
 
+    // Legacy field
     @SerializedName("url")
-    val url: String? = null, // URL de la imagen o video
+    val url: String? = null,
+
+    // New secure url field from Cloudinary examples
+    @SerializedName("secure_url")
+    val secureUrl: String? = null,
+
+    @SerializedName("format")
+    val format: String? = null,
 
     @SerializedName("order")
     val order: Int = 0

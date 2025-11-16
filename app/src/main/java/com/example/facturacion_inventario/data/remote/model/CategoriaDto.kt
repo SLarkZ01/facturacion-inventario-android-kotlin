@@ -22,7 +22,7 @@ data class CategoriaDto(
     @SerializedName("iconoRecurso")
     val iconoRecurso: Int? = null,
 
-    @SerializedName("imagenUrl")
+    @SerializedName(value = "imageUrl", alternate = ["imagenUrl"])
     val imagenUrl: String? = null,
 
     @SerializedName("tallerId")
@@ -32,7 +32,10 @@ data class CategoriaDto(
     val mappedGlobalCategoryId: String? = null,
 
     @SerializedName("creadoEn")
-    val creadoEn: String? = null // Cambiado de Date a String
+    val creadoEn: String? = null, // Cambiado de Date a String
+
+    @SerializedName("listaMedios")
+    val listaMedios: List<MedioDto>? = null
 )
 
 /**

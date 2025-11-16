@@ -26,7 +26,7 @@ interface CategoriaApiService {
      */
     @GET("api/categorias")
     suspend fun listarCategorias(
-        @Query("query") query: String? = null,
+        @Query("q") query: String? = null,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
         @Query("tallerId") tallerId: String? = null,
@@ -44,4 +44,12 @@ interface CategoriaApiService {
     suspend fun obtenerCategoria(
         @Path("id") id: String
     ): Response<CategoriaResponse>
+
+    /**
+     * GET /api/public/categorias
+     * Endpoint público que devuelve todas las categorías (preparado para la web pública)
+     * No requiere autenticación.
+     */
+    @GET("api/public/categorias")
+    suspend fun getPublicCategorias(): Response<CategoriasResponse>
 }

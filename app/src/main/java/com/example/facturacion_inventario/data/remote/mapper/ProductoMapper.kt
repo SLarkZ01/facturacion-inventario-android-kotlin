@@ -1,5 +1,6 @@
 package com.example.facturacion_inventario.data.remote.mapper
 
+import com.example.facturacion_inventario.data.remote.ApiConfig
 import com.example.facturacion_inventario.data.remote.model.MedioDto
 import com.example.facturacion_inventario.data.remote.model.ProductoDto
 import com.example.facturacion_inventario.domain.model.MediaType
@@ -39,15 +40,24 @@ object ProductoMapper {
 
     /**
      * Extensión para convertir MedioDto a ProductMedia
+     * Prefiere secureUrl/publicId cuando existan (nueva API). Si no, usa campos legacy.
      */
     private fun MedioDto.toDomain(): ProductMedia {
+        // Resolver URL preferida: secureUrl -> url -> construir desde publicId si es posible
+        val resolvedUrl = when {
+            !this.secureUrl.isNullOrBlank() -> this.secureUrl
+            !this.url.isNullOrBlank() -> this.url
+            !this.publicId.isNullOrBlank() -> "${ApiConfig.CLOUDINARY_BASE_URL}/${this.publicId}"
+            else -> null
+        }
+
         return ProductMedia(
-            resourceId = this.idRecurso,
+            resourceId = this.idRecurso ?: 0,
             type = when (this.tipo?.uppercase()) {
                 "VIDEO" -> MediaType.VIDEO
                 else -> MediaType.IMAGE
             },
-            url = this.url // Mapear la URL
+            url = resolvedUrl
         )
     }
 }

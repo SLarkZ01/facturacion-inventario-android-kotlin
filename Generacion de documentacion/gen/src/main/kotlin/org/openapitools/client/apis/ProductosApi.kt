@@ -193,8 +193,8 @@ class ProductosApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClie
 
     /**
      * Crear producto
-     * Crea un nuevo producto en el inventario
-     * @param productoRequest Datos del producto
+     * Crea un nuevo producto en el inventario. Para imágenes se recomienda subir a Cloudinary desde el cliente usando el endpoint de firma y enviar en &#x60;listaMedios&#x60; objetos con campos &#x60;publicId&#x60; y &#x60;secure_url&#x60;.
+     * @param productoRequest Datos del producto (incluir &#x60;tallerId&#x60;). &#x60;listaMedios&#x60; ejemplo incluido.
      * @return void
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -223,8 +223,8 @@ class ProductosApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClie
 
     /**
      * Crear producto
-     * Crea un nuevo producto en el inventario
-     * @param productoRequest Datos del producto
+     * Crea un nuevo producto en el inventario. Para imágenes se recomienda subir a Cloudinary desde el cliente usando el endpoint de firma y enviar en &#x60;listaMedios&#x60; objetos con campos &#x60;publicId&#x60; y &#x60;secure_url&#x60;.
+     * @param productoRequest Datos del producto (incluir &#x60;tallerId&#x60;). &#x60;listaMedios&#x60; ejemplo incluido.
      * @return ApiResponse<Unit?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -241,7 +241,7 @@ class ProductosApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClie
     /**
      * To obtain the request config of the operation crearProducto
      *
-     * @param productoRequest Datos del producto
+     * @param productoRequest Datos del producto (incluir &#x60;tallerId&#x60;). &#x60;listaMedios&#x60; ejemplo incluido.
      * @return RequestConfig
      */
     fun crearProductoRequestConfig(productoRequest: ProductoRequest) : RequestConfig<ProductoRequest> {
@@ -331,7 +331,7 @@ class ProductosApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClie
 
     /**
      * Obtener producto por ID
-     * Devuelve los detalles completos de un producto
+     * Devuelve los detalles completos de un producto (incluye &#x60;listaMedios&#x60; si existen)
      * @param id ID del producto
      * @return void
      * @throws IllegalStateException If the request is not correctly configured
@@ -361,7 +361,7 @@ class ProductosApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClie
 
     /**
      * Obtener producto por ID
-     * Devuelve los detalles completos de un producto
+     * Devuelve los detalles completos de un producto (incluye &#x60;listaMedios&#x60; si existen)
      * @param id ID del producto
      * @return ApiResponse<Unit?>
      * @throws IllegalStateException If the request is not correctly configured

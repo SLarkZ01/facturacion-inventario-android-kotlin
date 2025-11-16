@@ -64,7 +64,7 @@ Configure bearerAuth:
 
 Crear categoría
 
-Crea una nueva categoría de productos
+Crea una nueva categoría de productos. Nota: &#x60;tallerId&#x60; es obligatorio ya que todas las categorías pertenecen a un taller.
 
 ### Example
 ```kotlin
@@ -73,7 +73,7 @@ Crea una nueva categoría de productos
 //import org.openapitools.client.models.*
 
 val apiInstance = CategoriasApi()
-val categoriaRequest : CategoriaRequest = {"nombre":"Filtros","descripcion":"Filtros de aceite, aire y combustible","iconoRecurso":2131230988,"tallerId":"507f1f77bcf86cd799439777","mappedGlobalCategoryId":null} // CategoriaRequest | Datos de la categoría
+val categoriaRequest : CategoriaRequest = {"nombre":"Filtros","descripcion":"Filtros de aceite, aire y combustible","iconoRecurso":2131230988,"tallerId":"507f1f77bcf86cd799439777","listaMedios":[{"type":"image","publicId":"products/507f1f77/abc123","secure_url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1/products/abc123.jpg","format":"jpg","order":0}]} // CategoriaRequest | Datos de la categoría (tallerId obligatorio). `listaMedios` acepta una lista de objetos con campos: type, publicId, secure_url, format, order.
 try {
     apiInstance.crearCategoria(categoriaRequest)
 } catch (e: ClientException) {
@@ -88,7 +88,7 @@ try {
 ### Parameters
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **categoriaRequest** | [**CategoriaRequest**](CategoriaRequest.md)| Datos de la categoría | |
+| **categoriaRequest** | [**CategoriaRequest**](CategoriaRequest.md)| Datos de la categoría (tallerId obligatorio). &#x60;listaMedios&#x60; acepta una lista de objetos con campos: type, publicId, secure_url, format, order. | |
 
 ### Return type
 
@@ -197,11 +197,11 @@ Configure bearerAuth:
 
 <a id="listar2"></a>
 # **listar2**
-> listar2(q, page, size, tallerId, global)
+> listar2(tallerId, q, page, size, todas)
 
 Buscar/listar categorías
 
-Busca categorías por nombre o lista categorías globales o por taller.
+Busca categorías por nombre o lista categorías de un taller. Por defecto &#x60;tallerId&#x60; es obligatorio; usar &#x60;todas&#x3D;true&#x60; sólo si se es platform-admin para obtener todas las categorías.
 
 ### Example
 ```kotlin
@@ -210,13 +210,13 @@ Busca categorías por nombre o lista categorías globales o por taller.
 //import org.openapitools.client.models.*
 
 val apiInstance = CategoriasApi()
+val tallerId : kotlin.String = 507f1f77bcf86cd799439777 // kotlin.String | ID del taller (obligatorio para listar)
 val q : kotlin.String = filtro // kotlin.String | Término de búsqueda para nombre de categoría
 val page : kotlin.Int = 0 // kotlin.Int | Número de página
 val size : kotlin.Int = 20 // kotlin.Int | Elementos por página
-val tallerId : kotlin.String = 507f1f77bcf86cd799439777 // kotlin.String | ID del taller para listar categorías locales
-val global : kotlin.Boolean = false // kotlin.Boolean | Si true devuelve solo categorías globales (tallerId == null)
+val todas : kotlin.Boolean = false // kotlin.Boolean | Si true y el caller es platform-admin devuelve todas las categorías
 try {
-    apiInstance.listar2(q, page, size, tallerId, global)
+    apiInstance.listar2(tallerId, q, page, size, todas)
 } catch (e: ClientException) {
     println("4xx response calling CategoriasApi#listar2")
     e.printStackTrace()
@@ -227,13 +227,13 @@ try {
 ```
 
 ### Parameters
+| **tallerId** | **kotlin.String**| ID del taller (obligatorio para listar) | |
 | **q** | **kotlin.String**| Término de búsqueda para nombre de categoría | [optional] |
 | **page** | **kotlin.Int**| Número de página | [optional] [default to 0] |
 | **size** | **kotlin.Int**| Elementos por página | [optional] [default to 20] |
-| **tallerId** | **kotlin.String**| ID del taller para listar categorías locales | [optional] |
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **global** | **kotlin.Boolean**| Si true devuelve solo categorías globales (tallerId &#x3D;&#x3D; null) | [optional] [default to false] |
+| **todas** | **kotlin.Boolean**| Si true y el caller es platform-admin devuelve todas las categorías | [optional] [default to false] |
 
 ### Return type
 

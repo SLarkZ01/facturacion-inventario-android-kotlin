@@ -37,7 +37,7 @@ class CategoriasApiTest : ShouldSpec() {
         // to test crearCategoria
         should("test crearCategoria") {
             // uncomment below to test crearCategoria
-            //val categoriaRequest : CategoriaRequest = {"nombre":"Filtros","descripcion":"Filtros de aceite, aire y combustible","iconoRecurso":2131230988,"tallerId":"507f1f77bcf86cd799439777","mappedGlobalCategoryId":null} // CategoriaRequest | Datos de la categoría
+            //val categoriaRequest : CategoriaRequest = {"nombre":"Filtros","descripcion":"Filtros de aceite, aire y combustible","iconoRecurso":2131230988,"tallerId":"507f1f77bcf86cd799439777","listaMedios":[{"type":"image","publicId":"products/507f1f77/abc123","secure_url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1/products/abc123.jpg","format":"jpg","order":0}]} // CategoriaRequest | Datos de la categoría (tallerId obligatorio). `listaMedios` acepta una lista de objetos con campos: type, publicId, secure_url, format, order.
             //apiInstance.crearCategoria(categoriaRequest)
         }
 
@@ -58,12 +58,12 @@ class CategoriasApiTest : ShouldSpec() {
         // to test listar2
         should("test listar2") {
             // uncomment below to test listar2
+            //val tallerId : kotlin.String = 507f1f77bcf86cd799439777 // kotlin.String | ID del taller (obligatorio para listar)
             //val q : kotlin.String = filtro // kotlin.String | Término de búsqueda para nombre de categoría
             //val page : kotlin.Int = 0 // kotlin.Int | Número de página
             //val size : kotlin.Int = 20 // kotlin.Int | Elementos por página
-            //val tallerId : kotlin.String = 507f1f77bcf86cd799439777 // kotlin.String | ID del taller para listar categorías locales
-            //val global : kotlin.Boolean = false // kotlin.Boolean | Si true devuelve solo categorías globales (tallerId == null)
-            //apiInstance.listar2(q, page, size, tallerId, global)
+            //val todas : kotlin.Boolean = false // kotlin.Boolean | Si true y el caller es platform-admin devuelve todas las categorías
+            //apiInstance.listar2(tallerId, q, page, size, todas)
         }
 
     }

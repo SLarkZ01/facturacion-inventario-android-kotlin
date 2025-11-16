@@ -1,6 +1,7 @@
 package com.example.facturacion_inventario.data.remote.api
 
 import android.content.Context
+import android.util.Log
 import com.example.data.auth.ApiConfig
 import com.example.data.auth.TokenStorage
 import com.google.gson.GsonBuilder
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     private var context: Context? = null
+    private const val TAG = "RetrofitAuth"
 
     /**
      * Inicializa el cliente con el contexto de la aplicación
@@ -32,14 +34,29 @@ object RetrofitClient {
     }
 
     /**
+     * Interceptor defensivo: elimina header Authorization en rutas públicas
+     */
+    private val stripAuthInterceptor = Interceptor { chain ->
+        val req = chain.request()
+        val path = req.url.encodedPath
+        if (path.contains("/api/public/")) {
+            val stripped = req.newBuilder().removeHeader("Authorization").build()
+            Log.d(TAG, "Stripping Authorization header for public path: $path")
+            return@Interceptor chain.proceed(stripped)
+        }
+        chain.proceed(req)
+    }
+
+    /**
      * Interceptor de autenticación que agrega el token JWT
      */
     private val authInterceptor = Interceptor { chain ->
         val req = chain.request()
         val path = req.url.encodedPath
 
-        // No agregar token a endpoints públicos
-        if (path.contains("/api/auth/")) {
+        // No agregar token a endpoints públicos (auth, uploads públicos, etc.)
+        if (path.contains("/api/auth/") || path.contains("/api/public/")) {
+            Log.d(TAG, "Skipping auth header for public path: $path")
             return@Interceptor chain.proceed(req)
         }
 
@@ -47,14 +64,23 @@ object RetrofitClient {
         context?.let { ctx ->
             val token = TokenStorage.getAccessToken(ctx)
             if (!token.isNullOrEmpty()) {
+                Log.d(TAG, "Adding Authorization header for path: $path")
                 reqBuilder.addHeader("Authorization", "Bearer $token")
+            } else {
+                Log.d(TAG, "No token found; proceeding without Authorization for path: $path")
             }
+        } ?: run {
+            Log.d(TAG, "Context null; proceeding without Authorization for path: $path")
         }
-        chain.proceed(reqBuilder.build())
+        val newReq = reqBuilder.build()
+        // Log headers for debugging (avoid printing token itself)
+        Log.d(TAG, "Request to $path headers=${newReq.headers}")
+        chain.proceed(newReq)
     }
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(stripAuthInterceptor)
         .addInterceptor(authInterceptor)
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)

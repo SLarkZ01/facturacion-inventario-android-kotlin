@@ -23,11 +23,12 @@ import com.squareup.moshi.JsonClass
  * 
  *
  * @param nombre 
+ * @param tallerId 
  * @param idString 
  * @param descripcion 
  * @param iconoRecurso 
- * @param tallerId 
  * @param mappedGlobalCategoryId 
+ * @param listaMedios 
  */
 
 
@@ -35,6 +36,9 @@ data class CategoriaRequest (
 
     @Json(name = "nombre")
     val nombre: kotlin.String,
+
+    @Json(name = "tallerId")
+    val tallerId: kotlin.String,
 
     @Json(name = "idString")
     val idString: kotlin.String? = null,
@@ -45,11 +49,11 @@ data class CategoriaRequest (
     @Json(name = "iconoRecurso")
     val iconoRecurso: kotlin.Int? = null,
 
-    @Json(name = "tallerId")
-    val tallerId: kotlin.String? = null,
-
     @Json(name = "mappedGlobalCategoryId")
-    val mappedGlobalCategoryId: kotlin.String? = null
+    val mappedGlobalCategoryId: kotlin.String? = null,
+
+    @Json(name = "listaMedios")
+    val listaMedios: kotlin.collections.List<kotlin.collections.Map<kotlin.String, kotlin.Any>>? = null
 
 ) {
 

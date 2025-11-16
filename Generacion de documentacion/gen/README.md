@@ -93,15 +93,26 @@ All URIs are relative to *http://localhost*
 | *TallerMiembrosApi* | [**promote**](docs/TallerMiembrosApi.md#promote) | **POST** /api/talleres/{tallerId}/miembros/{memberUserId}/promote | Promover miembro a ADMIN |
 | *TallerMiembrosApi* | [**remove**](docs/TallerMiembrosApi.md#remove) | **DELETE** /api/talleres/{tallerId}/miembros/{memberUserId} | Remover miembro del taller |
 | *TalleresApi* | [**acceptInvitacion**](docs/TalleresApi.md#acceptinvitacion) | **POST** /api/talleres/invitaciones/accept | Aceptar invitación por código |
+| *TalleresApi* | [**actualizarAlmacen**](docs/TalleresApi.md#actualizaralmacen) | **PUT** /api/talleres/{tallerId}/almacenes/{almacenId} | Actualizar almacén |
+| *TalleresApi* | [**actualizarTaller**](docs/TalleresApi.md#actualizartaller) | **PUT** /api/talleres/{tallerId} | Actualizar taller |
 | *TalleresApi* | [**crearAlmacen**](docs/TalleresApi.md#crearalmacen) | **POST** /api/talleres/{tallerId}/almacenes | Crear almacén en taller |
 | *TalleresApi* | [**crearInvitacionCodigo**](docs/TalleresApi.md#crearinvitacioncodigo) | **POST** /api/talleres/{tallerId}/invitaciones/codigo | Crear invitación por código |
 | *TalleresApi* | [**crearTaller**](docs/TalleresApi.md#creartaller) | **POST** /api/talleres | Crear taller |
+| *TalleresApi* | [**debugListByUser**](docs/TalleresApi.md#debuglistbyuser) | **GET** /api/talleres/_debug | DEBUG: listar talleres por userId (temporal) |
+| *TalleresApi* | [**eliminarAlmacen**](docs/TalleresApi.md#eliminaralmacen) | **DELETE** /api/talleres/{tallerId}/almacenes/{almacenId} | Eliminar almacén |
+| *TalleresApi* | [**eliminarTaller**](docs/TalleresApi.md#eliminartaller) | **DELETE** /api/talleres/{tallerId} | Eliminar taller |
+| *TalleresApi* | [**getAlmacen**](docs/TalleresApi.md#getalmacen) | **GET** /api/talleres/{tallerId}/almacenes/{almacenId} | Obtener almacén |
+| *TalleresApi* | [**getTaller**](docs/TalleresApi.md#gettaller) | **GET** /api/talleres/{tallerId} | Obtener taller |
 | *TalleresApi* | [**listMyTalleres**](docs/TalleresApi.md#listmytalleres) | **GET** /api/talleres | Listar talleres propios |
+| *TalleresApi* | [**listarAlmacenes**](docs/TalleresApi.md#listaralmacenes) | **GET** /api/talleres/{tallerId}/almacenes | Listar almacenes de un taller |
+| *TalleresApi* | [**listarMiembros**](docs/TalleresApi.md#listarmiembros) | **GET** /api/talleres/{tallerId}/miembros | Listar miembros del taller |
+| *UploadsApi* | [**sign**](docs/UploadsApi.md#sign) | **POST** /api/uploads/cloudinary-sign | Generar firma para Cloudinary |
 
 
 <a id="documentation-for-models"></a>
 ## Documentation for Models
 
+ - [org.openapitools.client.models.AlmacenRequest](docs/AlmacenRequest.md)
  - [org.openapitools.client.models.CarritoItemRequest](docs/CarritoItemRequest.md)
  - [org.openapitools.client.models.CarritoRequest](docs/CarritoRequest.md)
  - [org.openapitools.client.models.CategoriaRequest](docs/CategoriaRequest.md)
@@ -113,6 +124,7 @@ All URIs are relative to *http://localhost*
  - [org.openapitools.client.models.MovimientoRequest](docs/MovimientoRequest.md)
  - [org.openapitools.client.models.ProductoRequest](docs/ProductoRequest.md)
  - [org.openapitools.client.models.RegisterRequest](docs/RegisterRequest.md)
+ - [org.openapitools.client.models.TallerRequest](docs/TallerRequest.md)
 
 
 <a id="documentation-for-authorization"></a>

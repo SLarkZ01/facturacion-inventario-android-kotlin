@@ -155,7 +155,7 @@ fun HomeScreenRemote(
 
     // Cargar categorías al iniciar
     LaunchedEffect(Unit) {
-        categoryViewModel.loadCategories()
+        categoryViewModel.loadPublicCategories() // << Usar endpoint público para la app pública
     }
 
     StoreScreenScaffold {
@@ -246,7 +246,7 @@ fun HomeScreenRemote(
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(Dimens.lg))
-                        Button(onClick = { categoryViewModel.loadCategories() }) {
+                        Button(onClick = { categoryViewModel.loadPublicCategories() }) {
                             Text("Reintentar")
                         }
                     }

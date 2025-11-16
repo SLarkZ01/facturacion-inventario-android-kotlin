@@ -119,8 +119,8 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
 
     /**
      * Crear categoría
-     * Crea una nueva categoría de productos
-     * @param categoriaRequest Datos de la categoría
+     * Crea una nueva categoría de productos. Nota: &#x60;tallerId&#x60; es obligatorio ya que todas las categorías pertenecen a un taller.
+     * @param categoriaRequest Datos de la categoría (tallerId obligatorio). &#x60;listaMedios&#x60; acepta una lista de objetos con campos: type, publicId, secure_url, format, order.
      * @return void
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -149,8 +149,8 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
 
     /**
      * Crear categoría
-     * Crea una nueva categoría de productos
-     * @param categoriaRequest Datos de la categoría
+     * Crea una nueva categoría de productos. Nota: &#x60;tallerId&#x60; es obligatorio ya que todas las categorías pertenecen a un taller.
+     * @param categoriaRequest Datos de la categoría (tallerId obligatorio). &#x60;listaMedios&#x60; acepta una lista de objetos con campos: type, publicId, secure_url, format, order.
      * @return ApiResponse<Unit?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -167,7 +167,7 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
     /**
      * To obtain the request config of the operation crearCategoria
      *
-     * @param categoriaRequest Datos de la categoría
+     * @param categoriaRequest Datos de la categoría (tallerId obligatorio). &#x60;listaMedios&#x60; acepta una lista de objetos con campos: type, publicId, secure_url, format, order.
      * @return RequestConfig
      */
     fun crearCategoriaRequestConfig(categoriaRequest: CategoriaRequest) : RequestConfig<CategoriaRequest> {
@@ -325,12 +325,12 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
 
     /**
      * Buscar/listar categorías
-     * Busca categorías por nombre o lista categorías globales o por taller.
+     * Busca categorías por nombre o lista categorías de un taller. Por defecto &#x60;tallerId&#x60; es obligatorio; usar &#x60;todas&#x3D;true&#x60; sólo si se es platform-admin para obtener todas las categorías.
+     * @param tallerId ID del taller (obligatorio para listar)
      * @param q Término de búsqueda para nombre de categoría (optional)
      * @param page Número de página (optional, default to 0)
      * @param size Elementos por página (optional, default to 20)
-     * @param tallerId ID del taller para listar categorías locales (optional)
-     * @param global Si true devuelve solo categorías globales (tallerId &#x3D;&#x3D; null) (optional, default to false)
+     * @param todas Si true y el caller es platform-admin devuelve todas las categorías (optional, default to false)
      * @return void
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -339,8 +339,8 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
      * @throws ServerException If the API returns a server error response
      */
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun listar2(q: kotlin.String? = null, page: kotlin.Int? = 0, size: kotlin.Int? = 20, tallerId: kotlin.String? = null, global: kotlin.Boolean? = false) : Unit {
-        val localVarResponse = listar2WithHttpInfo(q = q, page = page, size = size, tallerId = tallerId, global = global)
+    fun listar2(tallerId: kotlin.String, q: kotlin.String? = null, page: kotlin.Int? = 0, size: kotlin.Int? = 20, todas: kotlin.Boolean? = false) : Unit {
+        val localVarResponse = listar2WithHttpInfo(tallerId = tallerId, q = q, page = page, size = size, todas = todas)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
@@ -359,19 +359,19 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
 
     /**
      * Buscar/listar categorías
-     * Busca categorías por nombre o lista categorías globales o por taller.
+     * Busca categorías por nombre o lista categorías de un taller. Por defecto &#x60;tallerId&#x60; es obligatorio; usar &#x60;todas&#x3D;true&#x60; sólo si se es platform-admin para obtener todas las categorías.
+     * @param tallerId ID del taller (obligatorio para listar)
      * @param q Término de búsqueda para nombre de categoría (optional)
      * @param page Número de página (optional, default to 0)
      * @param size Elementos por página (optional, default to 20)
-     * @param tallerId ID del taller para listar categorías locales (optional)
-     * @param global Si true devuelve solo categorías globales (tallerId &#x3D;&#x3D; null) (optional, default to false)
+     * @param todas Si true y el caller es platform-admin devuelve todas las categorías (optional, default to false)
      * @return ApiResponse<Unit?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Throws(IllegalStateException::class, IOException::class)
-    fun listar2WithHttpInfo(q: kotlin.String?, page: kotlin.Int?, size: kotlin.Int?, tallerId: kotlin.String?, global: kotlin.Boolean?) : ApiResponse<Unit?> {
-        val localVariableConfig = listar2RequestConfig(q = q, page = page, size = size, tallerId = tallerId, global = global)
+    fun listar2WithHttpInfo(tallerId: kotlin.String, q: kotlin.String?, page: kotlin.Int?, size: kotlin.Int?, todas: kotlin.Boolean?) : ApiResponse<Unit?> {
+        val localVariableConfig = listar2RequestConfig(tallerId = tallerId, q = q, page = page, size = size, todas = todas)
 
         return request<Unit, Unit>(
             localVariableConfig
@@ -381,14 +381,14 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
     /**
      * To obtain the request config of the operation listar2
      *
+     * @param tallerId ID del taller (obligatorio para listar)
      * @param q Término de búsqueda para nombre de categoría (optional)
      * @param page Número de página (optional, default to 0)
      * @param size Elementos por página (optional, default to 20)
-     * @param tallerId ID del taller para listar categorías locales (optional)
-     * @param global Si true devuelve solo categorías globales (tallerId &#x3D;&#x3D; null) (optional, default to false)
+     * @param todas Si true y el caller es platform-admin devuelve todas las categorías (optional, default to false)
      * @return RequestConfig
      */
-    fun listar2RequestConfig(q: kotlin.String?, page: kotlin.Int?, size: kotlin.Int?, tallerId: kotlin.String?, global: kotlin.Boolean?) : RequestConfig<Unit> {
+    fun listar2RequestConfig(tallerId: kotlin.String, q: kotlin.String?, page: kotlin.Int?, size: kotlin.Int?, todas: kotlin.Boolean?) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
             .apply {
@@ -401,11 +401,9 @@ class CategoriasApi(basePath: kotlin.String = defaultBasePath, client: OkHttpCli
                 if (size != null) {
                     put("size", listOf(size.toString()))
                 }
-                if (tallerId != null) {
-                    put("tallerId", listOf(tallerId.toString()))
-                }
-                if (global != null) {
-                    put("global", listOf(global.toString()))
+                put("tallerId", listOf(tallerId.toString()))
+                if (todas != null) {
+                    put("todas", listOf(todas.toString()))
                 }
             }
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
