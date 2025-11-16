@@ -19,6 +19,8 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ShouldSpec
 
 import org.openapitools.client.apis.TalleresApi
+import org.openapitools.client.models.AlmacenRequest
+import org.openapitools.client.models.TallerRequest
 
 class TalleresApiTest : ShouldSpec() {
     init {
@@ -30,6 +32,23 @@ class TalleresApiTest : ShouldSpec() {
             // uncomment below to test acceptInvitacion
             //val requestBody : kotlin.collections.Map<kotlin.String, kotlin.String> = {"code":"TALLER-ABC123XYZ"} // kotlin.collections.Map<kotlin.String, kotlin.String> | Código de invitación
             //apiInstance.acceptInvitacion(requestBody)
+        }
+
+        // to test actualizarAlmacen
+        should("test actualizarAlmacen") {
+            // uncomment below to test actualizarAlmacen
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //val almacenId : kotlin.String = almacenId_example // kotlin.String | 
+            //val almacenRequest : AlmacenRequest = {"nombre":"Almacén Nuevo","ubicacion":"Calle 1"} // AlmacenRequest | Datos de almacén
+            //apiInstance.actualizarAlmacen(tallerId, almacenId, almacenRequest)
+        }
+
+        // to test actualizarTaller
+        should("test actualizarTaller") {
+            // uncomment below to test actualizarTaller
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //val tallerRequest : TallerRequest = {"nombre":"Nuevo Nombre"} // TallerRequest | Datos a actualizar
+            //apiInstance.actualizarTaller(tallerId, tallerRequest)
         }
 
         // to test crearAlmacen
@@ -51,14 +70,65 @@ class TalleresApiTest : ShouldSpec() {
         // to test crearTaller
         should("test crearTaller") {
             // uncomment below to test crearTaller
-            //val requestBody : kotlin.collections.Map<kotlin.String, kotlin.String> = {"nombre":"Taller Motos del Norte"} // kotlin.collections.Map<kotlin.String, kotlin.String> | Datos del taller
-            //apiInstance.crearTaller(requestBody)
+            //val tallerRequest : TallerRequest = {"nombre":"Taller Motos del Norte"} // TallerRequest | Datos del taller
+            //apiInstance.crearTaller(tallerRequest)
+        }
+
+        // to test debugListByUser
+        should("test debugListByUser") {
+            // uncomment below to test debugListByUser
+            //val userId : kotlin.String = userId_example // kotlin.String | 
+            //apiInstance.debugListByUser(userId)
+        }
+
+        // to test eliminarAlmacen
+        should("test eliminarAlmacen") {
+            // uncomment below to test eliminarAlmacen
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //val almacenId : kotlin.String = almacenId_example // kotlin.String | 
+            //apiInstance.eliminarAlmacen(tallerId, almacenId)
+        }
+
+        // to test eliminarTaller
+        should("test eliminarTaller") {
+            // uncomment below to test eliminarTaller
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //apiInstance.eliminarTaller(tallerId)
+        }
+
+        // to test getAlmacen
+        should("test getAlmacen") {
+            // uncomment below to test getAlmacen
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //val almacenId : kotlin.String = almacenId_example // kotlin.String | 
+            //apiInstance.getAlmacen(tallerId, almacenId)
+        }
+
+        // to test getTaller
+        should("test getTaller") {
+            // uncomment below to test getTaller
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //apiInstance.getTaller(tallerId)
         }
 
         // to test listMyTalleres
         should("test listMyTalleres") {
             // uncomment below to test listMyTalleres
             //apiInstance.listMyTalleres()
+        }
+
+        // to test listarAlmacenes
+        should("test listarAlmacenes") {
+            // uncomment below to test listarAlmacenes
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //apiInstance.listarAlmacenes(tallerId)
+        }
+
+        // to test listarMiembros
+        should("test listarMiembros") {
+            // uncomment below to test listarMiembros
+            //val tallerId : kotlin.String = tallerId_example // kotlin.String | 
+            //apiInstance.listarMiembros(tallerId)
         }
 
     }

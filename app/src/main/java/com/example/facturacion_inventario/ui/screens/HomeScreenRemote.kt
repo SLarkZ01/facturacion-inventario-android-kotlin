@@ -154,7 +154,7 @@ fun HomeScreenRemote(
 
     // Cargar categorías al iniciar
     LaunchedEffect(Unit) {
-        categoryViewModel.loadCategories()
+        categoryViewModel.loadPublicCategories() // << Usar endpoint público para la app pública
     }
 
     StoreScreenScaffold {
@@ -245,7 +245,7 @@ fun HomeScreenRemote(
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(Dimens.lg))
-                        Button(onClick = { categoryViewModel.loadCategories() }) {
+                        Button(onClick = { categoryViewModel.loadPublicCategories() }) {
                             Text("Reintentar")
                         }
                     }
@@ -316,7 +316,7 @@ private fun CategorySection(
 
         try {
             val repository = com.example.facturacion_inventario.data.repository.RemoteProductRepository()
-            repository.getProductsAsync(categoriaId = category.id).fold(
+            repository.getPublicProductosAsync(categoriaId = category.id).fold(
                 onSuccess = { productList ->
                     products = productList
                     isLoading = false
@@ -486,7 +486,7 @@ fun SingleCategoryProductsView(
 
         try {
             val repository = com.example.facturacion_inventario.data.repository.RemoteProductRepository()
-            repository.getProductsAsync(categoriaId = category.id).fold(
+            repository.getPublicProductosAsync(categoriaId = category.id).fold(
                 onSuccess = { productList ->
                     products = productList
                     isLoading = false

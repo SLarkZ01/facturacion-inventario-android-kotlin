@@ -106,6 +106,10 @@ dependencies {
     // Coil para carga de imágenes optimizada (performance crítico)
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // ExoPlayer para reproducción de video (UI + core)
+    implementation("com.google.android.exoplayer:exoplayer:2.18.5")
+    implementation("com.google.android.exoplayer:exoplayer-ui:2.18.5")
+
     // Accompanist System UI Controller para control de barras de estado
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 }

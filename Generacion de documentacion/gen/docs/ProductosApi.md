@@ -116,7 +116,7 @@ Configure bearerAuth:
 
 Crear producto
 
-Crea un nuevo producto en el inventario
+Crea un nuevo producto en el inventario. Para imágenes se recomienda subir a Cloudinary desde el cliente usando el endpoint de firma y enviar en &#x60;listaMedios&#x60; objetos con campos &#x60;publicId&#x60; y &#x60;secure_url&#x60;.
 
 ### Example
 ```kotlin
@@ -125,7 +125,7 @@ Crea un nuevo producto en el inventario
 //import org.openapitools.client.models.*
 
 val apiInstance = ProductosApi()
-val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha","descripcion":"Filtro de aceite para motos Yamaha 150cc","precio":25.5,"stock":100,"categoriaId":"507f1f77bcf86cd799439011","tallerId":"507f1f77bcf86cd799439777","specs":{"Marca":"Yamaha","Modelo":"YZF-R15","Compatibilidad":"150cc"}} // ProductoRequest | Datos del producto
+val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha","descripcion":"Filtro de aceite para motos Yamaha 150cc","precio":25.5,"stock":100,"categoriaId":"507f1f77bcf86cd799439011","tallerId":"507f1f77bcf86cd799439777","listaMedios":[{"type":"image","publicId":"products/507f1f77/abc123","secure_url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1/products/abc123.jpg","format":"jpg","order":0}],"specs":{"Marca":"Yamaha","Modelo":"YZF-R15"}} // ProductoRequest | Datos del producto (incluir `tallerId`). `listaMedios` ejemplo incluido.
 try {
     apiInstance.crearProducto(productoRequest)
 } catch (e: ClientException) {
@@ -140,7 +140,7 @@ try {
 ### Parameters
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **productoRequest** | [**ProductoRequest**](ProductoRequest.md)| Datos del producto | |
+| **productoRequest** | [**ProductoRequest**](ProductoRequest.md)| Datos del producto (incluir &#x60;tallerId&#x60;). &#x60;listaMedios&#x60; ejemplo incluido. | |
 
 ### Return type
 
@@ -210,7 +210,7 @@ Configure bearerAuth:
 
 Obtener producto por ID
 
-Devuelve los detalles completos de un producto
+Devuelve los detalles completos de un producto (incluye &#x60;listaMedios&#x60; si existen)
 
 ### Example
 ```kotlin

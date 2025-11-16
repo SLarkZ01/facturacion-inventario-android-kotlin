@@ -132,4 +132,86 @@ class RemoteProductRepository : ProductRepository {
     suspend fun getProductsByCategory(categoryId: String): Result<List<Product>> {
         return getProductsAsync(categoriaId = categoryId)
     }
+
+    /**
+     * Obtiene productos públicos (con stock agregado) de forma asíncrona
+     * @param categoriaId Filtro opcional por categoría
+     * @param query Búsqueda opcional por nombre
+     * @param page Número de página (default: 0)
+     * @param size Tamaño de página (default: 20)
+     */
+    suspend fun getPublicProductosAsync(
+        categoriaId: String? = null,
+        query: String? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Result<List<Product>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "🔍 Fetching PUBLIC products - categoriaId: $categoriaId, query: $query")
+                val response = apiService.getPublicProductos(query, categoriaId, page, size)
+
+                Log.d(TAG, "📡 Response code: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val productos = body?.productos ?: emptyList()
+                    Log.d(TAG, "✅ Successfully fetched ${productos.size} PUBLIC products")
+
+                    // Log stock information
+                    productos.forEachIndexed { index, prod ->
+                        Log.d(TAG, "  [$index] ${prod.nombre} - stock=${prod.stock}, totalStock=${prod.totalStock}")
+                        prod.stockByAlmacen?.forEach { stockAlmacen ->
+                            Log.d(TAG, "    Almacén ${stockAlmacen.almacenId}: ${stockAlmacen.cantidad}")
+                        }
+                    }
+
+                    Result.success(ProductoMapper.toDomainList(productos))
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMsg = "Error ${response.code()}: ${response.message()} - $errorBody"
+                    Log.e(TAG, "❌ API Error (public): $errorMsg")
+                    Result.failure(Exception(errorMsg))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Exception fetching public products: ${e.javaClass.simpleName}", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    /**
+     * Obtiene un producto público por ID de forma asíncrona
+     */
+    suspend fun getPublicProductoByIdAsync(id: String): Result<Product> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "🔍 Fetching PUBLIC product with id: $id")
+                val response = apiService.getPublicProducto(id)
+
+                Log.d(TAG, "📡 Response code: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val producto = response.body()?.producto
+                    if (producto != null) {
+                        Log.d(TAG, "✅ Successfully fetched PUBLIC product: ${producto.nombre}")
+                        Log.d(TAG, "   Stock: ${producto.stock}, TotalStock: ${producto.totalStock}")
+                        Result.success(ProductoMapper.toDomain(producto))
+                    } else {
+                        val errorMsg = "Producto no encontrado"
+                        Log.e(TAG, "❌ $errorMsg")
+                        Result.failure(Exception(errorMsg))
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMsg = "Error ${response.code()}: ${response.message()} - $errorBody"
+                    Log.e(TAG, "❌ API Error (public): $errorMsg")
+                    Result.failure(Exception(errorMsg))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Exception fetching public product by id: ${e.javaClass.simpleName}", e)
+                Result.failure(e)
+            }
+        }
+    }
 }

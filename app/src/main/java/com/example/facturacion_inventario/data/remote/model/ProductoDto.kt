@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 /**
  * DTO que coincide exactamente con el modelo de Spring Boot MongoDB
+ * Incluye campos adicionales de la API pública (totalStock, stockByAlmacen, thumbnailUrl, specs)
  */
 data class ProductoDto(
     @SerializedName("id")
@@ -34,21 +35,52 @@ data class ProductoDto(
     val listaMedios: List<MedioDto>? = null,
 
     @SerializedName("creadoEn")
-    val creadoEn: String? = null  // Cambiado de Date a String
+    val creadoEn: String? = null,  // Cambiado de Date a String
+
+    // Campos adicionales de la API pública
+    @SerializedName("totalStock")
+    val totalStock: Int? = null,
+
+    @SerializedName("stockByAlmacen")
+    val stockByAlmacen: List<StockByAlmacenDto>? = null,
+
+    @SerializedName("thumbnailUrl")
+    val thumbnailUrl: String? = null,
+
+    @SerializedName("specs")
+    val specs: Map<String, String>? = null,
+
+    @SerializedName("ownerId")
+    val ownerId: String? = null
 )
 
 /**
  * DTO para los elementos de medios (imágenes/videos)
+ * Soporta ambos formatos:
+ * - Legacy: { idRecurso, tipo, url, order }
+ * - Nuevo: { publicId, secure_url, format, type, order }
  */
 data class MedioDto(
     @SerializedName("idRecurso")
-    val idRecurso: Int = 0,
+    val idRecurso: Int? = null,
+
+    // Nombre enviado por backend en la nueva versión
+    @SerializedName("publicId")
+    val publicId: String? = null,
 
     @SerializedName("type")
-    val tipo: String? = null, // "IMAGE" o "VIDEO" - El backend envía "type" en lugar de "tipo"
+    val tipo: String? = null, // "IMAGE" o "VIDEO"
 
+    // Legacy field
     @SerializedName("url")
-    val url: String? = null, // URL de la imagen o video
+    val url: String? = null,
+
+    // New secure url field from Cloudinary examples
+    @SerializedName("secure_url")
+    val secureUrl: String? = null,
+
+    @SerializedName("format")
+    val format: String? = null,
 
     @SerializedName("order")
     val order: Int = 0
@@ -56,10 +88,20 @@ data class MedioDto(
 
 /**
  * Response wrapper para lista de productos
+ * Ahora incluye paginación
  */
 data class ProductosResponse(
     @SerializedName("productos")
-    val productos: List<ProductoDto>
+    val productos: List<ProductoDto>,
+
+    @SerializedName("total")
+    val total: Long? = null,
+
+    @SerializedName("page")
+    val page: Int? = null,
+
+    @SerializedName("size")
+    val size: Int? = null
 )
 
 /**

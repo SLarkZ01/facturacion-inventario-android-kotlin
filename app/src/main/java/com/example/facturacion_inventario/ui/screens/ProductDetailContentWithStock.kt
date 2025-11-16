@@ -69,8 +69,13 @@ fun ProductDetailContentWithStock(
     // Por ahora los mensajes se manejan internamente en el ViewModel
 
     // Obtener stock total actual
-    val totalStock = when (stockState) {
-        is StockState.Success -> stockState.total
+    // PRIORIDAD: Usar product.stock (que ya viene con totalStock del endpoint público)
+    // FALLBACK: Si stockState tiene datos más recientes, usarlos
+    val totalStock = when {
+        // Si product.stock > 0, usarlo directamente (viene del endpoint público con totalStock)
+        product.stock > 0 -> product.stock
+        // Si no, intentar usar stockState como fallback
+        stockState is StockState.Success -> stockState.total
         else -> 0
     }
 
@@ -82,6 +87,12 @@ fun ProductDetailContentWithStock(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
+
+    Scaffold(scaffoldState = scaffoldState) { padding ->
+        StoreScreenScaffold {
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)) {
                 item {
                     Spacer(modifier = Modifier.height(96.dp))
                     Text(
@@ -129,7 +140,7 @@ fun ProductDetailContentWithStock(
 
                             Spacer(modifier = Modifier.height(Dimens.lg))
 
-                            // 🔥 NUEVO: Stock en tiempo real desde el backend
+                            // 🔥 NUEVO: Stock desde el endpoint público (ya incluye totalStock)
                             Text(
                                 text = "Disponibilidad",
                                 color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
@@ -137,20 +148,17 @@ fun ProductDetailContentWithStock(
                             )
                             Spacer(modifier = Modifier.height(Dimens.xs))
 
-                            when (stockState) {
-                                is StockState.Loading -> {
-                                    StockLoadingSkeleton()
-                                }
-                                is StockState.Success -> {
-                                    StockBadge(total = stockState.total)
-                                }
-                                is StockState.Error -> {
-                                    Text(
-                                        text = "⚠️ No se pudo cargar stock",
-                                        color = MaterialTheme.colors.error,
-                                        fontSize = 12.sp
-                                    )
-                                }
+                            // Mostrar stock desde product.stock (que ya tiene totalStock)
+                            StockBadge(total = totalStock)
+
+                            // Mostrar desglose por almacén si está disponible (StockState)
+                            if (stockState is StockState.Success && stockState.stockByAlmacen.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(Dimens.md))
+                                StockDetailCard(
+                                    stockState = stockState,
+                                    totalOverride = totalStock,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
 
                             Spacer(modifier = Modifier.height(Dimens.xl))
@@ -253,7 +261,7 @@ fun ProductDetailContentWithStock(
                 if (stockState is StockState.Success) {
                     item {
                         Spacer(modifier = Modifier.height(Dimens.lg))
-                        StockDetailCard(stockState = stockState)
+                        StockDetailCard(stockState = stockState, totalOverride = totalStock)
                     }
                 }
 

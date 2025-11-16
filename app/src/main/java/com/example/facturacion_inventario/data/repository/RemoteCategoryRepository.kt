@@ -190,4 +190,46 @@ class RemoteCategoryRepository : CategoryRepository {
             }
         }
     }
+
+    /**
+     * Obtiene categorías públicas (endpoint sin autenticación)
+     * Llama a GET /api/public/categorias y devuelve la lista mapeada
+     */
+    suspend fun getPublicCategoriesAsync(): Result<List<Category>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "📡 API Call - Fetching PUBLIC categories...")
+                val response = apiService.getPublicCategorias()
+                Log.d(TAG, "📡 Response code (public): ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val categorias = response.body()?.categorias ?: emptyList()
+                    Log.d(TAG, "✅ Successfully fetched public categories: ${categorias.size}")
+
+                    // Log detalles de listaMedios para cada categoría para depuración
+                    categorias.forEachIndexed { idx, cat ->
+                        val medios = cat.listaMedios
+                        if (medios.isNullOrEmpty()) {
+                            Log.d(TAG, "  [Categ $idx] ${cat.nombre} - no listaMedios, imagenUrl=${cat.imagenUrl}")
+                        } else {
+                            val first = medios.first()
+                            Log.d(TAG, "  [Categ $idx] ${cat.nombre} - listaMedios.size=${medios.size}")
+                            Log.d(TAG, "    first.publicId=${first.publicId} | first.secureUrl=${first.secureUrl} | first.url=${first.url} | first.format=${first.format}")
+                        }
+                    }
+
+                    Result.success(CategoriaMapper.toDomainList(categorias))
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val contentType = response.headers().get("Content-Type") ?: "unknown"
+                    val errorMsg = "Error ${response.code()}: ${response.message()} - contentType=$contentType, body=$errorBody"
+                    Log.e(TAG, "❌ API Error (public): $errorMsg")
+                    Result.failure(Exception(errorMsg))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Exception fetching public categories: ${e.javaClass.simpleName}", e)
+                Result.failure(e)
+            }
+        }
+    }
 }

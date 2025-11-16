@@ -19,6 +19,8 @@ import java.io.IOException
 import okhttp3.OkHttpClient
 import okhttp3.HttpUrl
 
+import org.openapitools.client.models.AlmacenRequest
+import org.openapitools.client.models.TallerRequest
 
 import com.squareup.moshi.Json
 
@@ -107,6 +109,153 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/api/talleres/invitaciones/accept",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Actualizar almacén
+     * Actualiza un almacén (nombre/ubicacion). Requiere owner o ADMIN.
+     * @param tallerId 
+     * @param almacenId 
+     * @param almacenRequest Datos de almacén
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun actualizarAlmacen(tallerId: kotlin.String, almacenId: kotlin.String, almacenRequest: AlmacenRequest) : Unit {
+        val localVarResponse = actualizarAlmacenWithHttpInfo(tallerId = tallerId, almacenId = almacenId, almacenRequest = almacenRequest)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Actualizar almacén
+     * Actualiza un almacén (nombre/ubicacion). Requiere owner o ADMIN.
+     * @param tallerId 
+     * @param almacenId 
+     * @param almacenRequest Datos de almacén
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun actualizarAlmacenWithHttpInfo(tallerId: kotlin.String, almacenId: kotlin.String, almacenRequest: AlmacenRequest) : ApiResponse<Unit?> {
+        val localVariableConfig = actualizarAlmacenRequestConfig(tallerId = tallerId, almacenId = almacenId, almacenRequest = almacenRequest)
+
+        return request<AlmacenRequest, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation actualizarAlmacen
+     *
+     * @param tallerId 
+     * @param almacenId 
+     * @param almacenRequest Datos de almacén
+     * @return RequestConfig
+     */
+    fun actualizarAlmacenRequestConfig(tallerId: kotlin.String, almacenId: kotlin.String, almacenRequest: AlmacenRequest) : RequestConfig<AlmacenRequest> {
+        val localVariableBody = almacenRequest
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        
+        return RequestConfig(
+            method = RequestMethod.PUT,
+            path = "/api/talleres/{tallerId}/almacenes/{almacenId}".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())).replace("{"+"almacenId"+"}", encodeURIComponent(almacenId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Actualizar taller
+     * Actualiza datos del taller (solo nombre por ahora)
+     * @param tallerId 
+     * @param tallerRequest Datos a actualizar
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun actualizarTaller(tallerId: kotlin.String, tallerRequest: TallerRequest) : Unit {
+        val localVarResponse = actualizarTallerWithHttpInfo(tallerId = tallerId, tallerRequest = tallerRequest)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Actualizar taller
+     * Actualiza datos del taller (solo nombre por ahora)
+     * @param tallerId 
+     * @param tallerRequest Datos a actualizar
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun actualizarTallerWithHttpInfo(tallerId: kotlin.String, tallerRequest: TallerRequest) : ApiResponse<Unit?> {
+        val localVariableConfig = actualizarTallerRequestConfig(tallerId = tallerId, tallerRequest = tallerRequest)
+
+        return request<TallerRequest, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation actualizarTaller
+     *
+     * @param tallerId 
+     * @param tallerRequest Datos a actualizar
+     * @return RequestConfig
+     */
+    fun actualizarTallerRequestConfig(tallerId: kotlin.String, tallerRequest: TallerRequest) : RequestConfig<TallerRequest> {
+        val localVariableBody = tallerRequest
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        
+        return RequestConfig(
+            method = RequestMethod.PUT,
+            path = "/api/talleres/{tallerId}".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
@@ -263,7 +412,7 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
     /**
      * Crear taller
      * Crea un taller y lo asocia al usuario autenticado como propietario (owner)
-     * @param requestBody Datos del taller
+     * @param tallerRequest Datos del taller
      * @return void
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
@@ -272,8 +421,8 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
      * @throws ServerException If the API returns a server error response
      */
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun crearTaller(requestBody: kotlin.collections.Map<kotlin.String, kotlin.String>) : Unit {
-        val localVarResponse = crearTallerWithHttpInfo(requestBody = requestBody)
+    fun crearTaller(tallerRequest: TallerRequest) : Unit {
+        val localVarResponse = crearTallerWithHttpInfo(tallerRequest = tallerRequest)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> Unit
@@ -293,16 +442,16 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
     /**
      * Crear taller
      * Crea un taller y lo asocia al usuario autenticado como propietario (owner)
-     * @param requestBody Datos del taller
+     * @param tallerRequest Datos del taller
      * @return ApiResponse<Unit?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Throws(IllegalStateException::class, IOException::class)
-    fun crearTallerWithHttpInfo(requestBody: kotlin.collections.Map<kotlin.String, kotlin.String>) : ApiResponse<Unit?> {
-        val localVariableConfig = crearTallerRequestConfig(requestBody = requestBody)
+    fun crearTallerWithHttpInfo(tallerRequest: TallerRequest) : ApiResponse<Unit?> {
+        val localVariableConfig = crearTallerRequestConfig(tallerRequest = tallerRequest)
 
-        return request<kotlin.collections.Map<kotlin.String, kotlin.String>, Unit>(
+        return request<TallerRequest, Unit>(
             localVariableConfig
         )
     }
@@ -310,11 +459,11 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
     /**
      * To obtain the request config of the operation crearTaller
      *
-     * @param requestBody Datos del taller
+     * @param tallerRequest Datos del taller
      * @return RequestConfig
      */
-    fun crearTallerRequestConfig(requestBody: kotlin.collections.Map<kotlin.String, kotlin.String>) : RequestConfig<kotlin.collections.Map<kotlin.String, kotlin.String>> {
-        val localVariableBody = requestBody
+    fun crearTallerRequestConfig(tallerRequest: TallerRequest) : RequestConfig<TallerRequest> {
+        val localVariableBody = tallerRequest
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Content-Type"] = "application/json"
@@ -323,6 +472,357 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/api/talleres",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * DEBUG: listar talleres por userId (temporal)
+     * Endpoint temporal para depuración: pasar ?userId&#x3D;&lt;id&gt; para simular autenticación y devolver talleres para ese userId. Eliminar/proteger en producción.
+     * @param userId  (optional)
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun debugListByUser(userId: kotlin.String? = null) : Unit {
+        val localVarResponse = debugListByUserWithHttpInfo(userId = userId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * DEBUG: listar talleres por userId (temporal)
+     * Endpoint temporal para depuración: pasar ?userId&#x3D;&lt;id&gt; para simular autenticación y devolver talleres para ese userId. Eliminar/proteger en producción.
+     * @param userId  (optional)
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun debugListByUserWithHttpInfo(userId: kotlin.String?) : ApiResponse<Unit?> {
+        val localVariableConfig = debugListByUserRequestConfig(userId = userId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation debugListByUser
+     *
+     * @param userId  (optional)
+     * @return RequestConfig
+     */
+    fun debugListByUserRequestConfig(userId: kotlin.String?) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf<kotlin.String, kotlin.collections.List<kotlin.String>>()
+            .apply {
+                if (userId != null) {
+                    put("userId", listOf(userId.toString()))
+                }
+            }
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/talleres/_debug",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Eliminar almacén
+     * Elimina permanentemente un almacén. Requiere owner o ADMIN. Esta acción no se puede deshacer.
+     * @param tallerId 
+     * @param almacenId 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun eliminarAlmacen(tallerId: kotlin.String, almacenId: kotlin.String) : Unit {
+        val localVarResponse = eliminarAlmacenWithHttpInfo(tallerId = tallerId, almacenId = almacenId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Eliminar almacén
+     * Elimina permanentemente un almacén. Requiere owner o ADMIN. Esta acción no se puede deshacer.
+     * @param tallerId 
+     * @param almacenId 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun eliminarAlmacenWithHttpInfo(tallerId: kotlin.String, almacenId: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = eliminarAlmacenRequestConfig(tallerId = tallerId, almacenId = almacenId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation eliminarAlmacen
+     *
+     * @param tallerId 
+     * @param almacenId 
+     * @return RequestConfig
+     */
+    fun eliminarAlmacenRequestConfig(tallerId: kotlin.String, almacenId: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.DELETE,
+            path = "/api/talleres/{tallerId}/almacenes/{almacenId}".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())).replace("{"+"almacenId"+"}", encodeURIComponent(almacenId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Eliminar taller
+     * Elimina permanentemente el taller y todos sus almacenes asociados. Solo el owner puede hacerlo. Esta acción no se puede deshacer.
+     * @param tallerId 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun eliminarTaller(tallerId: kotlin.String) : Unit {
+        val localVarResponse = eliminarTallerWithHttpInfo(tallerId = tallerId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Eliminar taller
+     * Elimina permanentemente el taller y todos sus almacenes asociados. Solo el owner puede hacerlo. Esta acción no se puede deshacer.
+     * @param tallerId 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun eliminarTallerWithHttpInfo(tallerId: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = eliminarTallerRequestConfig(tallerId = tallerId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation eliminarTaller
+     *
+     * @param tallerId 
+     * @return RequestConfig
+     */
+    fun eliminarTallerRequestConfig(tallerId: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.DELETE,
+            path = "/api/talleres/{tallerId}".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Obtener almacén
+     * Obtiene un almacén por id
+     * @param tallerId 
+     * @param almacenId 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun getAlmacen(tallerId: kotlin.String, almacenId: kotlin.String) : Unit {
+        val localVarResponse = getAlmacenWithHttpInfo(tallerId = tallerId, almacenId = almacenId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Obtener almacén
+     * Obtiene un almacén por id
+     * @param tallerId 
+     * @param almacenId 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun getAlmacenWithHttpInfo(tallerId: kotlin.String, almacenId: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = getAlmacenRequestConfig(tallerId = tallerId, almacenId = almacenId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation getAlmacen
+     *
+     * @param tallerId 
+     * @param almacenId 
+     * @return RequestConfig
+     */
+    fun getAlmacenRequestConfig(tallerId: kotlin.String, almacenId: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/talleres/{tallerId}/almacenes/{almacenId}".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())).replace("{"+"almacenId"+"}", encodeURIComponent(almacenId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Obtener taller
+     * Obtiene información del taller por id
+     * @param tallerId 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun getTaller(tallerId: kotlin.String) : Unit {
+        val localVarResponse = getTallerWithHttpInfo(tallerId = tallerId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Obtener taller
+     * Obtiene información del taller por id
+     * @param tallerId 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun getTallerWithHttpInfo(tallerId: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = getTallerRequestConfig(tallerId = tallerId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation getTaller
+     *
+     * @param tallerId 
+     * @return RequestConfig
+     */
+    fun getTallerRequestConfig(tallerId: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/talleres/{tallerId}".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,
@@ -388,6 +888,142 @@ class TalleresApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClien
         return RequestConfig(
             method = RequestMethod.GET,
             path = "/api/talleres",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Listar almacenes de un taller
+     * Devuelve los almacenes asociados a un taller
+     * @param tallerId 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun listarAlmacenes(tallerId: kotlin.String) : Unit {
+        val localVarResponse = listarAlmacenesWithHttpInfo(tallerId = tallerId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Listar almacenes de un taller
+     * Devuelve los almacenes asociados a un taller
+     * @param tallerId 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun listarAlmacenesWithHttpInfo(tallerId: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = listarAlmacenesRequestConfig(tallerId = tallerId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation listarAlmacenes
+     *
+     * @param tallerId 
+     * @return RequestConfig
+     */
+    fun listarAlmacenesRequestConfig(tallerId: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/talleres/{tallerId}/almacenes".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * Listar miembros del taller
+     * Devuelve los miembros de un taller (userId, roles, joinedAt). Requiere que el usuario autenticado pertenezca al taller.
+     * @param tallerId 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun listarMiembros(tallerId: kotlin.String) : Unit {
+        val localVarResponse = listarMiembrosWithHttpInfo(tallerId = tallerId)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * Listar miembros del taller
+     * Devuelve los miembros de un taller (userId, roles, joinedAt). Requiere que el usuario autenticado pertenezca al taller.
+     * @param tallerId 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun listarMiembrosWithHttpInfo(tallerId: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = listarMiembrosRequestConfig(tallerId = tallerId)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation listarMiembros
+     *
+     * @param tallerId 
+     * @return RequestConfig
+     */
+    fun listarMiembrosRequestConfig(tallerId: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/talleres/{tallerId}/miembros".replace("{"+"tallerId"+"}", encodeURIComponent(tallerId.toString())),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,

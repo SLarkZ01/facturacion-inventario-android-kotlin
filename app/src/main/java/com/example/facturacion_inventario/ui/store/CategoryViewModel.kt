@@ -50,8 +50,8 @@ class CategoryViewModel(
     val categoryDetail: StateFlow<CategoryDetailState> = _categoryDetail.asStateFlow()
 
     init {
-        Log.d(TAG, "CategoryViewModel initialized - loading categories from API...")
-        loadCategories()
+        Log.d(TAG, "CategoryViewModel initialized - loading PUBLIC categories from API...")
+        loadPublicCategories()
     }
 
     /**
@@ -233,6 +233,33 @@ class CategoryViewModel(
      */
     @Suppress("unused")
     fun retry() {
-        loadCategories()
+        loadPublicCategories()
+    }
+
+    /**
+     * Carga categorías públicas usando el endpoint público (no autenticado)
+     */
+    fun loadPublicCategories() {
+        viewModelScope.launch {
+            try {
+                _uiState.value = CategoryListState.Loading
+                Log.d(TAG, "🔍 Loading PUBLIC categories from API")
+
+                repository.getPublicCategoriesAsync().fold(
+                    onSuccess = { categories ->
+                        Log.d(TAG, "✅ SUCCESS: Loaded ${categories.size} PUBLIC categories")
+                        _uiState.value = if (categories.isEmpty()) CategoryListState.Empty else CategoryListState.Success(categories)
+                    },
+                    onFailure = { error ->
+                        Log.e(TAG, "❌ ERROR loading PUBLIC categories: ${error.message}", error)
+                        _uiState.value = CategoryListState.Error(error.message ?: "Error al cargar categorías públicas")
+                    }
+                )
+
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ EXCEPTION in loadPublicCategories: ${e.message}", e)
+                _uiState.value = CategoryListState.Error("Error inesperado: ${e.message ?: "No se pudo conectar con el servidor"}")
+            }
+        }
     }
 }

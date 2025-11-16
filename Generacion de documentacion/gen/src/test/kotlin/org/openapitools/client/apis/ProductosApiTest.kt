@@ -45,7 +45,7 @@ class ProductosApiTest : ShouldSpec() {
         // to test crearProducto
         should("test crearProducto") {
             // uncomment below to test crearProducto
-            //val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha","descripcion":"Filtro de aceite para motos Yamaha 150cc","precio":25.5,"stock":100,"categoriaId":"507f1f77bcf86cd799439011","tallerId":"507f1f77bcf86cd799439777","specs":{"Marca":"Yamaha","Modelo":"YZF-R15","Compatibilidad":"150cc"}} // ProductoRequest | Datos del producto
+            //val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha","descripcion":"Filtro de aceite para motos Yamaha 150cc","precio":25.5,"stock":100,"categoriaId":"507f1f77bcf86cd799439011","tallerId":"507f1f77bcf86cd799439777","listaMedios":[{"type":"image","publicId":"products/507f1f77/abc123","secure_url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1/products/abc123.jpg","format":"jpg","order":0}],"specs":{"Marca":"Yamaha","Modelo":"YZF-R15"}} // ProductoRequest | Datos del producto (incluir `tallerId`). `listaMedios` ejemplo incluido.
             //apiInstance.crearProducto(productoRequest)
         }
 

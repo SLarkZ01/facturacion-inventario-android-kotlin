@@ -82,9 +82,11 @@ fun ProductDetailContent(product: Product?, onAddToCart: () -> Unit, cartViewMod
         }
     }
 
-    Scaffold(scaffoldState = scaffoldState) {
+    Scaffold(scaffoldState = scaffoldState) { padding ->
         StoreScreenScaffold {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)) {
                 item {
                     Spacer(modifier = Modifier.height(96.dp))
                     Text(text = "Detalle del producto", color = MaterialTheme.colors.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
