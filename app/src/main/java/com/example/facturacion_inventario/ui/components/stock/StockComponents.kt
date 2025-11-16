@@ -119,7 +119,8 @@ fun StockIndicator(
 @Composable
 fun StockDetailCard(
     stockState: StockState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    totalOverride: Int? = null
 ) {
     AnimatedVisibility(
         visible = stockState is StockState.Success,
@@ -127,6 +128,10 @@ fun StockDetailCard(
         exit = fadeOut()
     ) {
         if (stockState is StockState.Success) {
+            // Determinar el total que se mostrará en el encabezado:
+            // prioridad al totalOverride (por ejemplo, product.stock con totalStock)
+            val headerTotal = totalOverride ?: stockState.total
+
             Card(
                 modifier = modifier.fillMaxWidth(),
                 backgroundColor = MaterialTheme.colors.surface.copy(alpha = 0.8f),
@@ -146,7 +151,8 @@ fun StockDetailCard(
                             style = MaterialTheme.typography.subtitle1,
                             fontWeight = FontWeight.Bold
                         )
-                        StockBadge(total = stockState.total, showIcon = false)
+                        // Usar el total resuelto para el badge
+                        StockBadge(total = headerTotal, showIcon = false)
                     }
 
                     Divider(modifier = Modifier.padding(vertical = 4.dp))

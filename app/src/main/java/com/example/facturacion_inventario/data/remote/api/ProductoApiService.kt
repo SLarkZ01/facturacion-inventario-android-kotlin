@@ -32,6 +32,33 @@ interface ProductoApiService {
     ): Response<ProductoResponse>
 
     /**
+     * GET /api/public/productos
+     * Endpoint público que devuelve todos los productos con stock agregado
+     * No requiere autenticación.
+     * @param q Búsqueda por nombre (opcional)
+     * @param categoriaId Filtrar por categoría (opcional)
+     * @param page Número de página (default: 0)
+     * @param size Tamaño de página (default: 20)
+     */
+    @GET("api/public/productos")
+    suspend fun getPublicProductos(
+        @Query("q") query: String? = null,
+        @Query("categoriaId") categoriaId: String? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Response<ProductosResponse>
+
+    /**
+     * GET /api/public/productos/{id}
+     * Obtener un producto público por ID con stock agregado
+     * No requiere autenticación.
+     */
+    @GET("api/public/productos/{id}")
+    suspend fun getPublicProducto(
+        @Path("id") id: String
+    ): Response<ProductoResponse>
+
+    /**
      * POST /api/productos
      * Crear un nuevo producto
      */
@@ -70,4 +97,3 @@ interface ProductoApiService {
         @Path("id") id: String
     ): Response<Map<String, @JvmSuppressWildcards Any?>>
 }
-

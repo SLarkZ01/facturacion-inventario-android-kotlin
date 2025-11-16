@@ -106,19 +106,19 @@ class ProductDetailViewModel(
     val uiState: StateFlow<ProductDetailState> = _uiState.asStateFlow()
 
     /**
-     * Carga un producto por ID
+     * Carga un producto por ID usando el endpoint público
      */
     fun loadProduct(productId: String) {
         viewModelScope.launch {
             _uiState.value = ProductDetailState.Loading
 
-            repository.getProductByIdAsync(productId).fold(
+            repository.getPublicProductoByIdAsync(productId).fold(
                 onSuccess = { product ->
-                    Log.d(TAG, "Loaded product: ${product.name}")
+                    Log.d(TAG, "Loaded PUBLIC product: ${product.name} with stock=${product.stock}")
                     _uiState.value = ProductDetailState.Success(product)
                 },
                 onFailure = { error ->
-                    Log.e(TAG, "Error loading product", error)
+                    Log.e(TAG, "Error loading public product", error)
                     _uiState.value = ProductDetailState.Error(
                         error.message ?: "Error al cargar el producto"
                     )

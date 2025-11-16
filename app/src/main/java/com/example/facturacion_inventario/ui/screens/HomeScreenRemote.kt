@@ -317,7 +317,7 @@ private fun CategorySection(
 
         try {
             val repository = com.example.facturacion_inventario.data.repository.RemoteProductRepository()
-            repository.getProductsAsync(categoriaId = category.id).fold(
+            repository.getPublicProductosAsync(categoriaId = category.id).fold(
                 onSuccess = { productList ->
                     products = productList
                     isLoading = false
@@ -487,7 +487,7 @@ fun SingleCategoryProductsView(
 
         try {
             val repository = com.example.facturacion_inventario.data.repository.RemoteProductRepository()
-            repository.getProductsAsync(categoriaId = category.id).fold(
+            repository.getPublicProductosAsync(categoriaId = category.id).fold(
                 onSuccess = { productList ->
                     products = productList
                     isLoading = false

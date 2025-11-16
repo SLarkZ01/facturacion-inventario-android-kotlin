@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 /**
  * DTO que coincide exactamente con el modelo de Spring Boot MongoDB
+ * Incluye campos adicionales de la API pública (totalStock, stockByAlmacen, thumbnailUrl, specs)
  */
 data class ProductoDto(
     @SerializedName("id")
@@ -34,7 +35,23 @@ data class ProductoDto(
     val listaMedios: List<MedioDto>? = null,
 
     @SerializedName("creadoEn")
-    val creadoEn: String? = null  // Cambiado de Date a String
+    val creadoEn: String? = null,  // Cambiado de Date a String
+
+    // Campos adicionales de la API pública
+    @SerializedName("totalStock")
+    val totalStock: Int? = null,
+
+    @SerializedName("stockByAlmacen")
+    val stockByAlmacen: List<StockByAlmacenDto>? = null,
+
+    @SerializedName("thumbnailUrl")
+    val thumbnailUrl: String? = null,
+
+    @SerializedName("specs")
+    val specs: Map<String, String>? = null,
+
+    @SerializedName("ownerId")
+    val ownerId: String? = null
 )
 
 /**
@@ -71,10 +88,20 @@ data class MedioDto(
 
 /**
  * Response wrapper para lista de productos
+ * Ahora incluye paginación
  */
 data class ProductosResponse(
     @SerializedName("productos")
-    val productos: List<ProductoDto>
+    val productos: List<ProductoDto>,
+
+    @SerializedName("total")
+    val total: Long? = null,
+
+    @SerializedName("page")
+    val page: Int? = null,
+
+    @SerializedName("size")
+    val size: Int? = null
 )
 
 /**
