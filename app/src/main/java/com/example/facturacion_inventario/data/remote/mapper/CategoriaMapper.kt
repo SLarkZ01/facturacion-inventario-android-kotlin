@@ -15,7 +15,6 @@ object CategoriaMapper {
 
     /**
      * Mapeo de iconos por defecto basados en el nombre de la categoría
-     * Se usa cuando iconoRecurso es null o no está disponible
      */
     private val defaultIcons = mapOf(
         "motor" to R.drawable.ic_engine,
@@ -80,12 +79,9 @@ object CategoriaMapper {
 
     /**
      * Obtiene el recurso de icono apropiado
-     * Prioridad: 1) iconoRecurso del backend, 2) mapeo por nombre, 3) icono de Ermotos por defecto
+     * Prioridad: 1) mapeo por nombre, 2) icono de Ermotos por defecto
      */
     private fun getIconRes(dto: CategoriaDto): Int {
-        // Si el backend envía un iconoRecurso, usarlo
-        dto.iconoRecurso?.let { return it }
-
         // Buscar por nombre (case-insensitive)
         val nameLower = dto.nombre.lowercase().trim()
         defaultIcons.forEach { (key, icon) ->
