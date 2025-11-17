@@ -1,6 +1,6 @@
 # Version catalog for the project
 [versions]
-agp = "8.13.0"
+agp = "8.13.1"
 # Downgrade Kotlin a 1.9.10 para evitar la necesidad del plugin del compilador de Compose
 kotlin = "1.9.10"
 coreKtx = "1.17.0"
