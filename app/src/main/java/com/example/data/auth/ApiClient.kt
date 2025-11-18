@@ -2,6 +2,7 @@ package com.example.data.auth
 
 import android.content.Context
 import android.util.Log
+import com.example.facturacion_inventario.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Authenticator
@@ -19,8 +20,11 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    fun create(context: Context, baseUrl: String): com.example.data.auth.ApiService {
-        val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+    fun create(context: Context, baseUrl: String): ApiService {
+        val logger = HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+            else HttpLoggingInterceptor.Level.NONE
+        }
 
         // Interceptor para trazar peticiones con un UUID y log en Logcat
         val traceInterceptor = Interceptor { chain ->
@@ -31,11 +35,11 @@ object ApiClient {
                 .addHeader("X-Request-From-App", "true")
                 .build()
 
-            Log.d("ApiClient-Request", "id=$id method=${newReq.method} url=${newReq.url}")
+            if (BuildConfig.DEBUG) Log.d("ApiClient-Request", "id=$id method=${newReq.method} url=${newReq.url}")
 
             val resp = chain.proceed(newReq)
 
-            Log.d("ApiClient-Request", "id=$id response=${resp.code} for ${newReq.url}")
+            if (BuildConfig.DEBUG) Log.d("ApiClient-Request", "id=$id response=${resp.code} for ${newReq.url}")
             resp
         }
 
@@ -48,7 +52,7 @@ object ApiClient {
             }
 
             val reqBuilder = req.newBuilder()
-            val token = com.example.data.auth.TokenStorage.getAccessToken(context)
+            val token = TokenStorage.getAccessToken(context)
             if (!token.isNullOrEmpty()) {
                 reqBuilder.addHeader("Authorization", "Bearer $token")
             }
@@ -68,23 +72,23 @@ object ApiClient {
             }
 
             override fun authenticate(route: Route?, response: Response): Request? {
-                Log.d("ApiClient-Auth", "authenticate called: code=${response.code} url=${response.request.url}")
+                if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "authenticate called: code=${response.code} url=${response.request.url}")
 
                 // Sólo intentamos refresh para 401 (no para 400/403/5xx)
                 if (response.code != 401) {
-                    Log.d("ApiClient-Auth", "not 401 -> no refresh")
+                    if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "not 401 -> no refresh")
                     return null
                 }
 
                 // Si no había un header Authorization en la petición original, no intentamos refresh
                 if (response.request.header("Authorization") == null) {
-                    Log.d("ApiClient-Auth", "original request had no Authorization header -> no refresh")
+                    if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "original request had no Authorization header -> no refresh")
                     return null
                 }
 
                 // Evitar bucles: si ya intentamos al menos una vez, no reintentar
                 val count = responseCount(response)
-                Log.d("ApiClient-Auth", "prior response count=$count")
+                if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "prior response count=$count")
                 if (count >= 2) {
                     Log.w("ApiClient", "authenticate: already attempted to authenticate, giving up")
                     return null
@@ -97,10 +101,10 @@ object ApiClient {
                     return null
                 }
 
-                val refresh = com.example.data.auth.TokenStorage.getRefreshToken(context)
+                val refresh = TokenStorage.getRefreshToken(context)
                 if (refresh.isNullOrEmpty()) {
-                    Log.d("ApiClient-Auth", "no refresh token available -> clearing tokens and abort")
-                    com.example.data.auth.TokenStorage.clear(context)
+                    if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "no refresh token available -> clearing tokens and abort")
+                    TokenStorage.clear(context)
                     return null
                 }
 
@@ -120,42 +124,43 @@ object ApiClient {
 
                     val resp = client.newCall(req).execute()
 
-                    Log.d("ApiClient-Auth", "refresh request returned code=${resp.code}")
+                    if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "refresh request returned code=${resp.code}")
 
                     if (!resp.isSuccessful) {
                         Log.w("ApiClient-Auth", "refresh failed -> clearing tokens")
-                        com.example.data.auth.TokenStorage.clear(context)
+                        TokenStorage.clear(context)
                         return null
                     }
 
                     val gson: Gson = GsonBuilder().create()
                     val respBody = resp.body?.string() ?: run {
                         Log.w("ApiClient-Auth", "refresh response had empty body -> clearing tokens")
-                        com.example.data.auth.TokenStorage.clear(context)
+                        TokenStorage.clear(context)
                         return null
                     }
 
-                    Log.d("ApiClient-Auth", "refresh response body=$respBody")
+                    // No loguear el cuerpo completo en producción; sólo en debug
+                    if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "refresh response body(length=${respBody.length})")
 
-                    val refreshResp = gson.fromJson(respBody, com.example.data.auth.RefreshResponse::class.java)
+                    val refreshResp = gson.fromJson(respBody, RefreshResponse::class.java)
                     val newAccess = refreshResp?.accessTokenNormalized
                     if (newAccess.isNullOrEmpty()) {
                         Log.w("ApiClient-Auth", "refresh response missing access token -> clearing tokens")
-                        com.example.data.auth.TokenStorage.clear(context)
+                        TokenStorage.clear(context)
                         return null
                     }
 
-                    com.example.data.auth.TokenStorage.setAccessToken(context, newAccess)
+                    TokenStorage.setAccessToken(context, newAccess)
 
                     // Retry original request with new token
-                    Log.d("ApiClient-Auth", "refresh succeeded, retrying original request with new token")
+                    if (BuildConfig.DEBUG) Log.d("ApiClient-Auth", "refresh succeeded, retrying original request with new token")
                     return response.request.newBuilder()
                         .header("Authorization", "Bearer $newAccess")
                         .build()
 
                 } catch (ex: IOException) {
                     Log.e("ApiClient", "refresh token failed", ex)
-                    com.example.data.auth.TokenStorage.clear(context)
+                    TokenStorage.clear(context)
                     return null
                 }
             }
@@ -181,6 +186,6 @@ object ApiClient {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
-        return retrofit.create(com.example.data.auth.ApiService::class.java)
+        return retrofit.create(ApiService::class.java)
     }
 }

@@ -74,7 +74,10 @@ object RetrofitClient {
         }
         val newReq = reqBuilder.build()
         // Log headers for debugging (avoid printing token itself)
-        Log.d(TAG, "Request to $path headers=${newReq.headers}")
+        val headerNames = newReq.headers.names()
+        val headersForLog = headerNames.filter { !it.equals("Authorization", true) }
+            .joinToString(",") { name -> "$name=${newReq.header(name)}" }
+        Log.d(TAG, "Request to $path headers=$headersForLog")
         chain.proceed(newReq)
     }
 

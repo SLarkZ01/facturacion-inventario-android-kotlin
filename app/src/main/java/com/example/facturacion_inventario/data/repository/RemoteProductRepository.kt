@@ -55,10 +55,10 @@ class RemoteProductRepository : ProductRepository {
                 if (response.isSuccessful) {
                     val body = response.body()
                     Log.d(TAG, "📦 Response body: $body")
-                    
+
                     val productos = body?.productos ?: emptyList()
                     Log.d(TAG, "✅ Successfully fetched ${productos.size} products")
-                    
+
                     if (productos.isEmpty()) {
                         Log.w(TAG, "⚠️ Empty product list received from API")
                     } else {
@@ -66,7 +66,7 @@ class RemoteProductRepository : ProductRepository {
                             Log.d(TAG, "  [$index] ID: ${prod.id}, Name: ${prod.nombre}, CatId: ${prod.categoriaId}")
                         }
                     }
-                    
+
                     Result.success(ProductoMapper.toDomainList(productos))
                 } else {
                     val errorBody = response.errorBody()?.string()

@@ -19,8 +19,6 @@ data class CategoriaDto(
     @SerializedName("descripcion")
     val descripcion: String? = null,
 
-    @SerializedName("iconoRecurso")
-    val iconoRecurso: Int? = null,
 
     @SerializedName(value = "imageUrl", alternate = ["imagenUrl"])
     val imagenUrl: String? = null,

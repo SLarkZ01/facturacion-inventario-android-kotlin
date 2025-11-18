@@ -233,3 +233,4 @@ class RemoteCategoryRepository : CategoryRepository {
         }
     }
 }
+
