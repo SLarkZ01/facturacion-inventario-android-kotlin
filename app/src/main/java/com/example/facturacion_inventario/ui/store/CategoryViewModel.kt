@@ -66,8 +66,8 @@ class CategoryViewModel(
         val categoriesWithProducts = categories.mapNotNull { category ->
             viewModelScope.async {
                 try {
-                    // Consultar productos de esta categoría
-                    val result = productRepository.getProductsAsync(categoriaId = category.id)
+                    // Consultar productos de esta categoría (solo 1 item, usar endpoint PUBLIC y cache)
+                    val result = productRepository.getPublicProductosAsync(categoriaId = category.id, page = 0, size = 1)
                     val hasProducts = result.getOrNull()?.isNotEmpty() == true
 
                     if (hasProducts) {

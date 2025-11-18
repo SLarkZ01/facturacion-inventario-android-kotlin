@@ -3,12 +3,16 @@ package com.example.facturacion_inventario.ui.store
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +22,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -26,28 +36,22 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.auth.AuthViewModel
 import com.example.facturacion_inventario.R
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.zIndex
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.facturacion_inventario.ui.animations.NavigationTransitions
 import com.example.facturacion_inventario.ui.animations.bounceClick
@@ -107,21 +111,25 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
-    onClick: (() -> Unit)? = null, // Nuevo parámetro para manejar clicks
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null, // Nuevo parámetro para manejar clicks
     collapseProgress: Float = 0f // 0 = expanded, 1 = collapsed
 ) {
-    // Color y elevación que cambian según el scroll
+    // Mejoras visuales: borde sutil, elevación animada y micro-scale al colapsar
     val backgroundAlpha = (1f - 0.22f * collapseProgress).coerceIn(0.75f, 1f)
-    val elevation = if (collapseProgress > 0.5f) 8.dp else 2.dp
+    val targetElevation = if (collapseProgress > 0.5f) 10.dp else 4.dp
+    val elevationDp by animateDpAsState(targetValue = targetElevation, animationSpec = tween(durationMillis = 220))
+    val targetScale = 1f - (0.02f * collapseProgress) // shrinks max 2%
+    val scale by animateFloatAsState(targetValue = targetScale, animationSpec = tween(durationMillis = 220))
 
     Surface(
-        modifier = modifier.clickable(enabled = onClick != null) {
-            onClick?.invoke()
-        },
+        modifier = modifier
+            .scale(scale)
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(28.dp)),
         color = Color.White.copy(alpha = backgroundAlpha),
-        shape = RoundedCornerShape(24.dp),
-        elevation = elevation
+        shape = RoundedCornerShape(28.dp),
+        elevation = elevationDp
     ) {
         Row(
             modifier = Modifier
@@ -130,12 +138,8 @@ fun SearchBar(
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_search),
-                contentDescription = "search",
-                tint = Color(0xFF757575),
-                modifier = Modifier.size(20.dp)
-            )
+            // Replace search icon with a spacer to hide it but keep spacing
+            Spacer(modifier = Modifier.size(20.dp))
 
             Spacer(modifier = Modifier.width(10.dp))
 
@@ -184,13 +188,8 @@ fun SearchBar(
                 }
             }
 
-            // Icono de cámara (decorativo)
-            Icon(
-                painter = painterResource(id = R.drawable.ic_camera),
-                contentDescription = "camera",
-                tint = Color(0xFF757575),
-                modifier = Modifier.size(20.dp)
-            )
+            // Hide camera icon: replace with spacer
+            Spacer(modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -228,10 +227,8 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
 
     // Colores del header (inspiración Amazon)
     val headerStartColor = Color(0xFFFF6F00) // naranja intenso
-    val headerEndColor = Color.Transparent
 
     val view = LocalView.current
-    val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
 
     // Dimensiones del header
@@ -250,8 +247,12 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
         }
     }
 
+    // Animación suavizada del progreso para transiciones visuales más suaves
+    val animatedCollapse by animateFloatAsState(targetValue = collapseProgress, animationSpec = tween(durationMillis = 260))
+
     // Altura de la barra de estado para que el header pueda pintarse detrás
     val statusBarHeightDp = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val statusBarHeightPx = with(density) { statusBarHeightDp.toPx() }
 
     // Conexión de scroll anidado para sincronizar lista y header
     val nestedScrollConnection = remember {
@@ -325,10 +326,10 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 storeNavController.navigate("home") { popUpTo("home") }
                             }
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_motorcycle_animated),
+                            // Mostrar icono Ermotos en el tab Inicio usando el asset raster (WebP)
+                            Image(
+                                painter = painterResource(id = R.mipmap.ic_ermotos_foreground),
                                 contentDescription = "home",
-                                tint = if (selectedTab == "home") headerStartColor else Color(0xFF9E9E9E),
                                 modifier = Modifier.size(26.dp)
                             )
                             Spacer(modifier = Modifier.height(2.dp))
@@ -371,6 +372,7 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
                                 storeNavController.navigate("profile") { popUpTo("home") }
                             }
                         ) {
+                            // Restaurar icono de perfil en bottom bar
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_person),
                                 contentDescription = "profile",
@@ -419,77 +421,90 @@ fun StoreHost(authViewModel: AuthViewModel, rootNavController: NavController) {
             .nestedScroll(nestedScrollConnection)) {
 
             val headerHeightDp = with(density) { headerHeightPx.toDp() }
-            val backgroundColor = lerp(headerStartColor, headerEndColor, collapseProgress)
             // Espacio extra dinámico: cuando el header está expandido, empuja el contenido hacia abajo
-            // Aumentado para que las categorías queden más visibles y no "metidas" en la franja naranja.
-            val extraTop = 20.dp * (1f - collapseProgress)
+            val extraTop = 20.dp * (1f - animatedCollapse)
+            // Gradiente sutil para dar más profundidad al header naranja
+            val bgBrush = Brush.verticalGradient(
+                 colors = listOf(headerStartColor, headerStartColor.copy(alpha = 0.9f), headerStartColor.copy(alpha = 0.75f)),
+                 startY = 0f,
+                 endY = headerHeightPx + statusBarHeightPx
+             )
 
             // Header colapsable superpuesto (ahora incluye el alto de la barra de estado)
             // Solo se muestra si NO estamos en SearchScreen
             if (!isInSearchScreen) {
+                // Fondo naranja independiente que se desplaza hacia arriba al hacer scroll
+                val headerOffsetDp = with(density) { (animatedCollapse * (headerHeightPx + statusBarHeightPx)).toDp() }
                 Surface(
-                    color = backgroundColor,
+                    color = Color.Transparent,
                     elevation = 4.dp,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(headerHeightDp + statusBarHeightDp)
-                        .zIndex(2f)
+                        .offset(y = -headerOffsetDp)
+                        .zIndex(1f)
                 ) {
-                    // Contenido interno del header
-                    Column(modifier = Modifier
+                    // Usamos un Box con degradado dentro del Surface para controlar mejor el look
+                    Box(modifier = Modifier
                         .fillMaxSize()
+                        .background(brush = bgBrush)
                         .padding(horizontal = 12.dp)
                         .statusBarsPadding(),
-                        verticalArrangement = Arrangement.Top) {
+                        contentAlignment = Alignment.TopStart) {
+                        Column(verticalArrangement = Arrangement.Top) {
 
-                        // Espacio superior pequeño para separarlo del status bar
-                        Spacer(modifier = Modifier.height(2.dp))
+                            // Espacio superior pequeño para separarlo del status bar
+                            Spacer(modifier = Modifier.height(2.dp))
 
-                        // SearchBar elegante y centrada horizontalmente
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp)
-                            .zIndex(3f), contentAlignment = Alignment.TopCenter) {
+                            // Mantener el logo/perfil y el texto de destino, pero ocultarlos según el colapso
+                            val fadingAlpha = 1f - animatedCollapse
 
-                            // Barra de búsqueda del inicio: solo navega a SearchScreen
-                            SearchBar(
-                                query = "", // Siempre vacía porque no es funcional
-                                onQueryChange = { }, // No hace nada
-                                onClear = { },
-                                onClick = {
-                                    // Navegar a la pantalla de búsqueda dedicada
-                                    storeNavController.navigate(Routes.SEARCH)
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth(0.96f),
-                                collapseProgress = collapseProgress
-                            )
-                        }
+                            if (fadingAlpha > 0.05f) {
+                                Spacer(modifier = Modifier.height(4.dp))
 
-                        // Mantener el logo/perfil y el texto de destino, pero ocultarlos según el colapso
-                        val fadingAlpha = 1f - collapseProgress
-
-                        if (fadingAlpha > 0.05f) {
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(painter = painterResource(id = R.drawable.ic_motorcycle_animated), contentDescription = "logo", tint = Color.White.copy(alpha = fadingAlpha), modifier = Modifier.size(24.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                IconButton(onClick = { /* acción futura */ }) {
-                                    Icon(painter = painterResource(id = R.drawable.ic_person), contentDescription = "perfil", tint = Color.White.copy(alpha = fadingAlpha))
+                                Row(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    // Mostrar logo Ermotos en header usando el foreground WebP directamente
+                                    Image(
+                                        painter = painterResource(id = R.mipmap.ic_ermotos_foreground),
+                                        contentDescription = "logo",
+                                        modifier = Modifier.size(24.dp),
+                                        colorFilter = ColorFilter.tint(Color.White.copy(alpha = fadingAlpha))
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    // Eliminado: botón de perfil en el header según solicitud del usuario.
+                                    // Mantenemos un spacer para conservar el layout visual.
+                                    Spacer(modifier = Modifier.size(36.dp))
                                 }
-                            }
 
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "Enviar a tu ubicación",
-                                color = Color.White.copy(alpha = fadingAlpha),
-                                style = MaterialTheme.typography.caption
-                            )
+                                // Mensaje de ubicación eliminado (solicitado por el usuario)
+                            }
                         }
                     }
+                }
+
+                // SearchBar fijo y separado del fondo naranja (overlay)
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .zIndex(2f)
+                    .statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
+
+                    // Barra de búsqueda del inicio: solo navega a SearchScreen
+                    SearchBar(
+                        query = "", // Siempre vacía porque no es funcional
+                        onQueryChange = { }, // No hace nada
+                        onClear = { },
+                        onClick = {
+                            // Navegar a la pantalla de búsqueda dedicada
+                            storeNavController.navigate(Routes.SEARCH)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(0.96f)
+                            // Sutil elevación extra para que el buscador flote sobre el contenido
+                            .shadow(6.dp, RoundedCornerShape(28.dp)),
+                        collapseProgress = animatedCollapse
+                    )
                 }
             }
 
