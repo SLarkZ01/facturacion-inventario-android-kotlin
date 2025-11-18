@@ -1,9 +1,11 @@
 package com.example.facturacion_inventario.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.facturacion_inventario.data.repository.RemoteFacturaRepository
 import com.example.facturacion_inventario.domain.model.Factura
+import com.example.facturacion_inventario.data.remote.model.CarritoItemDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,10 +14,11 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel para manejar el estado de las facturas
  * Gestiona el checkout, listado y detalle de facturas
+ * Ahora obtiene automáticamente los datos del cliente del usuario autenticado
  */
-class FacturaViewModel : ViewModel() {
+class FacturaViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = RemoteFacturaRepository()
+    private val repository = RemoteFacturaRepository(application.applicationContext)
 
     // ═══════════════════════════════════════════════════════════════════
     // ESTADO PARA CHECKOUT
@@ -113,6 +116,35 @@ class FacturaViewModel : ViewModel() {
      */
     fun resetDetalleState() {
         _facturaDetalleState.value = FacturaDetalleState.Idle
+    }
+
+    /**
+     * Crea una factura en estado BORRADOR (cotización sin descontar stock)
+     *
+     * DIFERENCIAS con realizarCheckout:
+     * - NO descuenta stock automáticamente
+     * - Crea factura con estado "BORRADOR"
+     * - Ideal para cotizaciones y negociaciones
+     * - Se puede emitir posteriormente desde Next.js
+     *
+     * IMPORTANTE:
+     * - El cliente se obtiene AUTOMÁTICAMENTE del usuario autenticado
+     * - Se envía como snapshot histórico al backend
+     *
+     * @param carritoItems Items del carrito a convertir en borrador
+     */
+    fun crearBorrador(carritoItems: List<CarritoItemDto>) {
+        viewModelScope.launch {
+            _checkoutState.value = CheckoutState.Loading
+
+            val result = repository.crearBorrador(carritoItems)
+
+            _checkoutState.value = if (result.isSuccess) {
+                CheckoutState.Success(result.getOrNull()!!)
+            } else {
+                CheckoutState.Error(result.exceptionOrNull()?.message ?: "Error desconocido")
+            }
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════

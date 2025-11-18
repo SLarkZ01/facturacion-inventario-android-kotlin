@@ -29,12 +29,16 @@ data class Factura(
 }
 
 /**
- * ClienteEmbebido - Información del cliente en la factura
+ * ClienteEmbebido - Snapshot del usuario en la factura
+ * Información histórica del cliente en el momento de crear la factura
  */
 data class ClienteEmbebido(
+    val id: String,
+    val username: String,
+    val email: String,
     val nombre: String,
-    val documento: String? = null,
-    val direccion: String? = null
+    val apellido: String,
+    val fechaCreacion: String
 )
 
 /**
@@ -42,12 +46,26 @@ data class ClienteEmbebido(
  */
 data class FacturaItem(
     val productoId: String,
+    val nombreProducto: String? = null,
+    val codigoProducto: String? = null,
     val cantidad: Int,
-    val precioUnitario: Double
+    val precioUnitario: Double,
+    val descuento: Double = 0.0,
+    val baseImponible: Double? = null,
+    val tasaIva: Double = 19.0,
+    val valorIva: Double? = null,
+    val subtotal: Double? = null,
+    val totalItem: Double? = null
 ) {
     /**
-     * Calcula el subtotal de este item
+     * Calcula el subtotal de este item (si no viene del backend)
      */
     @Suppress("unused")
-    fun getSubtotal(): Double = cantidad * precioUnitario
+    fun getSubtotal(): Double = subtotal ?: (cantidad * precioUnitario)
+
+    /**
+     * Calcula el total del item incluyendo IVA (si no viene del backend)
+     */
+    @Suppress("unused")
+    fun getTotalItem(): Double = totalItem ?: (getSubtotal() * (1 + tasaIva / 100))
 }

@@ -64,11 +64,18 @@ All URIs are relative to *http://localhost*
 | *CategoriasApi* | [**actualizarCategoria**](docs/CategoriasApi.md#actualizarcategoria) | **PUT** /api/categorias/{id} | Actualizar categoría |
 | *CategoriasApi* | [**crearCategoria**](docs/CategoriasApi.md#crearcategoria) | **POST** /api/categorias | Crear categoría |
 | *CategoriasApi* | [**eliminar1**](docs/CategoriasApi.md#eliminar1) | **DELETE** /api/categorias/{id} | Eliminar categoría |
-| *CategoriasApi* | [**getCategoria**](docs/CategoriasApi.md#getcategoria) | **GET** /api/categorias/{id} | Obtener categoría |
-| *CategoriasApi* | [**listar2**](docs/CategoriasApi.md#listar2) | **GET** /api/categorias | Buscar/listar categorías |
+| *CategoriasApi* | [**getCategoria1**](docs/CategoriasApi.md#getcategoria1) | **GET** /api/categorias/{id} | Obtener categoría por ID |
+| *CategoriasApi* | [**listar3**](docs/CategoriasApi.md#listar3) | **GET** /api/categorias | Buscar/listar categorías |
+| *ConfiguracinGlobalApi* | [**actualizarConfiguracion**](docs/ConfiguracinGlobalApi.md#actualizarconfiguracion) | **POST** /api/configuracion | Actualizar configuración global |
+| *ConfiguracinGlobalApi* | [**obtenerConfiguracion**](docs/ConfiguracinGlobalApi.md#obtenerconfiguracion) | **GET** /api/configuracion | Obtener configuración global |
+| *ConfiguracinGlobalApi* | [**obtenerIvaDefecto**](docs/ConfiguracinGlobalApi.md#obtenerivadefecto) | **GET** /api/configuracion/iva-defecto | Obtener tasa de IVA por defecto |
+| *FacturasApi* | [**anularFactura**](docs/FacturasApi.md#anularfactura) | **POST** /api/facturas/{id}/anular | Anular factura |
 | *FacturasApi* | [**checkout**](docs/FacturasApi.md#checkout) | **POST** /api/facturas/checkout | Checkout carrito |
-| *FacturasApi* | [**crearFactura**](docs/FacturasApi.md#crearfactura) | **POST** /api/facturas | Crear factura (map) |
-| *FacturasApi* | [**crearFacturaDTO**](docs/FacturasApi.md#crearfacturadto) | **POST** /api/facturas/dto | Crear factura (DTO) |
+| *FacturasApi* | [**crearBorrador**](docs/FacturasApi.md#crearborrador) | **POST** /api/facturas/borrador | Crear factura en BORRADOR |
+| *FacturasApi* | [**crearFactura**](docs/FacturasApi.md#crearfactura) | **POST** /api/facturas | Crear factura EMITIDA |
+| *FacturasApi* | [**descargarPdf**](docs/FacturasApi.md#descargarpdf) | **GET** /api/facturas/{id}/pdf | Descargar PDF de factura con IVA |
+| *FacturasApi* | [**eliminarBorrador**](docs/FacturasApi.md#eliminarborrador) | **DELETE** /api/facturas/{id} | Eliminar factura borrador |
+| *FacturasApi* | [**emitirBorrador**](docs/FacturasApi.md#emitirborrador) | **POST** /api/facturas/{id}/emitir | Emitir borrador |
 | *FacturasApi* | [**getFactura**](docs/FacturasApi.md#getfactura) | **GET** /api/facturas/{id} | Obtener factura por id |
 | *FacturasApi* | [**getPorNumero**](docs/FacturasApi.md#getpornumero) | **GET** /api/facturas/numero/{numero} | Obtener factura por número |
 | *FacturasApi* | [**listarPorUsuario**](docs/FacturasApi.md#listarporusuario) | **GET** /api/facturas | Listar facturas por usuario |
@@ -78,17 +85,22 @@ All URIs are relative to *http://localhost*
 | *FavoritosApi* | [**remove1**](docs/FavoritosApi.md#remove1) | **DELETE** /api/favoritos/productos/{productoId} | Remover producto de favoritos |
 | *MovimientosApi* | [**crearMovimiento**](docs/MovimientosApi.md#crearmovimiento) | **POST** /api/movimientos | Crear movimiento |
 | *MovimientosApi* | [**getMovimiento**](docs/MovimientosApi.md#getmovimiento) | **GET** /api/movimientos/{id} | Obtener movimiento por id |
-| *MovimientosApi* | [**listar1**](docs/MovimientosApi.md#listar1) | **GET** /api/movimientos | Listar movimientos |
+| *MovimientosApi* | [**listar2**](docs/MovimientosApi.md#listar2) | **GET** /api/movimientos | Listar movimientos |
 | *ProductosApi* | [**actualizarProducto**](docs/ProductosApi.md#actualizarproducto) | **PUT** /api/productos/{id} | Actualizar producto |
 | *ProductosApi* | [**ajustarStock**](docs/ProductosApi.md#ajustarstock) | **PATCH** /api/productos/{id}/stock | Ajustar stock de producto |
 | *ProductosApi* | [**crearProducto**](docs/ProductosApi.md#crearproducto) | **POST** /api/productos | Crear producto |
 | *ProductosApi* | [**eliminar**](docs/ProductosApi.md#eliminar) | **DELETE** /api/productos/{id} | Eliminar producto |
-| *ProductosApi* | [**getProducto**](docs/ProductosApi.md#getproducto) | **GET** /api/productos/{id} | Obtener producto por ID |
-| *ProductosApi* | [**listar**](docs/ProductosApi.md#listar) | **GET** /api/productos | Listar productos |
+| *ProductosApi* | [**getProducto1**](docs/ProductosApi.md#getproducto1) | **GET** /api/productos/{id} | Obtener producto por ID |
+| *ProductosApi* | [**listar1**](docs/ProductosApi.md#listar1) | **GET** /api/productos | Listar productos |
+| *PublicCategoriasControllerApi* | [**getCategoria**](docs/PublicCategoriasControllerApi.md#getcategoria) | **GET** /api/public/categorias/{id} | Obtener categoría por ID (público) |
+| *PublicCategoriasControllerApi* | [**listarCategorias**](docs/PublicCategoriasControllerApi.md#listarcategorias) | **GET** /api/public/categorias | Listar todas las categorías (público) |
+| *PublicProductosControllerApi* | [**getProducto**](docs/PublicProductosControllerApi.md#getproducto) | **GET** /api/public/productos/{id} | Obtener producto por ID (público) |
+| *PublicProductosControllerApi* | [**listar**](docs/PublicProductosControllerApi.md#listar) | **GET** /api/public/productos | Listar productos (público) |
 | *StockApi* | [**adjust**](docs/StockApi.md#adjust) | **POST** /api/stock/adjust | Ajustar stock (delta) |
 | *StockApi* | [**delete**](docs/StockApi.md#delete) | **DELETE** /api/stock | Eliminar registro de stock |
 | *StockApi* | [**getByProducto**](docs/StockApi.md#getbyproducto) | **GET** /api/stock | Obtener stock por producto |
-| *StockApi* | [**set**](docs/StockApi.md#set) | **PUT** /api/stock/set | Setear stock |
+| *StockApi* | [**getByProductoPath**](docs/StockApi.md#getbyproductopath) | **GET** /api/stock/{productoId} | Obtener stock por producto (ruta alternativa) |
+| *StockApi* | [**set**](docs/StockApi.md#set) | **POST** /api/stock/set | Setear stock |
 | *TallerMiembrosApi* | [**demote**](docs/TallerMiembrosApi.md#demote) | **POST** /api/talleres/{tallerId}/miembros/{memberUserId}/demote | Demover miembro (remover rol ADMIN) |
 | *TallerMiembrosApi* | [**promote**](docs/TallerMiembrosApi.md#promote) | **POST** /api/talleres/{tallerId}/miembros/{memberUserId}/promote | Promover miembro a ADMIN |
 | *TallerMiembrosApi* | [**remove**](docs/TallerMiembrosApi.md#remove) | **DELETE** /api/talleres/{tallerId}/miembros/{memberUserId} | Remover miembro del taller |
@@ -116,12 +128,18 @@ All URIs are relative to *http://localhost*
  - [org.openapitools.client.models.CarritoItemRequest](docs/CarritoItemRequest.md)
  - [org.openapitools.client.models.CarritoRequest](docs/CarritoRequest.md)
  - [org.openapitools.client.models.CategoriaRequest](docs/CategoriaRequest.md)
+ - [org.openapitools.client.models.ClienteEmbebido](docs/ClienteEmbebido.md)
  - [org.openapitools.client.models.ClienteRequest](docs/ClienteRequest.md)
+ - [org.openapitools.client.models.ConfiguracionGlobalRequest](docs/ConfiguracionGlobalRequest.md)
+ - [org.openapitools.client.models.ConfiguracionGlobalResponse](docs/ConfiguracionGlobalResponse.md)
  - [org.openapitools.client.models.CreateAdminRequest](docs/CreateAdminRequest.md)
+ - [org.openapitools.client.models.Factura](docs/Factura.md)
+ - [org.openapitools.client.models.FacturaItem](docs/FacturaItem.md)
  - [org.openapitools.client.models.FacturaItemRequest](docs/FacturaItemRequest.md)
  - [org.openapitools.client.models.FacturaRequest](docs/FacturaRequest.md)
  - [org.openapitools.client.models.LoginRequest](docs/LoginRequest.md)
  - [org.openapitools.client.models.MovimientoRequest](docs/MovimientoRequest.md)
+ - [org.openapitools.client.models.ObjectId](docs/ObjectId.md)
  - [org.openapitools.client.models.ProductoRequest](docs/ProductoRequest.md)
  - [org.openapitools.client.models.RegisterRequest](docs/RegisterRequest.md)
  - [org.openapitools.client.models.TallerRequest](docs/TallerRequest.md)

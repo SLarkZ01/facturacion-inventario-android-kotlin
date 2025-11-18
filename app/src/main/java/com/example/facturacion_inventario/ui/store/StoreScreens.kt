@@ -18,6 +18,8 @@ import com.example.facturacion_inventario.ui.components.cart.CartItemCard
 import com.example.facturacion_inventario.ui.components.cart.EmptyCartCard
 import com.example.facturacion_inventario.ui.components.cart.PriceSummaryCard
 import com.example.facturacion_inventario.ui.components.factura.CheckoutDialog
+import com.example.facturacion_inventario.ui.components.factura.BorradorDialog
+import com.example.facturacion_inventario.data.remote.model.CarritoItemDto
 import com.example.facturacion_inventario.ui.screens.HomeScreenRemote
 import com.example.facturacion_inventario.ui.screens.ProductDetailScreenRemote
 import com.example.facturacion_inventario.ui.screens.CategoriesScreenRemote
@@ -64,16 +66,20 @@ fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel 
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
-    // Estado para controlar el diálogo de checkout
+    // Estado para controlar el diálogo de checkout (factura emitida)
     var showCheckoutDialog by remember { mutableStateOf(false) }
     var carritoIdParaCheckout by remember { mutableStateOf<String?>(null) }
+
+    // Estado para controlar el diálogo de borrador (cotización)
+    var showBorradorDialog by remember { mutableStateOf(false) }
+    var carritoItemsParaBorrador by remember { mutableStateOf<List<CarritoItemDto>>(emptyList()) }
 
     // Cargar el carrito actual al montar la pantalla
     LaunchedEffect(Unit) {
         cartViewModel.cargarCarritoActual()
     }
 
-    // Mostrar el diálogo de checkout cuando se presiona el botón
+    // Mostrar el diálogo de checkout cuando se presiona el botón de "Generar factura"
     if (showCheckoutDialog && carritoIdParaCheckout != null) {
         CheckoutDialog(
             carritoId = carritoIdParaCheckout!!,
@@ -92,7 +98,33 @@ fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel 
                 // Mostrar mensaje de éxito
                 coroutineScope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(
-                        message = "✓ Factura creada exitosamente",
+                        message = "✓ Factura EMITIDA creada exitosamente",
+                        duration = SnackbarDuration.Long
+                    )
+                }
+            }
+        )
+    }
+
+    // Mostrar el diálogo de borrador cuando se presiona el botón de "Crear Cotización"
+    if (showBorradorDialog && carritoItemsParaBorrador.isNotEmpty()) {
+        BorradorDialog(
+            carritoItems = carritoItemsParaBorrador,
+            onDismiss = {
+                showBorradorDialog = false
+                carritoItemsParaBorrador = emptyList()
+            },
+            onSuccess = { _ ->
+                showBorradorDialog = false
+                carritoItemsParaBorrador = emptyList()
+
+                // Limpiar carrito y crear uno nuevo
+                cartViewModel.limpiarYCrearNuevoCarrito()
+
+                // Mostrar mensaje de éxito
+                coroutineScope.launch {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = "✓ Cotización (BORRADOR) creada exitosamente",
                         duration = SnackbarDuration.Long
                     )
                 }
@@ -191,44 +223,83 @@ fun CartScreen(navController: NavController, cartViewModel: RemoteCartViewModel 
                     elevation = 8.dp,
                     color = MaterialTheme.colors.background
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(Dimens.md),
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(Dimens.lg)
+                            .padding(Dimens.lg),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.md)
                     ) {
+                        // Primera fila: Botones de Cotización y Factura
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.md),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // Botón: Crear Cotización (BORRADOR - no descuenta stock)
+                            OutlinedButton(
+                                onClick = {
+                                    if (cartItems.isNotEmpty()) {
+                                        // Convertir CartItems a CarritoItemDto
+                                        carritoItemsParaBorrador = cartItems.map { cartItem ->
+                                            CarritoItemDto(
+                                                productoId = cartItem.product.id,
+                                                cantidad = cartItem.quantity
+                                            )
+                                        }
+                                        showBorradorDialog = true
+                                    } else {
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                "El carrito está vacío"
+                                            )
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
+                                enabled = cartItems.isNotEmpty() && !isLoading,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colors.secondary
+                                )
+                            ) {
+                                Text(text = "📝 Cotización")
+                            }
+
+                            // Botón: Generar Factura (EMITIDA - descuenta stock)
+                            Button(
+                                onClick = {
+                                    val carritoId = cartViewModel.carritoId.value
+                                    if (carritoId != null && cartItems.isNotEmpty()) {
+                                        carritoIdParaCheckout = carritoId
+                                        showCheckoutDialog = true
+                                    } else if (cartItems.isEmpty()) {
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                "El carrito está vacío"
+                                            )
+                                        }
+                                    } else {
+                                        coroutineScope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                "Error: No se pudo obtener el ID del carrito"
+                                            )
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
+                                enabled = cartItems.isNotEmpty() && !isLoading,
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = MaterialTheme.colors.primary
+                                )
+                            ) {
+                                Text(text = "✓ Factura", color = MaterialTheme.colors.onPrimary)
+                            }
+                        }
+
+                        // Segunda fila: Botón de seguir comprando
                         OutlinedButton(
                             onClick = { navController.navigate(Routes.HOME) },
-                            modifier = Modifier.weight(1f).height(Dimens.buttonHeight)
+                            modifier = Modifier.fillMaxWidth().height(Dimens.buttonHeight)
                         ) {
-                            Text(text = "Seguir comprando", color = MaterialTheme.colors.primary)
-                        }
-                        Button(
-                            onClick = {
-                                // Obtener el ID del carrito actual y abrir diálogo
-                                val carritoId = cartViewModel.carritoId.value
-                                if (carritoId != null && cartItems.isNotEmpty()) {
-                                    carritoIdParaCheckout = carritoId
-                                    showCheckoutDialog = true
-                                } else if (cartItems.isEmpty()) {
-                                    coroutineScope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar(
-                                            "El carrito está vacío"
-                                        )
-                                    }
-                                } else {
-                                    coroutineScope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar(
-                                            "Error: No se pudo obtener el ID del carrito"
-                                        )
-                                    }
-                                }
-                            },
-                            modifier = Modifier.weight(1f).height(Dimens.buttonHeight),
-                            enabled = cartItems.isNotEmpty() && !isLoading,
-                            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
-                        ) {
-                            Text(text = "Generar factura", color = MaterialTheme.colors.onPrimary)
+                            Text(text = "← Seguir comprando", color = MaterialTheme.colors.primary)
                         }
                     }
                 }

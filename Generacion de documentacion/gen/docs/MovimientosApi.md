@@ -6,7 +6,7 @@ All URIs are relative to *http://localhost*
 | ------------- | ------------- | ------------- |
 | [**crearMovimiento**](MovimientosApi.md#crearMovimiento) | **POST** /api/movimientos | Crear movimiento |
 | [**getMovimiento**](MovimientosApi.md#getMovimiento) | **GET** /api/movimientos/{id} | Obtener movimiento por id |
-| [**listar1**](MovimientosApi.md#listar1) | **GET** /api/movimientos | Listar movimientos |
+| [**listar2**](MovimientosApi.md#listar2) | **GET** /api/movimientos | Listar movimientos |
 
 
 <a id="crearMovimiento"></a>
@@ -103,9 +103,9 @@ Configure bearerAuth:
  - **Content-Type**: Not defined
  - **Accept**: Not defined
 
-<a id="listar1"></a>
-# **listar1**
-> listar1(productoId, tipo)
+<a id="listar2"></a>
+# **listar2**
+> listar2(productoId, tipo)
 
 Listar movimientos
 
@@ -121,12 +121,12 @@ val apiInstance = MovimientosApi()
 val productoId : kotlin.String = 507f191e810c19729de860ea // kotlin.String | ID del producto para filtrar
 val tipo : kotlin.String = INGRESO // kotlin.String | Tipo de movimiento (INGRESO, EGRESO, VENTA, DEVOLUCION, AJUSTE)
 try {
-    apiInstance.listar1(productoId, tipo)
+    apiInstance.listar2(productoId, tipo)
 } catch (e: ClientException) {
-    println("4xx response calling MovimientosApi#listar1")
+    println("4xx response calling MovimientosApi#listar2")
     e.printStackTrace()
 } catch (e: ServerException) {
-    println("5xx response calling MovimientosApi#listar1")
+    println("5xx response calling MovimientosApi#listar2")
     e.printStackTrace()
 }
 ```

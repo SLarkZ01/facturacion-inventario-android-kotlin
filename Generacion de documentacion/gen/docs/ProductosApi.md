@@ -8,8 +8,8 @@ All URIs are relative to *http://localhost*
 | [**ajustarStock**](ProductosApi.md#ajustarStock) | **PATCH** /api/productos/{id}/stock | Ajustar stock de producto |
 | [**crearProducto**](ProductosApi.md#crearProducto) | **POST** /api/productos | Crear producto |
 | [**eliminar**](ProductosApi.md#eliminar) | **DELETE** /api/productos/{id} | Eliminar producto |
-| [**getProducto**](ProductosApi.md#getProducto) | **GET** /api/productos/{id} | Obtener producto por ID |
-| [**listar**](ProductosApi.md#listar) | **GET** /api/productos | Listar productos |
+| [**getProducto1**](ProductosApi.md#getProducto1) | **GET** /api/productos/{id} | Obtener producto por ID |
+| [**listar1**](ProductosApi.md#listar1) | **GET** /api/productos | Listar productos |
 
 
 <a id="actualizarProducto"></a>
@@ -18,7 +18,7 @@ All URIs are relative to *http://localhost*
 
 Actualizar producto
 
-Actualiza los datos del producto. Envía solo los campos que deseas actualizar.
+Actualiza los datos del producto. Envía solo los campos que deseas actualizar.  **IMPORTANTE sobre &#x60;listaMedios&#x60;:** - Si actualizas &#x60;listaMedios&#x60;, DEBE incluir &#x60;publicId&#x60; en cada medio - Al actualizar, se reemplazan las imágenes anteriores (las viejas se eliminan de Cloudinary automáticamente) - Para agregar nuevas imágenes manteniendo las existentes, primero obtén el producto actual y agrega a su array  **Nota sobre &#x60;specs&#x60;:** - Al actualizar &#x60;specs&#x60;, se reemplaza el objeto completo (no se hace merge) - Para actualizar una sola especificación, envía el objeto completo con el cambio 
 
 ### Example
 ```kotlin
@@ -28,7 +28,7 @@ Actualiza los datos del producto. Envía solo los campos que deseas actualizar.
 
 val apiInstance = ProductosApi()
 val id : kotlin.String = 507f191e810c19729de860ea // kotlin.String | ID del producto
-val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha R15","precio":27.0,"stock":150} // ProductoRequest | Datos actualizados del producto
+val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha R15","precio":27.0,"stock":150} // ProductoRequest | Datos actualizados del producto (solo enviar los campos a modificar). Si actualizas `listaMedios`, DEBE incluir `publicId` en cada elemento. 
 try {
     apiInstance.actualizarProducto(id, productoRequest)
 } catch (e: ClientException) {
@@ -44,7 +44,7 @@ try {
 | **id** | **kotlin.String**| ID del producto | |
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **productoRequest** | [**ProductoRequest**](ProductoRequest.md)| Datos actualizados del producto | |
+| **productoRequest** | [**ProductoRequest**](ProductoRequest.md)| Datos actualizados del producto (solo enviar los campos a modificar). Si actualizas &#x60;listaMedios&#x60;, DEBE incluir &#x60;publicId&#x60; en cada elemento.  | |
 
 ### Return type
 
@@ -116,7 +116,7 @@ Configure bearerAuth:
 
 Crear producto
 
-Crea un nuevo producto en el inventario. Para imágenes se recomienda subir a Cloudinary desde el cliente usando el endpoint de firma y enviar en &#x60;listaMedios&#x60; objetos con campos &#x60;publicId&#x60; y &#x60;secure_url&#x60;.
+Crea un nuevo producto en el inventario.  **NUEVO (v2.0): Campo tasaIva obligatorio para facturación** - &#x60;tasaIva&#x60;: Tasa de IVA en porcentaje (ej: 0, 5, 19). **Default: 19%** si no se especifica - Este campo es usado automáticamente al generar facturas para calcular el IVA - Valores comunes en Colombia: 0% (exento), 5% (canasta básica), 19% (estándar)  **IMPORTANTE - Gestión de Imágenes:** - Las imágenes DEBEN subirse primero a Cloudinary usando &#x60;/api/uploads/cloudinary-sign&#x60; - Cada objeto en &#x60;listaMedios&#x60; DEBE incluir el campo &#x60;publicId&#x60; (CRÍTICO para eliminar imágenes al borrar el producto) - Sin &#x60;publicId&#x60;, las imágenes quedarán huérfanas en Cloudinary y no se podrán eliminar automáticamente  **Campos recomendados:** - &#x60;tallerId&#x60;: Asocia el producto a un taller específico (recomendado para multi-tenant) - &#x60;specs&#x60;: Mapa de especificaciones técnicas (ej: {\&quot;Marca\&quot;:\&quot;Yamaha\&quot;, \&quot;Modelo\&quot;:\&quot;R15\&quot;, \&quot;Peso\&quot;:\&quot;0.2kg\&quot;}) - &#x60;listaMedios&#x60;: Array de objetos con estructura: {type, publicId, secure_url, format, width, height, order}  **Flujo recomendado para imágenes:** 1. Obtener firma: POST /api/uploads/cloudinary-sign con {folder: \&quot;products\&quot;} 2. Subir a Cloudinary con la firma obtenida 3. Guardar en &#x60;listaMedios&#x60; el objeto completo que devuelve Cloudinary (especialmente &#x60;public_id&#x60;) 
 
 ### Example
 ```kotlin
@@ -125,7 +125,7 @@ Crea un nuevo producto en el inventario. Para imágenes se recomienda subir a Cl
 //import org.openapitools.client.models.*
 
 val apiInstance = ProductosApi()
-val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha","descripcion":"Filtro de aceite para motos Yamaha 150cc","precio":25.5,"stock":100,"categoriaId":"507f1f77bcf86cd799439011","tallerId":"507f1f77bcf86cd799439777","listaMedios":[{"type":"image","publicId":"products/507f1f77/abc123","secure_url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1/products/abc123.jpg","format":"jpg","order":0}],"specs":{"Marca":"Yamaha","Modelo":"YZF-R15"}} // ProductoRequest | Datos del producto (incluir `tallerId`). `listaMedios` ejemplo incluido.
+val productoRequest : ProductoRequest = {"nombre":"Filtro de Aceite Yamaha","descripcion":"Filtro de aceite para motos Yamaha 150cc","precio":25000,"tasaIva":19.0,"stock":100,"categoriaId":"507f1f77bcf86cd799439011","tallerId":"507f1f77bcf86cd799439777","listaMedios":[{"type":"image/jpeg","publicId":"products/507f1f77/filtro-yamaha-abc123","secure_url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1763285023/products/507f1f77/filtro-yamaha-abc123.jpg","url":"https://res.cloudinary.com/df7ggzasi/image/upload/v1763285023/products/507f1f77/filtro-yamaha-abc123.jpg","format":"jpg","width":800,"height":600,"order":0}],"specs":{"Marca":"Yamaha","Modelo":"YZF-R15","Compatibilidad":"150cc","Material":"Papel","Peso":"0.2kg"}} // ProductoRequest | Datos del producto. **NUEVO**: Campo `tasaIva` (IVA en %) - Si no se envía, se asigna 19% por defecto. **CRÍTICO**: Si incluyes `listaMedios`, cada medio DEBE tener `publicId` para poder eliminar las imágenes de Cloudinary. El campo `specs` es opcional pero recomendado para especificaciones técnicas. 
 try {
     apiInstance.crearProducto(productoRequest)
 } catch (e: ClientException) {
@@ -140,7 +140,7 @@ try {
 ### Parameters
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **productoRequest** | [**ProductoRequest**](ProductoRequest.md)| Datos del producto (incluir &#x60;tallerId&#x60;). &#x60;listaMedios&#x60; ejemplo incluido. | |
+| **productoRequest** | [**ProductoRequest**](ProductoRequest.md)| Datos del producto. **NUEVO**: Campo &#x60;tasaIva&#x60; (IVA en %) - Si no se envía, se asigna 19% por defecto. **CRÍTICO**: Si incluyes &#x60;listaMedios&#x60;, cada medio DEBE tener &#x60;publicId&#x60; para poder eliminar las imágenes de Cloudinary. El campo &#x60;specs&#x60; es opcional pero recomendado para especificaciones técnicas.  | |
 
 ### Return type
 
@@ -163,7 +163,7 @@ Configure bearerAuth:
 
 Eliminar producto
 
-Elimina un producto por ID
+Elimina un producto por ID. **IMPORTANTE**: También elimina automáticamente las imágenes asociadas de Cloudinary (si existen en &#x60;listaMedios&#x60;).
 
 ### Example
 ```kotlin
@@ -172,7 +172,7 @@ Elimina un producto por ID
 //import org.openapitools.client.models.*
 
 val apiInstance = ProductosApi()
-val id : kotlin.String = id_example // kotlin.String | 
+val id : kotlin.String = 507f191e810c19729de860ea // kotlin.String | ID del producto a eliminar
 try {
     apiInstance.eliminar(id)
 } catch (e: ClientException) {
@@ -187,7 +187,7 @@ try {
 ### Parameters
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **id** | **kotlin.String**|  | |
+| **id** | **kotlin.String**| ID del producto a eliminar | |
 
 ### Return type
 
@@ -202,15 +202,15 @@ Configure bearerAuth:
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
-<a id="getProducto"></a>
-# **getProducto**
-> getProducto(id)
+<a id="getProducto1"></a>
+# **getProducto1**
+> getProducto1(id)
 
 Obtener producto por ID
 
-Devuelve los detalles completos de un producto (incluye &#x60;listaMedios&#x60; si existen)
+Devuelve los detalles completos de un producto.  **La respuesta incluye:** - Datos básicos (nombre, descripción, precio, stock) - **tasaIva**: Tasa de IVA en porcentaje (usado para calcular IVA en facturas) - &#x60;listaMedios&#x60;: Array con imágenes (cada una con publicId, secure_url, etc.) - &#x60;specs&#x60;: Objeto con especificaciones técnicas (si existen) - &#x60;tallerId&#x60;: ID del taller propietario (si existe) - &#x60;categoriaId&#x60;: ID de la categoría (si existe) 
 
 ### Example
 ```kotlin
@@ -221,12 +221,12 @@ Devuelve los detalles completos de un producto (incluye &#x60;listaMedios&#x60; 
 val apiInstance = ProductosApi()
 val id : kotlin.String = 507f191e810c19729de860ea // kotlin.String | ID del producto
 try {
-    apiInstance.getProducto(id)
+    apiInstance.getProducto1(id)
 } catch (e: ClientException) {
-    println("4xx response calling ProductosApi#getProducto")
+    println("4xx response calling ProductosApi#getProducto1")
     e.printStackTrace()
 } catch (e: ServerException) {
-    println("5xx response calling ProductosApi#getProducto")
+    println("5xx response calling ProductosApi#getProducto1")
     e.printStackTrace()
 }
 ```
@@ -251,9 +251,9 @@ Configure bearerAuth:
  - **Content-Type**: Not defined
  - **Accept**: application/json
 
-<a id="listar"></a>
-# **listar**
-> listar(q, categoriaId, tallerId, page, size)
+<a id="listar1"></a>
+# **listar1**
+> listar1(q, categoriaId, tallerId, page, size)
 
 Listar productos
 
@@ -272,12 +272,12 @@ val tallerId : kotlin.String = 507f1f77bcf86cd799439777 // kotlin.String | ID de
 val page : kotlin.Int = 0 // kotlin.Int | Número de página (base 0)
 val size : kotlin.Int = 20 // kotlin.Int | Cantidad de elementos por página
 try {
-    apiInstance.listar(q, categoriaId, tallerId, page, size)
+    apiInstance.listar1(q, categoriaId, tallerId, page, size)
 } catch (e: ClientException) {
-    println("4xx response calling ProductosApi#listar")
+    println("4xx response calling ProductosApi#listar1")
     e.printStackTrace()
 } catch (e: ServerException) {
-    println("5xx response calling ProductosApi#listar")
+    println("5xx response calling ProductosApi#listar1")
     e.printStackTrace()
 }
 ```

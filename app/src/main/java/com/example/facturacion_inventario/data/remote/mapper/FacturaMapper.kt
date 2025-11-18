@@ -41,9 +41,12 @@ object FacturaMapper {
      */
     private fun toDomainCliente(dto: ClienteEmbebidoDto): ClienteEmbebido {
         return ClienteEmbebido(
+            id = dto.id,
+            username = dto.username,
+            email = dto.email,
             nombre = dto.nombre,
-            documento = dto.documento,
-            direccion = dto.direccion
+            apellido = dto.apellido,
+            fechaCreacion = dto.fechaCreacion
         )
     }
 
@@ -53,8 +56,16 @@ object FacturaMapper {
     private fun toDomainItem(dto: FacturaItemDto): FacturaItem {
         return FacturaItem(
             productoId = dto.productoId,
+            nombreProducto = dto.nombreProducto,
+            codigoProducto = dto.codigoProducto,
             cantidad = dto.cantidad,
-            precioUnitario = dto.precioUnitario
+            precioUnitario = dto.precioUnitario,
+            descuento = dto.descuento,
+            baseImponible = dto.baseImponible,
+            tasaIva = dto.tasaIva,
+            valorIva = dto.valorIva,
+            subtotal = dto.subtotal,
+            totalItem = dto.totalItem
         )
     }
 }

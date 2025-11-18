@@ -7,7 +7,8 @@ All URIs are relative to *http://localhost*
 | [**adjust**](StockApi.md#adjust) | **POST** /api/stock/adjust | Ajustar stock (delta) |
 | [**delete**](StockApi.md#delete) | **DELETE** /api/stock | Eliminar registro de stock |
 | [**getByProducto**](StockApi.md#getByProducto) | **GET** /api/stock | Obtener stock por producto |
-| [**set**](StockApi.md#set) | **PUT** /api/stock/set | Setear stock |
+| [**getByProductoPath**](StockApi.md#getByProductoPath) | **GET** /api/stock/{productoId} | Obtener stock por producto (ruta alternativa) |
+| [**set**](StockApi.md#set) | **POST** /api/stock/set | Setear stock |
 
 
 <a id="adjust"></a>
@@ -108,11 +109,11 @@ Configure bearerAuth:
 
 <a id="getByProducto"></a>
 # **getByProducto**
-> getByProducto(productoId)
+> getByProducto(productoId, almacenId)
 
 Obtener stock por producto
 
-Devuelve el stock disponible de un producto desglosado por almacén y el total consolidado
+Devuelve el stock disponible de un producto desglosado por almacén y el total consolidado. Si se envía almacenId, incluye además la cantidad específica en ese almacén.
 
 ### Example
 ```kotlin
@@ -122,8 +123,9 @@ Devuelve el stock disponible de un producto desglosado por almacén y el total c
 
 val apiInstance = StockApi()
 val productoId : kotlin.String = 507f191e810c19729de860ea // kotlin.String | ID del producto
+val almacenId : kotlin.String = 507faaa1bcf86cd799439011 // kotlin.String | ID del almacén (opcional)
 try {
-    apiInstance.getByProducto(productoId)
+    apiInstance.getByProducto(productoId, almacenId)
 } catch (e: ClientException) {
     println("4xx response calling StockApi#getByProducto")
     e.printStackTrace()
@@ -134,9 +136,10 @@ try {
 ```
 
 ### Parameters
+| **productoId** | **kotlin.String**| ID del producto | |
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **productoId** | **kotlin.String**| ID del producto | |
+| **almacenId** | **kotlin.String**| ID del almacén (opcional) | [optional] |
 
 ### Return type
 
@@ -152,6 +155,56 @@ Configure bearerAuth:
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
+
+<a id="getByProductoPath"></a>
+# **getByProductoPath**
+> kotlin.Any getByProductoPath(productoId, almacenId)
+
+Obtener stock por producto (ruta alternativa)
+
+Variante con path param para facilitar proxys. Acepta query almacenId opcional.
+
+### Example
+```kotlin
+// Import classes:
+//import org.openapitools.client.infrastructure.*
+//import org.openapitools.client.models.*
+
+val apiInstance = StockApi()
+val productoId : kotlin.String = 507f191e810c19729de860ea // kotlin.String | ID del producto
+val almacenId : kotlin.String = 507faaa1bcf86cd799439011 // kotlin.String | ID del almacén (opcional)
+try {
+    val result : kotlin.Any = apiInstance.getByProductoPath(productoId, almacenId)
+    println(result)
+} catch (e: ClientException) {
+    println("4xx response calling StockApi#getByProductoPath")
+    e.printStackTrace()
+} catch (e: ServerException) {
+    println("5xx response calling StockApi#getByProductoPath")
+    e.printStackTrace()
+}
+```
+
+### Parameters
+| **productoId** | **kotlin.String**| ID del producto | |
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **almacenId** | **kotlin.String**| ID del almacén (opcional) | [optional] |
+
+### Return type
+
+[**kotlin.Any**](kotlin.Any.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
 
 <a id="set"></a>
 # **set**

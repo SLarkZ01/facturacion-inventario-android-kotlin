@@ -36,6 +36,24 @@ interface FacturaApiService {
     ): Response<FacturaResponse>
 
     /**
+     * POST /api/facturas/borrador
+     * Crea una factura en estado BORRADOR (cotización sin descontar stock)
+     * Requiere autenticación JWT
+     *
+     * @param request FacturaRequest con los items y datos del cliente
+     * @return Response con la factura creada en estado BORRADOR
+     *
+     * Ventajas:
+     * - NO descuenta stock automáticamente
+     * - Permite negociación de precios
+     * - Se puede emitir posteriormente desde Next.js
+     */
+    @POST("api/facturas/borrador")
+    suspend fun crearBorrador(
+        @Body request: com.example.facturacion_inventario.data.remote.model.FacturaRequest
+    ): Response<FacturaResponse>
+
+    /**
      * GET /api/facturas?userId={id}
      * Lista todas las facturas de un usuario
      *

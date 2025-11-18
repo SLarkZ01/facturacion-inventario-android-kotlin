@@ -78,6 +78,7 @@ object RetrofitClient {
         val headersForLog = headerNames.filter { !it.equals("Authorization", true) }
             .joinToString(",") { name -> "$name=${newReq.header(name)}" }
         Log.d(TAG, "Request to $path headers=$headersForLog")
+
         chain.proceed(newReq)
     }
 
